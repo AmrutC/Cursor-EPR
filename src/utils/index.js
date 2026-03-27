@@ -55,16 +55,16 @@ export function numWords(n) {
 // ── STATUS COLOURS ────────────────────────────────────────────────────────
 export const UNIT_STATUS_COLORS = {
   Available:        { bg: '#E8F5EE', text: '#15622E', dot: '#15A34A' },
-  Blocked:          { bg: '#F3F4F6', text: '#4B5563', dot: '#9CA3AF' },
-  Booked:           { bg: '#EEF4FF', text: '#1D4ED8', dot: '#3B82F6' },
-  'Agreement Done': { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
-  Registered:       { bg: '#EDE9FE', text: '#5B21B6', dot: '#8B5CF6' },
+  Blocked:          { bg: '#F9F9F9', text: '#4B5675', dot: '#99A1B7' },
+  Booked:           { bg: '#EEF4FF', text: '#1B84FF', dot: '#3B82F6' },
+  'Agreement Done': { bg: '#FFF8DD', text: '#9A6700', dot: '#F59E0B' },
+  Registered:       { bg: '#F1E8FF', text: '#5B21B6', dot: '#8B5CF6' },
   'Possession Given':{ bg:'#E1F5EE', text:'#0F6E56', dot: '#0D9488' },
-  Cancelled:        { bg: '#FEE2E2', text: '#991B1B', dot: '#EF4444' },
+  Cancelled:        { bg: '#FFE2E5', text: '#991B1B', dot: '#EF4444' },
 };
 
 export function unitStatusBadge(status) {
-  const c = UNIT_STATUS_COLORS[status] || { bg: '#F3F4F6', text: '#4B5563' };
+  const c = UNIT_STATUS_COLORS[status] || { bg: '#F9F9F9', text: '#4B5675' };
   return { background: c.bg, color: c.text };
 }
 

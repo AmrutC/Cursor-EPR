@@ -5,21 +5,21 @@ import Badge from '../ui/Badge';
 import Modal from '../ui/Modal';
 import { Plus, Edit2, Upload, Building2, User, CreditCard, Settings, FileText, Lock } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #D1D5DB', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
-const inpE = { ...inp, border:'1px solid #EF4444', background:'#FFF5F5' };
+const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
   <div style={{ gridColumn:span?`span ${span}`:undefined }}>
-    <label style={{ display:'block', fontSize:10, fontWeight:700, color:'#4B5563', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>
-      {label}{required&&<span style={{ color:'#DC2626', marginLeft:2 }}>*</span>}
+    <label style={{ display:'block', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>
+      {label}{required&&<span style={{ color:'#F8285A', marginLeft:2 }}>*</span>}
     </label>
     {children}
-    {error&&<div style={{ fontSize:11, color:'#DC2626', marginTop:3 }}>{error}</div>}
+    {error&&<div style={{ fontSize:11, color:'#F8285A', marginTop:3 }}>{error}</div>}
   </div>
 );
 
 const ROLES = Object.keys(ROLE_LABELS);
-const ROLE_COLORS = { super_admin:{bg:'#FEE2E2',text:'#7F1D1D'}, director:{bg:'#EDE9FE',text:'#4C1D95'}, accounts_manager:{bg:'#DBEAFE',text:'#1E3A8A'}, sales_executive:{bg:'#DCFCE7',text:'#14532D'}, hr_manager:{bg:'#CCFBF1',text:'#134E4A'}, broker:{bg:'#FEF3C7',text:'#78350F'}, legal_doc_user:{bg:'#F3F4F6',text:'#374151'} };
+const ROLE_COLORS = { super_admin:{bg:'#FFE2E5',text:'#A10035'}, director:{bg:'#F1E8FF',text:'#5014D0'}, accounts_manager:{bg:'#E1F0FF',text:'#1B84FF'}, sales_executive:{bg:'#E8FFF3',text:'#17C653'}, hr_manager:{bg:'#E4FFF8',text:'#0E9F8A'}, broker:{bg:'#FFF8DD',text:'#9A6700'}, legal_doc_user:{bg:'#F9F9F9',text:'#252F4A'} };
 
 const DOC_TYPES = [
   { code:'BKG', name:'Booking Acknowledgement',     desc:'Sent to allottee after booking is approved' },
@@ -48,9 +48,9 @@ export default function AdminSetup() {
   if (!isAdmin) {
     return (
       <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:80, textAlign:'center' }}>
-        <Lock size={40} style={{ color:'#D1D5DB', marginBottom:16 }}/>
-        <div style={{ fontSize:16, fontWeight:700, color:'#6B7280', marginBottom:8 }}>Access Restricted</div>
-        <div style={{ fontSize:13, color:'#9CA3AF' }}>Admin Setup is accessible only to Super Admin and Director roles.</div>
+        <Lock size={40} style={{ color:'#DBDFE9', marginBottom:16 }}/>
+        <div style={{ fontSize:16, fontWeight:700, color:'#78829D', marginBottom:8 }}>Access Restricted</div>
+        <div style={{ fontSize:13, color:'#99A1B7' }}>Admin Setup is accessible only to Super Admin and Director roles.</div>
       </div>
     );
   }
@@ -121,15 +121,15 @@ export default function AdminSetup() {
   return (
     <div>
       {/* Admin badge */}
-      <div style={{ background:'#EDE9FE', border:'1px solid #C4B5FD', borderRadius:10, padding:'8px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:8, fontSize:12.5, fontWeight:600, color:'#4C1D95' }}>
+      <div style={{ background:'#F1E8FF', border:'1px solid #C4B5FD', borderRadius:10, padding:'8px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:8, fontSize:12.5, fontWeight:600, color:'#5014D0' }}>
         <Lock size={13}/> Admin Setup — Restricted to Super Admin &amp; Director only
       </div>
 
       {/* Tab bar */}
-      <div style={{ display:'flex', gap:3, background:'#F3F4F6', borderRadius:12, padding:4, marginBottom:20, overflowX:'auto' }}>
+      <div style={{ display:'flex', gap:3, background:'#F9F9F9', borderRadius:12, padding:4, marginBottom:20, overflowX:'auto' }}>
         {TABS.map(([id,label,Icon])=>(
           <button key={id} onClick={()=>setTab(id)}
-            style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:7, padding:'8px 0', borderRadius:9, fontSize:12.5, fontWeight:tab===id?700:500, color:tab===id?'#0D1E35':'#6B7280', background:tab===id?'#fff':'transparent', cursor:'pointer', boxShadow:tab===id?'0 1px 3px rgba(0,0,0,0.1)':'', border:'none', flexShrink:0, minWidth:120 }}>
+            style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:7, padding:'8px 0', borderRadius:9, fontSize:12.5, fontWeight:tab===id?700:500, color:tab===id?'#071437':'#78829D', background:tab===id?'#fff':'transparent', cursor:'pointer', boxShadow:tab===id?'0 1px 3px rgba(0,0,0,0.1)':'', border:'none', flexShrink:0, minWidth:120 }}>
             <Icon size={13}/>{label}
           </button>
         ))}
@@ -139,26 +139,26 @@ export default function AdminSetup() {
       {tab==='entities' && (
         <div>
           <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14 }}>
-            <span style={{ fontSize:13, color:'#4B5563' }}>{entities.length} entities</span>
+            <span style={{ fontSize:13, color:'#4B5675' }}>{entities.length} entities</span>
             <button onClick={()=>{ setEForm(EMPTY_ENTITY); setEditId(null); setEntityModal(true); }} className="btn-primary" style={{ fontSize:12.5 }}><Plus size={13}/> Add Entity</button>
           </div>
           {entities.map(e=>(
-            <div key={e.id} style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:14, padding:'18px 20px', marginBottom:12, boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+            <div key={e.id} style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:'18px 20px', marginBottom:12, boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
                 <div>
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
-                    <span style={{ background:'#0D1E35', color:'#F0C040', fontSize:12, fontWeight:800, padding:'2px 10px', borderRadius:6, fontFamily:'monospace' }}>{e.code}</span>
-                    <span style={{ fontSize:16, fontWeight:800, color:'#0D1E35' }}>{e.name}</span>
+                    <span style={{ background:'#071437', color:'#F6C000', fontSize:12, fontWeight:800, padding:'2px 10px', borderRadius:6, fontFamily:'monospace' }}>{e.code}</span>
+                    <span style={{ fontSize:16, fontWeight:800, color:'#071437' }}>{e.name}</span>
                   </div>
-                  <div style={{ fontSize:12, color:'#4B5563' }}>{e.address}</div>
+                  <div style={{ fontSize:12, color:'#4B5675' }}>{e.address}</div>
                 </div>
-                <button onClick={()=>{ setEForm({...e}); setEditId(e.id); setEntityModal(true); }} style={{ background:'#F3F4F6', border:'1px solid #E5E7EB', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'#374151', display:'flex', alignItems:'center', gap:5 }}><Edit2 size={11}/> Edit</button>
+                <button onClick={()=>{ setEForm({...e}); setEditId(e.id); setEntityModal(true); }} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:5 }}><Edit2 size={11}/> Edit</button>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10 }}>
                 {[['GSTIN',e.gstin||'—'],['PAN',e.pan||'—'],['CIN/LLPIN',e.cin_llpin||'—'],['Auth. Signatory',e.authorized_signatory||'—']].map(([l,v])=>(
-                  <div key={l} style={{ background:'#F8FAFC', borderRadius:8, padding:'8px 11px' }}>
-                    <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5563', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:2 }}>{l}</div>
-                    <div style={{ fontSize:12.5, fontWeight:600, color:'#0D1E35', fontFamily:['GSTIN','PAN','CIN/LLPIN'].includes(l)?'monospace':'inherit' }}>{v}</div>
+                  <div key={l} style={{ background:'#FCFCFC', borderRadius:8, padding:'8px 11px' }}>
+                    <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:2 }}>{l}</div>
+                    <div style={{ fontSize:12.5, fontWeight:600, color:'#071437', fontFamily:['GSTIN','PAN','CIN/LLPIN'].includes(l)?'monospace':'inherit' }}>{v}</div>
                   </div>
                 ))}
               </div>
@@ -170,35 +170,35 @@ export default function AdminSetup() {
       {/* USERS */}
       {tab==='users' && (
         <div>
-          <div style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'9px 14px', marginBottom:12, fontSize:12.5, color:'#1E3A8A' }}>
+          <div style={{ background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:10, padding:'9px 14px', marginBottom:12, fontSize:12.5, color:'#1B84FF' }}>
             Users added here can immediately log in. Share the username and password with the team member.
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14 }}>
-            <span style={{ fontSize:13, color:'#4B5563' }}>{(storeUsers||[]).length} custom users (admin &amp; director are built-in)</span>
+            <span style={{ fontSize:13, color:'#4B5675' }}>{(storeUsers||[]).length} custom users (admin &amp; director are built-in)</span>
             <button onClick={()=>{ setUForm(EMPTY_USER); setEditId(null); setUserModal(true); }} className="btn-primary" style={{ fontSize:12.5 }}><Plus size={13}/> Add User</button>
           </div>
-          <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+          <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
-              <thead><tr style={{ background:'#F9FAFB', borderBottom:'2px solid #E5E7EB' }}>
+              <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
                 {['Full Name','Username','Role','Email','Phone','Entity Access','Status',''].map(h=>(
-                  <th key={h} style={{ padding:'9px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5563', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap' }}>{h}</th>
+                  <th key={h} style={{ padding:'9px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', whiteSpace:'nowrap' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
                 {(storeUsers||[]).length===0?(
-                  <tr><td colSpan={8} style={{ padding:'40px 14px', textAlign:'center', fontSize:13, color:'#9CA3AF' }}>No custom users added yet. Admin and Director are built-in.</td></tr>
+                  <tr><td colSpan={8} style={{ padding:'40px 14px', textAlign:'center', fontSize:13, color:'#99A1B7' }}>No custom users added yet. Admin and Director are built-in.</td></tr>
                 ):(storeUsers||[]).map((u,i)=>{
-                  const rc = ROLE_COLORS[u.role]||{bg:'#F3F4F6',text:'#374151'};
+                  const rc = ROLE_COLORS[u.role]||{bg:'#F9F9F9',text:'#252F4A'};
                   return (
-                    <tr key={u.id} style={{ borderBottom:'1px solid #F3F4F6', background:i%2===0?'#fff':'#FAFAFA' }}>
-                      <td style={{ padding:'10px 14px', fontSize:13, fontWeight:700, color:'#0D1E35' }}>{u.full_name}</td>
-                      <td style={{ padding:'10px 14px', fontSize:12, fontFamily:'monospace', color:'#374151' }}>{u.username}</td>
+                    <tr key={u.id} style={{ borderBottom:'1px solid #F9F9F9', background:i%2===0?'#fff':'#FCFCFC' }}>
+                      <td style={{ padding:'10px 14px', fontSize:13, fontWeight:700, color:'#071437' }}>{u.full_name}</td>
+                      <td style={{ padding:'10px 14px', fontSize:12, fontFamily:'monospace', color:'#252F4A' }}>{u.username}</td>
                       <td style={{ padding:'10px 14px' }}><span style={{ background:rc.bg, color:rc.text, fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:12 }}>{ROLE_LABELS[u.role]||u.role}</span></td>
-                      <td style={{ padding:'10px 14px', fontSize:12.5, color:'#374151' }}>{u.email||'—'}</td>
-                      <td style={{ padding:'10px 14px', fontSize:12.5, color:'#374151' }}>{u.phone||'—'}</td>
-                      <td style={{ padding:'10px 14px', fontSize:12, color:'#374151' }}>{Array.isArray(u.entity_access)?u.entity_access.map(id=>['','VEH','VL','ME'][id]||id).join(', '):'All'}</td>
+                      <td style={{ padding:'10px 14px', fontSize:12.5, color:'#252F4A' }}>{u.email||'—'}</td>
+                      <td style={{ padding:'10px 14px', fontSize:12.5, color:'#252F4A' }}>{u.phone||'—'}</td>
+                      <td style={{ padding:'10px 14px', fontSize:12, color:'#252F4A' }}>{Array.isArray(u.entity_access)?u.entity_access.map(id=>['','VEH','VL','ME'][id]||id).join(', '):'All'}</td>
                       <td style={{ padding:'10px 14px' }}><Badge value={u.is_active!==false?'Active':'Inactive'}/></td>
-                      <td style={{ padding:'10px 14px' }}><button onClick={()=>{ setUForm({...u,password:''}); setEditId(u.id); setUserModal(true); }} style={{ background:'#F3F4F6', border:'1px solid #E5E7EB', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#374151' }}>Edit</button></td>
+                      <td style={{ padding:'10px 14px' }}><button onClick={()=>{ setUForm({...u,password:''}); setEditId(u.id); setUserModal(true); }} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#252F4A' }}>Edit</button></td>
                     </tr>
                   );
                 })}
@@ -212,26 +212,26 @@ export default function AdminSetup() {
       {tab==='banks' && (
         <div>
           <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14 }}>
-            <span style={{ fontSize:13, color:'#4B5563' }}>{banks.length} bank accounts</span>
+            <span style={{ fontSize:13, color:'#4B5675' }}>{banks.length} bank accounts</span>
             <button onClick={()=>{ setBForm(EMPTY_BANK); setEditId(null); setBankModal(true); }} className="btn-primary" style={{ fontSize:12.5 }}><Plus size={13}/> Add Bank Account</button>
           </div>
           {banks.map(b=>(
-            <div key={b.id} style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:14, padding:'18px 20px', marginBottom:12, boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+            <div key={b.id} style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:'18px 20px', marginBottom:12, boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
                 <div>
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
-                    <span style={{ fontSize:15, fontWeight:800, color:'#0D1E35' }}>{b.bank_name}</span>
-                    {b.is_primary&&<span style={{ background:'#DCFCE7', color:'#14532D', fontSize:10, fontWeight:700, padding:'1px 7px', borderRadius:10 }}>PRIMARY</span>}
+                    <span style={{ fontSize:15, fontWeight:800, color:'#071437' }}>{b.bank_name}</span>
+                    {b.is_primary&&<span style={{ background:'#E8FFF3', color:'#17C653', fontSize:10, fontWeight:700, padding:'1px 7px', borderRadius:10 }}>PRIMARY</span>}
                   </div>
-                  <div style={{ fontSize:12, color:'#4B5563' }}>{b.branch} · {b.account_type} · {b.entity_code}</div>
+                  <div style={{ fontSize:12, color:'#4B5675' }}>{b.branch} · {b.account_type} · {b.entity_code}</div>
                 </div>
-                <button onClick={()=>{ setBForm({...b}); setEditId(b.id); setBankModal(true); }} style={{ background:'#F3F4F6', border:'1px solid #E5E7EB', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'#374151', display:'flex', alignItems:'center', gap:5 }}><Edit2 size={11}/> Edit</button>
+                <button onClick={()=>{ setBForm({...b}); setEditId(b.id); setBankModal(true); }} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:5 }}><Edit2 size={11}/> Edit</button>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
                 {[['Account No.',b.account_no],['IFSC Code',b.ifsc],['Account Type',b.account_type]].map(([l,v])=>(
-                  <div key={l} style={{ background:'#F8FAFC', borderRadius:8, padding:'8px 11px' }}>
-                    <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5563', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:2 }}>{l}</div>
-                    <div style={{ fontSize:13, fontWeight:600, color:'#0D1E35', fontFamily:'monospace' }}>{v||'—'}</div>
+                  <div key={l} style={{ background:'#FCFCFC', borderRadius:8, padding:'8px 11px' }}>
+                    <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:2 }}>{l}</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:'#071437', fontFamily:'monospace' }}>{v||'—'}</div>
                   </div>
                 ))}
               </div>
@@ -244,20 +244,20 @@ export default function AdminSetup() {
       {tab==='templates' && (
         <div>
           <div style={{ marginBottom:14 }}>
-            <div style={{ fontSize:13, color:'#4B5563', marginBottom:4 }}>Upload Word (.docx) templates for each document type. The system will merge allottee and project data into the template when generating documents.</div>
+            <div style={{ fontSize:13, color:'#4B5675', marginBottom:4 }}>Upload Word (.docx) templates for each document type. The system will merge allottee and project data into the template when generating documents.</div>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
             {templates.map((t,i)=>(
-              <div key={t.code} style={{ background:'#fff', border:`1px solid ${t.uploaded?'#86EFAC':'#E5E7EB'}`, borderRadius:12, padding:'14px 16px', display:'flex', alignItems:'center', gap:12, boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
-                <div style={{ width:40, height:40, borderRadius:9, background:t.uploaded?'#DCFCE7':'#F3F4F6', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <FileText size={18} style={{ color:t.uploaded?'#15803D':'#9CA3AF' }}/>
+              <div key={t.code} style={{ background:'#fff', border:`1px solid ${t.uploaded?'#A2E8BA':'#F1F1F4'}`, borderRadius:12, padding:'14px 16px', display:'flex', alignItems:'center', gap:12, boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ width:40, height:40, borderRadius:9, background:t.uploaded?'#E8FFF3':'#F9F9F9', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <FileText size={18} style={{ color:t.uploaded?'#17C653':'#99A1B7' }}/>
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:11, fontFamily:'monospace', fontWeight:700, color:t.uploaded?'#14532D':'#374151', marginBottom:2 }}>{t.code}</div>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#0D1E35', marginBottom:2 }}>{t.name}</div>
-                  <div style={{ fontSize:11, color:'#6B7280' }}>{t.uploaded?t.file_name:t.desc}</div>
+                  <div style={{ fontSize:11, fontFamily:'monospace', fontWeight:700, color:t.uploaded?'#17C653':'#252F4A', marginBottom:2 }}>{t.code}</div>
+                  <div style={{ fontSize:13, fontWeight:700, color:'#071437', marginBottom:2 }}>{t.name}</div>
+                  <div style={{ fontSize:11, color:'#78829D' }}>{t.uploaded?t.file_name:t.desc}</div>
                 </div>
-                <button onClick={()=>simulateUpload(i)} style={{ background:t.uploaded?'#F3F4F6':'#0D1E35', color:t.uploaded?'#374151':'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, fontWeight:600, display:'flex', alignItems:'center', gap:5, flexShrink:0 }}>
+                <button onClick={()=>simulateUpload(i)} style={{ background:t.uploaded?'#F9F9F9':'#071437', color:t.uploaded?'#252F4A':'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, fontWeight:600, display:'flex', alignItems:'center', gap:5, flexShrink:0 }}>
                   <Upload size={11}/>{t.uploaded?'Replace':'Upload'}
                 </button>
               </div>
@@ -269,8 +269,8 @@ export default function AdminSetup() {
       {/* SETTINGS */}
       {tab==='settings' && (
         <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-          <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:14, padding:'18px 20px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'#0D1E35', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:14 }}>General Settings</div>
+          <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:'18px 20px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize:12, fontWeight:700, color:'#071437', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:14 }}>General Settings</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:13 }}>
               <F label="Company / Group Name"><input style={inp} value={settings.company_name} onChange={setS('company_name')}/></F>
               <F label="Default GST Rate (%)"><select style={sel} value={settings.default_gst_rate} onChange={setS('default_gst_rate')}><option value="5">5% Standard</option><option value="1">1% Affordable</option></select></F>
@@ -278,15 +278,15 @@ export default function AdminSetup() {
               <F label="Working Days per Month"><input style={inp} type="number" value={settings.working_days} onChange={setS('working_days')}/></F>
             </div>
           </div>
-          <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:14, padding:'18px 20px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'#0D1E35', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:14 }}>Email / SMTP Configuration</div>
+          <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:'18px 20px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize:12, fontWeight:700, color:'#071437', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:14 }}>Email / SMTP Configuration</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:13 }}>
               <F label="SMTP Host"><input style={inp} value={settings.smtp_host} onChange={setS('smtp_host')} placeholder="smtp.office365.com"/></F>
               <F label="SMTP Port"><input style={inp} value={settings.smtp_port} onChange={setS('smtp_port')} placeholder="587"/></F>
               <F label="Email Username"><input style={inp} value={settings.smtp_user} onChange={setS('smtp_user')} placeholder="accounts@visiongrroup.in"/></F>
               <F label="App Password"><input style={inp} type="password" value={settings.smtp_pass} onChange={setS('smtp_pass')} placeholder="Microsoft 365 App Password"/></F>
             </div>
-            <div style={{ marginTop:10, background:'#EAF0F8', borderRadius:8, padding:'9px 12px', fontSize:12, color:'#1E3A8A' }}>Go to Microsoft account → Security → App passwords to generate an app password for Outlook.</div>
+            <div style={{ marginTop:10, background:'#F1F1F4', borderRadius:8, padding:'9px 12px', fontSize:12, color:'#1B84FF' }}>Go to Microsoft account → Security → App passwords to generate an app password for Outlook.</div>
           </div>
           <button onClick={()=>addToast('Settings saved.','success')} className="btn-primary" style={{ alignSelf:'flex-start', fontSize:13 }}>Save All Settings</button>
         </div>
@@ -318,7 +318,7 @@ export default function AdminSetup() {
           <F label="Entity"><select style={sel} value={bForm.entity_code} onChange={setB('entity_code')}><option>VEH</option><option>VL</option><option>ME</option></select></F>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <input type="checkbox" id="primary" checked={bForm.is_primary} onChange={e=>setBForm(f=>({...f,is_primary:e.target.checked}))} style={{ width:15, height:15, cursor:'pointer' }}/>
-            <label htmlFor="primary" style={{ fontSize:13, fontWeight:600, color:'#374151', cursor:'pointer' }}>Set as primary account</label>
+            <label htmlFor="primary" style={{ fontSize:13, fontWeight:600, color:'#252F4A', cursor:'pointer' }}>Set as primary account</label>
           </div>
         </div>
       </Modal>

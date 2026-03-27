@@ -1,15 +1,15 @@
 import React from 'react';
 
 const COLOR_MAP = {
-  navy:   { value: '#0D1E35', bg: '#EAF0F8', border: '#C5D5E8' },
-  green:  { value: '#14532D', bg: '#DCFCE7', border: '#86EFAC' },
-  red:    { value: '#7F1D1D', bg: '#FEE2E2', border: '#FCA5A5' },
-  amber:  { value: '#78350F', bg: '#FEF3C7', border: '#FCD34D' },
-  blue:   { value: '#1E3A8A', bg: '#DBEAFE', border: '#93C5FD' },
-  purple: { value: '#4C1D95', bg: '#EDE9FE', border: '#C4B5FD' },
-  teal:   { value: '#134E4A', bg: '#CCFBF1', border: '#5EEAD4' },
-  gray:   { value: '#374151', bg: '#F3F4F6', border: '#D1D5DB' },
-  gold:   { value: '#78350F', bg: '#FEF3C7', border: '#FCD34D' },
+  navy:   { value: '#071437', bg: '#F1F1F4', border: '#DBDFE9' },
+  green:  { value: '#17C653', bg: '#E8FFF3', border: '#A2E8BA' },
+  red:    { value: '#A10035', bg: '#FFE2E5', border: '#FCA9BD' },
+  amber:  { value: '#9A6700', bg: '#FFF8DD', border: '#F6C000' },
+  blue:   { value: '#1B84FF', bg: '#E1F0FF', border: '#A4CEFF' },
+  purple: { value: '#5014D0', bg: '#F1E8FF', border: '#C4B5FD' },
+  teal:   { value: '#0E9F8A', bg: '#E4FFF8', border: '#8EE8D2' },
+  gray:   { value: '#252F4A', bg: '#F9F9F9', border: '#DBDFE9' },
+  gold:   { value: '#9A6700', bg: '#FFF8DD', border: '#F6C000' },
 };
 
 export default function StatCard({ label, value, sub, color = 'navy', icon: Icon }) {
@@ -18,7 +18,7 @@ export default function StatCard({ label, value, sub, color = 'navy', icon: Icon
   return (
     <div style={{
       background: '#FFFFFF',
-      border: '1px solid #E5E7EB',
+      border: '1px solid #F1F1F4',
       borderRadius: 12,
       padding: '14px 16px',
       display: 'flex',
@@ -34,7 +34,7 @@ export default function StatCard({ label, value, sub, color = 'navy', icon: Icon
           textTransform: 'uppercase',
           letterSpacing: '0.6px',
           // Dark enough to read on white background
-          color: '#4B5563',
+          color: '#4B5675',
         }}>
           {label}
         </span>
@@ -67,7 +67,7 @@ export default function StatCard({ label, value, sub, color = 'navy', icon: Icon
       {sub && (
         <div style={{
           fontSize: 11,
-          color: '#6B7280',  // readable gray, not too light
+          color: '#78829D',  // readable gray, not too light
           marginTop: 1,
         }}>
           {sub}

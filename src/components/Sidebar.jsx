@@ -23,8 +23,8 @@ const LABELS = {
 
 const DEPT_GROUPS = [
   { label: 'Overview', color: '#f6c000', items: ['dashboard'] },
-  { label: 'Sales', color: '#1b84ff', items: ['crm', 'inventory', 'bookings'] },
-  { label: 'Finance', color: '#17c653', items: ['payments', 'accounts', 'gst'] },
+  { label: 'Sales', color: '#1B84FF', items: ['crm', 'inventory', 'bookings'] },
+  { label: 'Finance', color: '#17C653', items: ['payments', 'accounts', 'gst'] },
   { label: 'Construction', color: '#7239ea', items: ['vendors', 'documents'] },
   { label: 'HR', color: '#0f9e8a', items: ['hr', 'brokerage'] },
   { label: 'Management', color: '#f8285a', items: ['mis', 'audit', 'communication', 'admin'] },

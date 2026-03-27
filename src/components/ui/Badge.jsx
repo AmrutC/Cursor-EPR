@@ -3,67 +3,67 @@ import React from 'react';
 // Every badge: dark text on tinted background — readable on both white cards and gray backgrounds
 const STYLES = {
   // Unit status
-  'Available':          { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'Blocked':            { bg: '#F3F4F6', text: '#374151', border: '#D1D5DB' },
-  'Booked':             { bg: '#DBEAFE', text: '#1E3A8A', border: '#93C5FD' },
-  'Agreement Done':     { bg: '#FEF3C7', text: '#78350F', border: '#FCD34D' },
-  'Registered':         { bg: '#EDE9FE', text: '#4C1D95', border: '#C4B5FD' },
-  'Possession Given':   { bg: '#CCFBF1', text: '#134E4A', border: '#5EEAD4' },
-  'Cancelled':          { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
+  'Available':          { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'Blocked':            { bg: '#F9F9F9', text: '#252F4A', border: '#DBDFE9' },
+  'Booked':             { bg: '#E1F0FF', text: '#1B84FF', border: '#A4CEFF' },
+  'Agreement Done':     { bg: '#FFF8DD', text: '#9A6700', border: '#F6C000' },
+  'Registered':         { bg: '#F1E8FF', text: '#5014D0', border: '#C4B5FD' },
+  'Possession Given':   { bg: '#E4FFF8', text: '#0E9F8A', border: '#8EE8D2' },
+  'Cancelled':          { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
 
   // Payment / milestone
-  'Paid':               { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'Part Paid':          { bg: '#DBEAFE', text: '#1E3A8A', border: '#93C5FD' },
-  'Pending':            { bg: '#F3F4F6', text: '#374151', border: '#D1D5DB' },
-  'Overdue':            { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
-  'Demand Issued':      { bg: '#FEF3C7', text: '#78350F', border: '#FCD34D' },
-  'Unpaid':             { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
+  'Paid':               { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'Part Paid':          { bg: '#E1F0FF', text: '#1B84FF', border: '#A4CEFF' },
+  'Pending':            { bg: '#F9F9F9', text: '#252F4A', border: '#DBDFE9' },
+  'Overdue':            { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
+  'Demand Issued':      { bg: '#FFF8DD', text: '#9A6700', border: '#F6C000' },
+  'Unpaid':             { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
 
   // Project status
-  'Under Construction': { bg: '#FEF3C7', text: '#78350F', border: '#FCD34D' },
-  'Planning':           { bg: '#DBEAFE', text: '#1E3A8A', border: '#93C5FD' },
-  'Completed':          { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'On Hold':            { bg: '#F3F4F6', text: '#374151', border: '#D1D5DB' },
+  'Under Construction': { bg: '#FFF8DD', text: '#9A6700', border: '#F6C000' },
+  'Planning':           { bg: '#E1F0FF', text: '#1B84FF', border: '#A4CEFF' },
+  'Completed':          { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'On Hold':            { bg: '#F9F9F9', text: '#252F4A', border: '#DBDFE9' },
 
   // People / accounts
-  'Active':             { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'Inactive':           { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
-  'Contract':           { bg: '#EDE9FE', text: '#4C1D95', border: '#C4B5FD' },
+  'Active':             { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'Inactive':           { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
+  'Contract':           { bg: '#F1E8FF', text: '#5014D0', border: '#C4B5FD' },
 
   // RERA
-  'Yes':                { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'No':                 { bg: '#F3F4F6', text: '#374151', border: '#D1D5DB' },
-  'Exempt':             { bg: '#FEF3C7', text: '#78350F', border: '#FCD34D' },
+  'Yes':                { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'No':                 { bg: '#F9F9F9', text: '#252F4A', border: '#DBDFE9' },
+  'Exempt':             { bg: '#FFF8DD', text: '#9A6700', border: '#F6C000' },
 
   // KYC
-  'Received':           { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'Verified':           { bg: '#EDE9FE', text: '#4C1D95', border: '#C4B5FD' },
+  'Received':           { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'Verified':           { bg: '#F1E8FF', text: '#5014D0', border: '#C4B5FD' },
 
   // Bank transactions
-  'Receipt':            { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'Payment':            { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
+  'Receipt':            { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'Payment':            { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
 
   // Lead status
-  'New':                { bg: '#DBEAFE', text: '#1E3A8A', border: '#93C5FD' },
-  'Contacted':          { bg: '#FEF3C7', text: '#78350F', border: '#FCD34D' },
-  'Converted':          { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'Lost':               { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
-  'Negotiation':        { bg: '#EDE9FE', text: '#4C1D95', border: '#C4B5FD' },
-  'Site Visit Done':    { bg: '#CCFBF1', text: '#134E4A', border: '#5EEAD4' },
+  'New':                { bg: '#E1F0FF', text: '#1B84FF', border: '#A4CEFF' },
+  'Contacted':          { bg: '#FFF8DD', text: '#9A6700', border: '#F6C000' },
+  'Converted':          { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'Lost':               { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
+  'Negotiation':        { bg: '#F1E8FF', text: '#5014D0', border: '#C4B5FD' },
+  'Site Visit Done':    { bg: '#E4FFF8', text: '#0E9F8A', border: '#8EE8D2' },
 
   // Credit / Debit
-  'Credit':             { bg: '#DCFCE7', text: '#14532D', border: '#86EFAC' },
-  'Debit':              { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
+  'Credit':             { bg: '#E8FFF3', text: '#17C653', border: '#A2E8BA' },
+  'Debit':              { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
 
   // Brokerage
-  'Partially Paid':     { bg: '#DBEAFE', text: '#1E3A8A', border: '#93C5FD' },
+  'Partially Paid':     { bg: '#E1F0FF', text: '#1B84FF', border: '#A4CEFF' },
 
   // Approvals
-  'Applied':            { bg: '#FEF3C7', text: '#78350F', border: '#FCD34D' },
-  'Expired':            { bg: '#FEE2E2', text: '#7F1D1D', border: '#FCA5A5' },
+  'Applied':            { bg: '#FFF8DD', text: '#9A6700', border: '#F6C000' },
+  'Expired':            { bg: '#FFE2E5', text: '#A10035', border: '#FCA9BD' },
 };
 
-const FALLBACK = { bg: '#F3F4F6', text: '#374151', border: '#D1D5DB' };
+const FALLBACK = { bg: '#F9F9F9', text: '#252F4A', border: '#DBDFE9' };
 
 export default function Badge({ value, size = 'sm' }) {
   const s = STYLES[value] || FALLBACK;

@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppStore } from '../stores/appStore';
 import { Database, Bell } from 'lucide-react';
 
-export default function Topbar({ title, dept, deptColor = '#0D1E35' }) {
+export default function Topbar({ title, dept, deptColor = '#071437' }) {
   const { activeEntity, oneDrivePath, user } = useAppStore();
 
   return (

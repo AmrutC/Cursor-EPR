@@ -89,7 +89,7 @@ export default function Login() {
     setLoading(false);
   }
 
-  const inp = { width:'100%', border:'1px solid #D1D5DB', borderRadius:8, padding:'8px 12px', fontSize:13.5, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+  const inp = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'8px 12px', fontSize:13.5, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 
   return (
     <div className="vg-auth-page">

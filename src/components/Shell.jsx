@@ -26,12 +26,12 @@ function ProjectsAndInventory() {
   const [subTab, setSubTab] = React.useState('projects');
   return (
     <div>
-      <div style={{ display:'flex', gap:3, background:'#F3F4F6', borderRadius:10, padding:3, marginBottom:18, width:'fit-content' }}>
+      <div style={{ display:'flex', gap:3, background:'#F9F9F9', borderRadius:10, padding:3, marginBottom:18, width:'fit-content' }}>
         {[['projects','Projects'],['inventory','Inventory']].map(([id,label])=>(
           <button key={id} onClick={()=>setSubTab(id)}
             style={{ padding:'6px 20px', borderRadius:7, fontSize:12.5, fontWeight:subTab===id?700:500,
-              color:subTab===id?'#0D1E35':'#6B7280', background:subTab===id?'#fff':'transparent',
-              cursor:'pointer', border:subTab===id?'1px solid #E5E7EB':'1px solid transparent',
+              color:subTab===id?'#071437':'#78829D', background:subTab===id?'#fff':'transparent',
+              cursor:'pointer', border:subTab===id?'1px solid #F1F1F4':'1px solid transparent',
               boxShadow:subTab===id?'0 1px 3px rgba(0,0,0,0.08)':'', transition:'all .12s' }}>
             {label}
           </button>
@@ -61,15 +61,15 @@ const SCREENS = {
 };
 
 const DEPT_COLORS = {
-  Overview:'#C9951E', Sales:'#1D4ED8', Finance:'#14532D',
-  Construction:'#7C3AED', HR:'#0F766E', Management:'#DC2626',
+  Overview:'#F6C000', Sales:'#1B84FF', Finance:'#17C653',
+  Construction:'#7239EA', HR:'#0E9F8A', Management:'#F8285A',
 };
 
 export default function Shell() {
   const { activeModule, user, toasts } = useAppStore();
   const screen = SCREENS[activeModule] || SCREENS.dashboard;
   const Screen = screen.component;
-  const deptColor = DEPT_COLORS[screen.dept] || '#0D1E35';
+  const deptColor = DEPT_COLORS[screen.dept] || '#071437';
 
   return (
     <div className="vg-shell">

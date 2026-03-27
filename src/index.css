@@ -21,8 +21,8 @@
   /* Scrollbar */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: #F0F4F8; }
-  ::-webkit-scrollbar-thumb { background: #9CA3AF; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #6B7280; }
+  ::-webkit-scrollbar-thumb { background: #99A1B7; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #78829D; }
 
   /* All inputs/selects have dark readable text */
   input, select, textarea, button {
@@ -31,7 +31,7 @@
   }
 
   /* Placeholder text — mid gray, not too light */
-  ::placeholder { color: #6B7280; opacity: 1; }
+  ::placeholder { color: #78829D; opacity: 1; }
 }
 
 @layer components {
@@ -303,21 +303,21 @@
 /* ── RECHARTS OVERRIDES ───────────────────────────────────────────────────── */
 .recharts-default-tooltip {
   border-radius: 10px !important;
-  border: 1px solid #E5E7EB !important;
+  border: 1px solid #F1F1F4 !important;
   font-size: 12px !important;
   font-family: 'Inter', system-ui !important;
   color: #111827 !important;
 }
 .recharts-tooltip-label {
   font-weight: 700 !important;
-  color: #0D1E35 !important;
+  color: #071437 !important;
 }
 .recharts-cartesian-axis-tick-value {
   font-size: 11px !important;
-  fill: #4B5563 !important;
+  fill: #4B5675 !important;
 }
 .recharts-legend-item-text {
-  color: #374151 !important;
+  color: #252F4A !important;
   font-size: 12px !important;
 }
 
@@ -334,7 +334,7 @@
   height: 100vh;
   display: flex;
   overflow: hidden;
-  background: #f5f8fa;
+  background: #F5F8FA;
 }
 
 .vg-shell-main {
@@ -378,7 +378,7 @@
 .vg-topbar {
   height: 62px;
   background: #fff;
-  border-bottom: 1px solid #f1f1f4;
+  border-bottom: 1px solid #F1F1F4;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -401,7 +401,7 @@
 
 .vg-breadcrumb {
   font-size: 0.7rem;
-  color: #99a1b7;
+  color: #99A1B7;
   line-height: 1;
 }
 
@@ -417,7 +417,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid #f1f1f4;
+  border: 1px solid #F1F1F4;
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
   color: #4b5675;
@@ -458,7 +458,7 @@
   align-items: center;
   gap: 0.4rem;
   background: #f9f9f9;
-  border: 1px solid #f1f1f4;
+  border: 1px solid #F1F1F4;
   border-radius: 999px;
   padding: 0.15rem 0.45rem 0.15rem 0.2rem;
 }
@@ -488,7 +488,7 @@
 
 .vg-user-meta small {
   font-size: 0.62rem;
-  color: #99a1b7;
+  color: #99A1B7;
   text-transform: capitalize;
 }
 
@@ -537,7 +537,7 @@
 }
 
 .vg-logo-sub {
-  color: #99a1b7;
+  color: #99A1B7;
   font-size: 0.62rem;
   margin-top: 0.1rem;
 }
@@ -575,7 +575,7 @@
   left: 0.55rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #99a1b7;
+  color: #99A1B7;
 }
 
 .vg-search-wrap .form-control {
@@ -590,7 +590,7 @@
   transform: translateY(-50%);
   border: none;
   background: transparent;
-  color: #99a1b7;
+  color: #99A1B7;
 }
 
 .vg-nav {
@@ -603,7 +603,7 @@
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #99a1b7;
+  color: #99A1B7;
   font-weight: 700;
   margin: 0.35rem 0.5rem 0.2rem;
 }
@@ -618,7 +618,7 @@
   width: 100%;
   border: none;
   background: transparent;
-  color: #99a1b7;
+  color: #99A1B7;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -657,7 +657,7 @@
   width: 100%;
   border: none;
   background: transparent;
-  color: #c4cada;
+  color: #C4CADA;
   text-align: left;
   font-size: 0.68rem;
   padding: 0.25rem 0.1rem;
@@ -688,12 +688,12 @@
 }
 
 .vg-splash.light {
-  background: #f5f8fa;
+  background: #F5F8FA;
 }
 
 .vg-splash-card {
   background: #fff;
-  border: 1px solid #f1f1f4;
+  border: 1px solid #F1F1F4;
   border-radius: 1rem;
   padding: 1.4rem 1.8rem;
   min-width: 280px;
@@ -758,7 +758,7 @@
 }
 
 .vg-auth-sub {
-  color: #99a1b7;
+  color: #99A1B7;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -780,13 +780,13 @@
 
 .vg-auth-copy li {
   font-size: 0.86rem;
-  color: #c4cada;
+  color: #C4CADA;
   margin-bottom: 0.4rem;
 }
 
 .vg-auth-copy li::before {
   content: "•";
-  color: #17c653;
+  color: #17C653;
   margin-right: 0.4rem;
 }
 
@@ -800,7 +800,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  color: #c4cada;
+  color: #C4CADA;
   font-size: 0.84rem;
 }
 
@@ -808,7 +808,7 @@
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: #17c653;
+  background: #17C653;
   flex-shrink: 0;
 }
 
@@ -817,14 +817,14 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: #f5f8fa;
+  background: #F5F8FA;
 }
 
 .vg-auth-card {
   width: 100%;
   max-width: 430px;
   background: #fff;
-  border: 1px solid #f1f1f4;
+  border: 1px solid #F1F1F4;
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 0.5rem 1.5rem 0.4rem rgba(0, 0, 0, 0.06);
@@ -860,7 +860,7 @@
 }
 
 .vg-entity-option.is-selected {
-  border-color: #1b84ff;
+  border-color: #1B84FF;
   background: #eff6ff;
 }
 
@@ -890,7 +890,7 @@
 }
 
 .vg-entity-select.is-active {
-  border-color: #1b84ff;
+  border-color: #1B84FF;
   background: #eff6ff;
 }
 
@@ -940,7 +940,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f8fa;
+  background: #F5F8FA;
   padding: 1.25rem;
 }
 
@@ -948,7 +948,7 @@
   width: 100%;
   max-width: 580px;
   background: #fff;
-  border: 1px solid #f1f1f4;
+  border: 1px solid #F1F1F4;
   border-radius: 1rem;
   box-shadow: 0 0.5rem 1.5rem 0.4rem rgba(0, 0, 0, 0.08);
   padding: 1.4rem 1.5rem;
@@ -1003,7 +1003,7 @@
   width: 100%;
   max-height: 90vh;
   background: #fff;
-  border: 1px solid #f1f1f4;
+  border: 1px solid #F1F1F4;
   border-radius: 0.9rem;
   box-shadow: 0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.14);
   overflow: hidden;
@@ -1016,7 +1016,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.85rem 1rem;
-  border-bottom: 1px solid #f1f1f4;
+  border-bottom: 1px solid #F1F1F4;
 }
 
 .vg-modal-head h2 {
@@ -1032,7 +1032,7 @@
 }
 
 .vg-modal-foot {
-  border-top: 1px solid #f1f1f4;
+  border-top: 1px solid #F1F1F4;
   padding: 0.85rem 1rem;
   display: flex;
   justify-content: flex-end;

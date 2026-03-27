@@ -12,29 +12,29 @@ import {
 
 // ── UI ATOMS ──────────────────────────────────────────────────────────────
 const Card = ({ children, style }) => (
-  <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:14,
+  <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14,
     padding:'16px 18px', boxShadow:'0 1px 4px rgba(0,0,0,0.05)', ...style }}>
     {children}
   </div>
 );
 const SectionTitle = ({ text, action, onAction }) => (
   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-    <div style={{ fontSize:11, fontWeight:700, color:'#4B5563', textTransform:'uppercase', letterSpacing:'0.6px' }}>{text}</div>
-    {action && <button onClick={onAction} style={{ fontSize:11, color:'#1D4ED8', fontWeight:600, background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:3 }}>{action} <ArrowRight size={10}/></button>}
+    <div style={{ fontSize:11, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.6px' }}>{text}</div>
+    {action && <button onClick={onAction} style={{ fontSize:11, color:'#1B84FF', fontWeight:600, background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:3 }}>{action} <ArrowRight size={10}/></button>}
   </div>
 );
-const KPICard = ({ label, value, sub, color='#0D1E35', bg='#F8FAFC', icon:Icon, trend }) => (
-  <div style={{ background:bg, border:'1px solid #E5E7EB', borderRadius:12, padding:'14px 16px', position:'relative', overflow:'hidden' }}>
+const KPICard = ({ label, value, sub, color='#071437', bg='#FCFCFC', icon:Icon, trend }) => (
+  <div style={{ background:bg, border:'1px solid #F1F1F4', borderRadius:12, padding:'14px 16px', position:'relative', overflow:'hidden' }}>
     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
       <div style={{ flex:1 }}>
-        <div style={{ fontSize:9.5, fontWeight:700, color:'#6B7280', textTransform:'uppercase', letterSpacing:'0.6px', marginBottom:6 }}>{label}</div>
+        <div style={{ fontSize:9.5, fontWeight:700, color:'#78829D', textTransform:'uppercase', letterSpacing:'0.6px', marginBottom:6 }}>{label}</div>
         <div style={{ fontSize:20, fontWeight:800, color, fontFamily:'monospace', lineHeight:1 }}>{value}</div>
-        {sub && <div style={{ fontSize:11, color:'#9CA3AF', marginTop:4 }}>{sub}</div>}
+        {sub && <div style={{ fontSize:11, color:'#99A1B7', marginTop:4 }}>{sub}</div>}
       </div>
       {Icon && <Icon size={20} style={{ color, opacity:0.3 }}/>}
     </div>
     {trend !== undefined && (
-      <div style={{ marginTop:8, fontSize:11, fontWeight:600, color:trend>=0?'#14532D':'#DC2626', display:'flex', alignItems:'center', gap:3 }}>
+      <div style={{ marginTop:8, fontSize:11, fontWeight:600, color:trend>=0?'#17C653':'#F8285A', display:'flex', alignItems:'center', gap:3 }}>
         {trend>=0 ? <TrendingUp size={11}/> : <TrendingDown size={11}/>}
         {Math.abs(trend)}% vs last month
       </div>
@@ -42,7 +42,7 @@ const KPICard = ({ label, value, sub, color='#0D1E35', bg='#F8FAFC', icon:Icon, 
   </div>
 );
 const EmptyState = ({ icon:Icon, msg }) => (
-  <div style={{ padding:'32px 20px', textAlign:'center', color:'#9CA3AF' }}>
+  <div style={{ padding:'32px 20px', textAlign:'center', color:'#99A1B7' }}>
     {Icon && <Icon size={28} style={{ margin:'0 auto 10px', opacity:0.4 }}/>}
     <div style={{ fontSize:13 }}>{msg}</div>
   </div>
@@ -163,12 +163,12 @@ function CollectionChart({ data }) {
       ) : (
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={data} barCategoryGap="30%" barSize={12}>
-            <XAxis dataKey="month" tick={{ fontSize:11, fill:'#4B5563', fontWeight:600 }} axisLine={false} tickLine={false}/>
-            <YAxis tickFormatter={v=>v>=100000?'₹'+(v/100000).toFixed(0)+'L':v>0?'₹'+v:''} tick={{ fontSize:10, fill:'#4B5563' }} axisLine={false} tickLine={false} width={48}/>
-            <Tooltip formatter={v=>[inr(v),'']} labelStyle={{ fontSize:12, fontWeight:700 }} contentStyle={{ borderRadius:10, border:'1px solid #E5E7EB', fontSize:12 }}/>
+            <XAxis dataKey="month" tick={{ fontSize:11, fill:'#4B5675', fontWeight:600 }} axisLine={false} tickLine={false}/>
+            <YAxis tickFormatter={v=>v>=100000?'₹'+(v/100000).toFixed(0)+'L':v>0?'₹'+v:''} tick={{ fontSize:10, fill:'#4B5675' }} axisLine={false} tickLine={false} width={48}/>
+            <Tooltip formatter={v=>[inr(v),'']} labelStyle={{ fontSize:12, fontWeight:700 }} contentStyle={{ borderRadius:10, border:'1px solid #F1F1F4', fontSize:12 }}/>
             <Legend wrapperStyle={{ fontSize:11, fontWeight:600 }} iconType="circle" iconSize={7}/>
-            <Bar dataKey="demanded" name="Demanded" fill="#CBD5E1" radius={[4,4,0,0]}/>
-            <Bar dataKey="received" name="Received"  fill="#0D1E35" radius={[4,4,0,0]}/>
+            <Bar dataKey="demanded" name="Demanded" fill="#C4CADA" radius={[4,4,0,0]}/>
+            <Bar dataKey="received" name="Received"  fill="#071437" radius={[4,4,0,0]}/>
           </BarChart>
         </ResponsiveContainer>
       )}
@@ -179,8 +179,8 @@ function CollectionChart({ data }) {
 // ── UNIT STATUS PANEL ─────────────────────────────────────────────────────
 function UnitStatusPanel({ unitCounts, total }) {
   const STATUS_COLORS = {
-    Available:'#15803D', Booked:'#1D4ED8', 'Agreement Done':'#D97706',
-    Registered:'#7C3AED', 'Possession Given':'#0F766E', Landowner:'#94A3B8',
+    Available:'#17C653', Booked:'#1B84FF', 'Agreement Done':'#F6C000',
+    Registered:'#7239EA', 'Possession Given':'#0E9F8A', Landowner:'#99A1B7',
   };
   return (
     <Card>
@@ -194,18 +194,18 @@ function UnitStatusPanel({ unitCounts, total }) {
             return (
               <div key={status}>
                 <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                  <span style={{ fontSize:12, color:'#374151', fontWeight:600 }}>{status}</span>
-                  <span style={{ fontSize:12, fontWeight:800, color:'#0D1E35' }}>{count}</span>
+                  <span style={{ fontSize:12, color:'#252F4A', fontWeight:600 }}>{status}</span>
+                  <span style={{ fontSize:12, fontWeight:800, color:'#071437' }}>{count}</span>
                 </div>
-                <div style={{ height:6, background:'#F3F4F6', borderRadius:3, overflow:'hidden' }}>
-                  <div style={{ width:`${pct}%`, height:'100%', background:STATUS_COLORS[status]||'#6B7280', borderRadius:3 }}/>
+                <div style={{ height:6, background:'#F9F9F9', borderRadius:3, overflow:'hidden' }}>
+                  <div style={{ width:`${pct}%`, height:'100%', background:STATUS_COLORS[status]||'#78829D', borderRadius:3 }}/>
                 </div>
               </div>
             );
           })}
-          <div style={{ paddingTop:10, borderTop:'1px solid #F3F4F6', display:'flex', justifyContent:'space-between' }}>
-            <span style={{ fontSize:11, color:'#4B5563', fontWeight:600 }}>Total Units</span>
-            <span style={{ fontSize:13, fontWeight:800, color:'#0D1E35' }}>{total}</span>
+          <div style={{ paddingTop:10, borderTop:'1px solid #F9F9F9', display:'flex', justifyContent:'space-between' }}>
+            <span style={{ fontSize:11, color:'#4B5675', fontWeight:600 }}>Total Units</span>
+            <span style={{ fontSize:13, fontWeight:800, color:'#071437' }}>{total}</span>
           </div>
         </div>
       )}
@@ -220,14 +220,14 @@ function DirectorDashboard() {
   const collPct = d.totalAgreement > 0 ? Math.round(d.totalCollected/d.totalAgreement*100) : 0;
 
   const kpis = [
-    { label:'Total Projects',    value:String(d.eProjects.length),   bg:'#EAF0F8', color:'#0D1E35', icon:Building2 },
-    { label:'Approved Bookings', value:String(d.approvedBk.length),  bg:'#DCFCE7', color:'#14532D', icon:Users },
-    { label:'Total Collected',   value:inr(d.totalCollected,true),   bg:'#F0FDF4', color:'#14532D', icon:TrendingUp },
-    { label:'Collection %',      value:collPct+'%',                  bg:'#EEF2FF', color:'#1D4ED8' },
-    { label:'GST This Month',    value:inr(d.gstThisMonth,true),     bg:'#FEF3C7', color:'#78350F' },
-    { label:'Vendor Dues',       value:inr(d.vendorDues,true),       bg:'#FEE2E2', color:'#7F1D1D', icon:TrendingDown },
-    { label:'Overdue Amount',    value:inr(d.overdueAmt,true),       bg:'#FEF2F2', color:'#DC2626', icon:AlertTriangle },
-    { label:'Pending Approvals', value:String(d.pendingApproval.length), bg:'#F5F3FF', color:'#4C1D95' },
+    { label:'Total Projects',    value:String(d.eProjects.length),   bg:'#F1F1F4', color:'#071437', icon:Building2 },
+    { label:'Approved Bookings', value:String(d.approvedBk.length),  bg:'#E8FFF3', color:'#17C653', icon:Users },
+    { label:'Total Collected',   value:inr(d.totalCollected,true),   bg:'#F0FDF4', color:'#17C653', icon:TrendingUp },
+    { label:'Collection %',      value:collPct+'%',                  bg:'#EEF2FF', color:'#1B84FF' },
+    { label:'GST This Month',    value:inr(d.gstThisMonth,true),     bg:'#FFF8DD', color:'#9A6700' },
+    { label:'Vendor Dues',       value:inr(d.vendorDues,true),       bg:'#FFE2E5', color:'#A10035', icon:TrendingDown },
+    { label:'Overdue Amount',    value:inr(d.overdueAmt,true),       bg:'#FFF5F8', color:'#F8285A', icon:AlertTriangle },
+    { label:'Pending Approvals', value:String(d.pendingApproval.length), bg:'#F5F3FF', color:'#5014D0' },
   ];
 
   return (
@@ -239,12 +239,12 @@ function DirectorDashboard() {
 
       {/* Pending approval banner */}
       {d.pendingApproval.length > 0 && (
-        <div style={{ background:'#FEF3C7', border:'1px solid #FCD34D', borderRadius:10, padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <div style={{ fontSize:13, fontWeight:600, color:'#78350F' }}>
+        <div style={{ background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:10, padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div style={{ fontSize:13, fontWeight:600, color:'#9A6700' }}>
             ⚠ {d.pendingApproval.length} booking{d.pendingApproval.length>1?'s':''} pending your approval
           </div>
           <button onClick={()=>setActiveModule('bookings')}
-            style={{ background:'#78350F', color:'#fff', border:'none', borderRadius:7, padding:'5px 14px', cursor:'pointer', fontSize:12, fontWeight:700 }}>
+            style={{ background:'#9A6700', color:'#fff', border:'none', borderRadius:7, padding:'5px 14px', cursor:'pointer', fontSize:12, fontWeight:700 }}>
             Review Now →
           </button>
         </div>
@@ -271,19 +271,19 @@ function DirectorDashboard() {
                 const name = bk?.allottees?.[0]?.name||bk?.allottee||'—';
                 const unit = bk?.unit_no||bk?.flat||'—';
                 return (
-                  <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 12px', borderRadius:10, background:isOverdue?'#FEF2F2':'#F8FAFC', border:`1px solid ${isOverdue?'#FECACA':'#E5E7EB'}` }}>
-                    <div style={{ color:isOverdue?'#DC2626':'#D97706', flexShrink:0 }}>
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 12px', borderRadius:10, background:isOverdue?'#FFF5F8':'#FCFCFC', border:`1px solid ${isOverdue?'#FCA9BD':'#F1F1F4'}` }}>
+                    <div style={{ color:isOverdue?'#F8285A':'#F6C000', flexShrink:0 }}>
                       {isOverdue ? <AlertTriangle size={14}/> : <Clock size={14}/>}
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:12.5, fontWeight:700, color:'#0D1E35', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      <div style={{ fontSize:12.5, fontWeight:700, color:'#071437', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                         Unit {unit} — {name}
                       </div>
-                      <div style={{ fontSize:11, color:'#4B5563', marginTop:1 }}>{m.name} · {proj?.name||'—'}</div>
+                      <div style={{ fontSize:11, color:'#4B5675', marginTop:1 }}>{m.name} · {proj?.name||'—'}</div>
                     </div>
                     <div style={{ textAlign:'right', flexShrink:0 }}>
-                      <div style={{ fontSize:12.5, fontWeight:800, color:'#0D1E35', fontFamily:'monospace' }}>{inr((m.total||0)-(m.paid||0))}</div>
-                      <div style={{ fontSize:10.5, fontWeight:700, color:isOverdue?'#DC2626':'#6B7280', marginTop:1 }}>
+                      <div style={{ fontSize:12.5, fontWeight:800, color:'#071437', fontFamily:'monospace' }}>{inr((m.total||0)-(m.paid||0))}</div>
+                      <div style={{ fontSize:10.5, fontWeight:700, color:isOverdue?'#F8285A':'#78829D', marginTop:1 }}>
                         {isOverdue?'OVERDUE':fmtDate(m.due)}
                       </div>
                     </div>
@@ -306,18 +306,18 @@ function DirectorDashboard() {
                 const unit = p.booking?.unit_no||p.booking?.flat||'—';
                 return (
                   <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:9, background:'#F0FDF4', border:'1px solid #BBF7D0' }}>
-                    <CheckCircle2 size={13} style={{ color:'#15803D', flexShrink:0 }}/>
+                    <CheckCircle2 size={13} style={{ color:'#17C653', flexShrink:0 }}/>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:12, fontWeight:700, color:'#0D1E35', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>Unit {unit} — {name}</div>
-                      <div style={{ fontSize:10.5, color:'#4B5563' }}>{fmtDate(p.date)} · {p.mode}</div>
+                      <div style={{ fontSize:12, fontWeight:700, color:'#071437', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>Unit {unit} — {name}</div>
+                      <div style={{ fontSize:10.5, color:'#4B5675' }}>{fmtDate(p.date)} · {p.mode}</div>
                     </div>
-                    <div style={{ fontSize:12.5, fontWeight:800, color:'#14532D', fontFamily:'monospace', flexShrink:0 }}>{inr(p.amount)}</div>
+                    <div style={{ fontSize:12.5, fontWeight:800, color:'#17C653', fontFamily:'monospace', flexShrink:0 }}>{inr(p.amount)}</div>
                   </div>
                 );
               })}
-              <div style={{ marginTop:4, padding:'7px 10px', background:'#EAF0F8', borderRadius:8, display:'flex', justifyContent:'space-between' }}>
-                <span style={{ fontSize:11.5, color:'#0D1E35', fontWeight:600 }}>Total Collected</span>
-                <span style={{ fontSize:12.5, fontWeight:800, color:'#0D1E35', fontFamily:'monospace' }}>{inr(d.totalCollected)}</span>
+              <div style={{ marginTop:4, padding:'7px 10px', background:'#F1F1F4', borderRadius:8, display:'flex', justifyContent:'space-between' }}>
+                <span style={{ fontSize:11.5, color:'#071437', fontWeight:600 }}>Total Collected</span>
+                <span style={{ fontSize:12.5, fontWeight:800, color:'#071437', fontFamily:'monospace' }}>{inr(d.totalCollected)}</span>
               </div>
             </div>
           )}
@@ -332,10 +332,10 @@ function DirectorDashboard() {
             {d.eVendors.filter(v=>(v.bills||[]).some(b=>b.status!=='Paid')).slice(0,4).map(v=>{
               const due = (v.bills||[]).filter(b=>b.status!=='Paid').reduce((s,b)=>s+((b.net_payable||0)-(b.paid_amount||0)),0);
               return (
-                <div key={v.id} style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:10, padding:'10px 14px' }}>
-                  <div style={{ fontSize:12.5, fontWeight:700, color:'#0D1E35', marginBottom:2 }}>{v.name}</div>
-                  <div style={{ fontSize:11, color:'#6B7280', marginBottom:4 }}>{v.type}</div>
-                  <div style={{ fontSize:14, fontWeight:800, color:'#DC2626', fontFamily:'monospace' }}>{inr(due)}</div>
+                <div key={v.id} style={{ background:'#FFF5F8', border:'1px solid #FCA9BD', borderRadius:10, padding:'10px 14px' }}>
+                  <div style={{ fontSize:12.5, fontWeight:700, color:'#071437', marginBottom:2 }}>{v.name}</div>
+                  <div style={{ fontSize:11, color:'#78829D', marginBottom:4 }}>{v.type}</div>
+                  <div style={{ fontSize:14, fontWeight:800, color:'#F8285A', fontFamily:'monospace' }}>{inr(due)}</div>
                 </div>
               );
             })}
@@ -352,12 +352,12 @@ function AccountsDashboard() {
   const d = useEntityData();
 
   const kpis = [
-    { label:'Total Collected',  value:inr(d.totalCollected,true),  bg:'#DCFCE7', color:'#14532D', icon:TrendingUp },
-    { label:'Overdue',          value:inr(d.overdueAmt,true),      bg:'#FEE2E2', color:'#7F1D1D', icon:TrendingDown },
-    { label:'GST This Month',   value:inr(d.gstThisMonth,true),    bg:'#FEF3C7', color:'#78350F' },
-    { label:'Vendor Dues',      value:inr(d.vendorDues,true),      bg:'#FEF2F2', color:'#DC2626', icon:Truck },
-    { label:'Ledger Credits',   value:inr(d.totalCredits,true),    bg:'#F0FDF4', color:'#14532D' },
-    { label:'Ledger Debits',    value:inr(d.totalDebits,true),     bg:'#FEF2F2', color:'#DC2626' },
+    { label:'Total Collected',  value:inr(d.totalCollected,true),  bg:'#E8FFF3', color:'#17C653', icon:TrendingUp },
+    { label:'Overdue',          value:inr(d.overdueAmt,true),      bg:'#FFE2E5', color:'#A10035', icon:TrendingDown },
+    { label:'GST This Month',   value:inr(d.gstThisMonth,true),    bg:'#FFF8DD', color:'#9A6700' },
+    { label:'Vendor Dues',      value:inr(d.vendorDues,true),      bg:'#FFF5F8', color:'#F8285A', icon:Truck },
+    { label:'Ledger Credits',   value:inr(d.totalCredits,true),    bg:'#F0FDF4', color:'#17C653' },
+    { label:'Ledger Debits',    value:inr(d.totalDebits,true),     bg:'#FFF5F8', color:'#F8285A' },
   ];
 
   return (
@@ -371,10 +371,10 @@ function AccountsDashboard() {
           <SectionTitle text="Quick Actions"/>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {[
-              ['Add Ledger Entry',   'accounts',  '#EAF0F8', '#0D1E35'],
-              ['Record Payment',     'payments',  '#DCFCE7', '#14532D'],
-              ['GST Register',       'gst',       '#FEF3C7', '#78350F'],
-              ['Vendor Bills',       'vendors',   '#FEE2E2', '#7F1D1D'],
+              ['Add Ledger Entry',   'accounts',  '#F1F1F4', '#071437'],
+              ['Record Payment',     'payments',  '#E8FFF3', '#17C653'],
+              ['GST Register',       'gst',       '#FFF8DD', '#9A6700'],
+              ['Vendor Bills',       'vendors',   '#FFE2E5', '#A10035'],
             ].map(([label,mod,bg,color])=>(
               <button key={label} onClick={()=>setActiveModule(mod)}
                 style={{ background:bg, border:'none', borderRadius:9, padding:'10px 14px', cursor:'pointer', textAlign:'left', fontSize:13, fontWeight:700, color, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
@@ -391,14 +391,14 @@ function AccountsDashboard() {
             {d.overdueDemands.slice(0,5).map((m,i)=>{
               const name = m.booking?.allottees?.[0]?.name||m.booking?.allottee||'—';
               return (
-                <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'9px 12px', borderRadius:9, background:'#FEF2F2', border:'1px solid #FECACA' }}>
+                <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'9px 12px', borderRadius:9, background:'#FFF5F8', border:'1px solid #FCA9BD' }}>
                   <div>
-                    <div style={{ fontSize:12.5, fontWeight:700, color:'#0D1E35' }}>Unit {m.booking?.unit_no} — {name}</div>
-                    <div style={{ fontSize:11, color:'#4B5563', marginTop:1 }}>{m.name}</div>
+                    <div style={{ fontSize:12.5, fontWeight:700, color:'#071437' }}>Unit {m.booking?.unit_no} — {name}</div>
+                    <div style={{ fontSize:11, color:'#4B5675', marginTop:1 }}>{m.name}</div>
                   </div>
                   <div style={{ textAlign:'right' }}>
-                    <div style={{ fontSize:13, fontWeight:800, color:'#DC2626', fontFamily:'monospace' }}>{inr((m.total||0)-(m.paid||0))}</div>
-                    <div style={{ fontSize:10.5, color:'#DC2626', fontWeight:700 }}>OVERDUE</div>
+                    <div style={{ fontSize:13, fontWeight:800, color:'#F8285A', fontFamily:'monospace' }}>{inr((m.total||0)-(m.paid||0))}</div>
+                    <div style={{ fontSize:10.5, color:'#F8285A', fontWeight:700 }}>OVERDUE</div>
                   </div>
                 </div>
               );
@@ -418,10 +418,10 @@ function SalesDashboard() {
   const available = d.unitCounts.Available||0;
 
   const kpis = [
-    { label:'Total Bookings',    value:String(d.approvedBk.length),  bg:'#EAF0F8', color:'#0D1E35' },
-    { label:'My Bookings',       value:String(myBookings.length),     bg:'#DCFCE7', color:'#14532D' },
-    { label:'Units Available',   value:String(available),             bg:'#F0FDF4', color:'#14532D' },
-    { label:'Pending Approval',  value:String(d.pendingApproval.length), bg:'#FEF3C7', color:'#78350F' },
+    { label:'Total Bookings',    value:String(d.approvedBk.length),  bg:'#F1F1F4', color:'#071437' },
+    { label:'My Bookings',       value:String(myBookings.length),     bg:'#E8FFF3', color:'#17C653' },
+    { label:'Units Available',   value:String(available),             bg:'#F0FDF4', color:'#17C653' },
+    { label:'Pending Approval',  value:String(d.pendingApproval.length), bg:'#FFF8DD', color:'#9A6700' },
   ];
 
   return (
@@ -437,12 +437,12 @@ function SalesDashboard() {
               const units = (p.unit_rows||[]);
               const avail = units.filter(u=>!u.is_landowner&&!d.approvedBk.find(b=>b.project_id===p.id&&(b.unit_no===u.unit_no||b.flat===u.unit_no))).length;
               return (
-                <div key={p.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'9px 0', borderBottom:'1px solid #F3F4F6' }}>
+                <div key={p.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'9px 0', borderBottom:'1px solid #F9F9F9' }}>
                   <div>
-                    <div style={{ fontSize:12.5, fontWeight:700, color:'#0D1E35' }}>{p.name}</div>
-                    <div style={{ fontSize:11, color:'#6B7280' }}>{p.code} · {p.status}</div>
+                    <div style={{ fontSize:12.5, fontWeight:700, color:'#071437' }}>{p.name}</div>
+                    <div style={{ fontSize:11, color:'#78829D' }}>{p.code} · {p.status}</div>
                   </div>
-                  <div style={{ background:'#DCFCE7', color:'#14532D', fontSize:13, fontWeight:800, padding:'3px 12px', borderRadius:20 }}>{avail} available</div>
+                  <div style={{ background:'#E8FFF3', color:'#17C653', fontSize:13, fontWeight:800, padding:'3px 12px', borderRadius:20 }}>{avail} available</div>
                 </div>
               );
             })
@@ -454,20 +454,20 @@ function SalesDashboard() {
         <Card>
           <SectionTitle text="Recent Bookings" action="All Bookings" onAction={()=>setActiveModule('bookings')}/>
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
-            <thead><tr style={{ background:'#F9FAFB', borderBottom:'2px solid #E5E7EB' }}>
+            <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
               {['Booking No.','Unit','Allottee','Value','Status'].map(h=>(
-                <th key={h} style={{ padding:'7px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5563', textTransform:'uppercase' }}>{h}</th>
+                <th key={h} style={{ padding:'7px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase' }}>{h}</th>
               ))}
             </tr></thead>
             <tbody>
               {d.approvedBk.slice(0,5).map((b,i)=>(
-                <tr key={b.id} style={{ borderBottom:'1px solid #F3F4F6', background:i%2===0?'#fff':'#FAFAFA' }}>
-                  <td style={{ padding:'8px 12px', fontSize:11, fontFamily:'monospace', fontWeight:700, color:'#0D1E35' }}>{b.booking_no}</td>
-                  <td style={{ padding:'8px 12px', fontSize:12.5, fontWeight:700, color:'#1D4ED8' }}>Unit {b.unit_no||b.flat}</td>
+                <tr key={b.id} style={{ borderBottom:'1px solid #F9F9F9', background:i%2===0?'#fff':'#FCFCFC' }}>
+                  <td style={{ padding:'8px 12px', fontSize:11, fontFamily:'monospace', fontWeight:700, color:'#071437' }}>{b.booking_no}</td>
+                  <td style={{ padding:'8px 12px', fontSize:12.5, fontWeight:700, color:'#1B84FF' }}>Unit {b.unit_no||b.flat}</td>
                   <td style={{ padding:'8px 12px', fontSize:12.5, color:'#111827' }}>{b.allottees?.[0]?.name||b.allottee||'—'}</td>
-                  <td style={{ padding:'8px 12px', fontSize:12.5, fontWeight:800, fontFamily:'monospace', textAlign:'right', color:'#0D1E35' }}>{inr(b.agreement_value)}</td>
+                  <td style={{ padding:'8px 12px', fontSize:12.5, fontWeight:800, fontFamily:'monospace', textAlign:'right', color:'#071437' }}>{inr(b.agreement_value)}</td>
                   <td style={{ padding:'8px 12px' }}>
-                    <span style={{ background:'#DCFCE7', color:'#14532D', fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>{b.status||'Booked'}</span>
+                    <span style={{ background:'#E8FFF3', color:'#17C653', fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>{b.status||'Booked'}</span>
                   </td>
                 </tr>
               ))}
@@ -483,8 +483,8 @@ function SalesDashboard() {
 function HRDashboard() {
   const { employees, setActiveModule } = useAppStore();
   const kpis = [
-    { label:'Total Employees', value:String((employees||[]).length), bg:'#EAF0F8', color:'#0D1E35' },
-    { label:'Active',          value:String((employees||[]).filter(e=>e.status==='Active').length), bg:'#DCFCE7', color:'#14532D' },
+    { label:'Total Employees', value:String((employees||[]).length), bg:'#F1F1F4', color:'#071437' },
+    { label:'Active',          value:String((employees||[]).filter(e=>e.status==='Active').length), bg:'#E8FFF3', color:'#17C653' },
   ];
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
@@ -493,8 +493,8 @@ function HRDashboard() {
       </div>
       <Card>
         <SectionTitle text="HR Module" action="Go to HR" onAction={()=>setActiveModule('hr')}/>
-        <div style={{ textAlign:'center', padding:24, color:'#6B7280', fontSize:13 }}>
-          Manage employees, attendance and payroll in the <strong style={{ color:'#0D1E35' }}>HR & Payroll</strong> module.
+        <div style={{ textAlign:'center', padding:24, color:'#78829D', fontSize:13 }}>
+          Manage employees, attendance and payroll in the <strong style={{ color:'#071437' }}>HR & Payroll</strong> module.
         </div>
       </Card>
     </div>
@@ -505,12 +505,12 @@ function HRDashboard() {
 function BrokerDashboard() {
   const d = useEntityData();
   const kpis = [
-    { label:'Total Bookings',  value:String(d.approvedBk.length), bg:'#EAF0F8', color:'#0D1E35' },
-    { label:'Units Available', value:String(d.unitCounts.Available||0), bg:'#DCFCE7', color:'#14532D' },
+    { label:'Total Bookings',  value:String(d.approvedBk.length), bg:'#F1F1F4', color:'#071437' },
+    { label:'Units Available', value:String(d.unitCounts.Available||0), bg:'#E8FFF3', color:'#17C653' },
   ];
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-      <div style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'10px 16px', fontSize:12.5, color:'#0D1E35' }}>
+      <div style={{ background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:10, padding:'10px 16px', fontSize:12.5, color:'#071437' }}>
         <strong>Broker Portal</strong> — View available units, bookings, and brokerage payouts below.
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:10 }}>
