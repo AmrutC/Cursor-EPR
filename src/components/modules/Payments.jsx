@@ -43,12 +43,12 @@ function nextDemandNo(code='VEH') {
 const EMPTY_PAY_ROW = () => ({ id:Date.now()+Math.random(), payment_type:'Part Payment', amount:'', mode:'NEFT', cheque_utr:'', bank:'' });
 
 // ── STYLES ────────────────────────────────────────────────────────────────
-const inp = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp = { width:'100%', border:'1px solid var(--border-md)', borderRadius:8, padding:'7px 10px', fontSize:13, color:'var(--t-primary)', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const sel = { ...inp, cursor:'pointer' };
 const F = ({ label, required, children }) => (
   <div>
-    <label style={{ display:'block', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>
-      {label}{required && <span style={{ color:'#F8285A', marginLeft:2 }}>*</span>}
+    <label style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>
+      {label}{required && <span style={{ color:'var(--c-danger)', marginLeft:2 }}>*</span>}
     </label>
     {children}
   </div>
@@ -63,37 +63,37 @@ function printReceipt(booking, milestone, payRows, gstRate=5, projectName='', re
   const baseAmt = totalAmt - gstAmt;
   const words   = numWords(totalAmt);
   const payRowsHTML = rows.map((r,i)=>`
-    <tr style="background:${i%2===0?'#fff':'#FCFCFC'}">
-      <td style="padding:6px 14px;font-size:12px;color:#252F4A">${r.payment_type||'Payment'}</td>
-      <td style="padding:6px 14px;font-size:13px;font-weight:700;font-family:monospace;text-align:right;color:#071437">₹${Number(r.amount||0).toLocaleString('en-IN')}</td>
-      <td style="padding:6px 14px;font-size:12px;color:#252F4A">${r.mode||''}</td>
-      <td style="padding:6px 14px;font-size:11.5px;font-family:monospace;color:#4B5675">${r.cheque_utr&&r.mode!=='Cash'?r.cheque_utr:'N/A'}</td>
-      <td style="padding:6px 14px;font-size:12px;color:#252F4A">${r.bank||''}</td>
+    <tr style="background:${i%2===0?'#fff':'var(--bg-subtle)'}">
+      <td style="padding:6px 14px;font-size:12px;color:var(--t-primary)">${r.payment_type||'Payment'}</td>
+      <td style="padding:6px 14px;font-size:13px;font-weight:700;font-family:monospace;text-align:right;color:var(--c-dark)">₹${Number(r.amount||0).toLocaleString('en-IN')}</td>
+      <td style="padding:6px 14px;font-size:12px;color:var(--t-primary)">${r.mode||''}</td>
+      <td style="padding:6px 14px;font-size:11.5px;font-family:monospace;color:var(--t-secondary)">${r.cheque_utr&&r.mode!=='Cash'?r.cheque_utr:'N/A'}</td>
+      <td style="padding:6px 14px;font-size:12px;color:var(--t-primary)">${r.bank||''}</td>
     </tr>`).join('');
   const html = `<!DOCTYPE html><html><head><title>Receipt ${receiptNo}</title>
 <style>
   body{font-family:Arial,sans-serif;margin:0;padding:24px;color:#111;font-size:13px}
-  .hdr{background:#071437;color:#fff;padding:16px 22px;border-radius:8px 8px 0 0}
-  .hdr h1{margin:0;font-size:20px;color:#F6C000;letter-spacing:1px}
+  .hdr{background:var(--c-dark);color:#fff;padding:16px 22px;border-radius:8px 8px 0 0}
+  .hdr h1{margin:0;font-size:20px;color:var(--c-warning);letter-spacing:1px}
   .hdr p{margin:3px 0 0;font-size:11px;opacity:.65}
-  .hdr .title{color:#F6C000;font-size:15px;font-weight:700;margin-top:10px}
-  .body{border:1px solid #F1F1F4;border-top:none;padding:18px 22px;border-radius:0 0 8px 8px}
-  .rec-no{font-family:monospace;font-size:13px;background:#EAF0F8;padding:5px 12px;border-radius:5px;color:#071437;font-weight:700;display:inline-block;margin-bottom:12px}
+  .hdr .title{color:var(--c-warning);font-size:15px;font-weight:700;margin-top:10px}
+  .body{border:1px solid var(--border);border-top:none;padding:18px 22px;border-radius:0 0 8px 8px}
+  .rec-no{font-family:monospace;font-size:13px;background:#EAF0F8;padding:5px 12px;border-radius:5px;color:var(--c-dark);font-weight:700;display:inline-block;margin-bottom:12px}
   .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:14px}
-  .info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #FCFCFC;font-size:12.5px}
-  .lbl{color:#4B5675;font-weight:600} .val{font-weight:700;color:#071437}
+  .info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bg-subtle);font-size:12.5px}
+  .lbl{color:var(--t-secondary);font-weight:600} .val{font-weight:700;color:var(--c-dark)}
   table{width:100%;border-collapse:collapse;margin-bottom:14px}
-  th{background:#071437;color:#fff;padding:7px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-  .total-box{background:#E8FFF3;border:1px solid #50CD89;border-radius:10px;padding:14px 18px}
-  .total-amt{font-size:20px;font-weight:800;color:#17C653;font-family:monospace}
-  .words{font-style:italic;color:#4B5675;font-size:11.5px;margin-top:4px}
-  .gst-row{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:#4B5675}
-  .footer{margin-top:28px;display:flex;justify-content:space-between;font-size:10px;color:#78829D}
+  th{background:var(--c-dark);color:#fff;padding:7px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .total-box{background:var(--c-success-light);border:1px solid var(--c-success);border-radius:10px;padding:14px 18px}
+  .total-amt{font-size:20px;font-weight:800;color:var(--c-success);font-family:monospace}
+  .words{font-style:italic;color:var(--t-secondary);font-size:11.5px;margin-top:4px}
+  .gst-row{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--t-secondary)}
+  .footer{margin-top:28px;display:flex;justify-content:space-between;font-size:10px;color:var(--t-muted)}
   .no-print{margin-bottom:14px} @media print{.no-print{display:none}}
 </style></head><body>
 <div class="no-print">
-  <button onclick="window.print()" style="background:#071437;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700">🖨 Print / Save PDF</button>
-  <button onclick="window.close()" style="background:#FCFCFC;color:#252F4A;border:1px solid #F1F1F4;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;margin-left:8px">Close</button>
+  <button onclick="window.print()" style="background:var(--c-dark);color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700">🖨 Print / Save PDF</button>
+  <button onclick="window.close()" style="background:var(--bg-subtle);color:var(--t-primary);border:1px solid var(--border);padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;margin-left:8px">Close</button>
 </div>
 <div class="hdr">
   <h1>VISION GRROUP</h1>
@@ -117,7 +117,7 @@ function printReceipt(booking, milestone, payRows, gstRate=5, projectName='', re
   <div class="total-box">
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
       <div>
-        <div style="font-size:12px;font-weight:700;color:#17C653;margin-bottom:4px">TOTAL RECEIVED (incl. GST ${gstRate}%)</div>
+        <div style="font-size:12px;font-weight:700;color:var(--c-success);margin-bottom:4px">TOTAL RECEIVED (incl. GST ${gstRate}%)</div>
         <div class="total-amt">₹${totalAmt.toLocaleString('en-IN')}</div>
         <div class="words">Rupees ${words} Only</div>
       </div>
@@ -126,7 +126,7 @@ function printReceipt(booking, milestone, payRows, gstRate=5, projectName='', re
         <div class="gst-row"><span>GST @ ${gstRate}%:</span><span style="font-family:monospace;font-weight:700">₹${gstAmt.toLocaleString('en-IN')}</span></div>
       </div>
     </div>
-    <div style="margin-top:8px;font-size:11px;color:#4B5675">Subject to realisation of instrument.</div>
+    <div style="margin-top:8px;font-size:11px;color:var(--t-secondary)">Subject to realisation of instrument.</div>
   </div>
 </div>
 <div class="footer">
@@ -265,10 +265,10 @@ export default function Payments() {
       {/* OVERALL SUMMARY STRIP */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10 }}>
         {[
-          { l:'Total Agreement Value', v:inr(allAgrmt,true), bg:'#EAF0F8', bdr:'#C5D5E8', c:'#071437' },
-          { l:'Total Collected',       v:inr(allColl,true),  bg:'#E8FFF3', bdr:'#50CD89', c:'#17C653' },
-          { l:'Balance Remaining',     v:inr(allAgrmt-allColl,true), bg:'#FFF8DD', bdr:'#F6C000', c:'#7A4E00' },
-          { l:'Overdue / Unpaid',      v:inr(allOvdue,true), bg:'#FFE2E5', bdr:'#FFB8C6', c:'#7F1D1D' },
+          { l:'Total Agreement Value', v:inr(allAgrmt,true), bg:'#EAF0F8', bdr:'#C5D5E8', c:'var(--c-dark)' },
+          { l:'Total Collected',       v:inr(allColl,true),  bg:'var(--c-success-light)', bdr:'var(--c-success)', c:'var(--c-success)' },
+          { l:'Balance Remaining',     v:inr(allAgrmt-allColl,true), bg:'var(--c-warning-light)', bdr:'var(--c-warning)', c:'var(--t-secondary)' },
+          { l:'Overdue / Unpaid',      v:inr(allOvdue,true), bg:'var(--c-danger-light)', bdr:'var(--c-danger)', c:'#7F1D1D' },
         ].map(s=>(
           <div key={s.l} style={{ background:s.bg, border:`1px solid ${s.bdr}`, borderRadius:12, padding:'12px 16px' }}>
             <div style={{ fontSize:9.5, fontWeight:700, color:s.c, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:4 }}>{s.l}</div>
@@ -281,11 +281,11 @@ export default function Payments() {
       <div style={{ display:'grid', gridTemplateColumns:'250px 1fr', gap:14, minHeight:520 }}>
 
         {/* LEFT: allottee list */}
-        <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', display:'flex', flexDirection:'column', boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ padding:'12px 14px', borderBottom:'1px solid #FCFCFC' }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>All Allottees</div>
+        <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:14, overflow:'hidden', display:'flex', flexDirection:'column', boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ padding:'12px 14px', borderBottom:'1px solid var(--bg-subtle)' }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>All Allottees</div>
             <div style={{ position:'relative' }}>
-              <Search size={12} style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', color:'#78829D' }}/>
+              <Search size={12} style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', color:'var(--t-muted)' }}/>
               <input style={{ ...inp, paddingLeft:26, fontSize:12 }} placeholder="Search flat / name…" value={search} onChange={e=>setSearch(e.target.value)}/>
             </div>
           </div>
@@ -298,17 +298,17 @@ export default function Payments() {
               const unit = bk.unit_no || bk.flat || '—';
               return (
                 <div key={bk.id} onClick={()=>setSelBookingId(bk.id)}
-                  style={{ padding:'11px 14px', borderBottom:'1px solid #FCFCFC', cursor:'pointer', background:selBooking?.id===bk.id?'#EEF6FF':'transparent', borderLeft:selBooking?.id===bk.id?'3px solid #071437':'3px solid transparent' }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#071437' }}>{unit}</div>
-                  <div style={{ fontSize:12, color:'#252F4A', marginTop:2 }}>{name}</div>
-                  <div style={{ fontSize:10.5, color:'#4B5675', fontFamily:'monospace', marginTop:1 }}>{bk.booking_no}</div>
+                  style={{ padding:'11px 14px', borderBottom:'1px solid var(--bg-subtle)', cursor:'pointer', background:selBooking?.id===bk.id?'var(--c-primary-light)':'transparent', borderLeft:selBooking?.id===bk.id?'3px solid var(--c-dark)':'3px solid transparent' }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'var(--c-dark)' }}>{unit}</div>
+                  <div style={{ fontSize:12, color:'var(--t-primary)', marginTop:2 }}>{name}</div>
+                  <div style={{ fontSize:10.5, color:'var(--t-secondary)', fontFamily:'monospace', marginTop:1 }}>{bk.booking_no}</div>
                   <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:6 }}>
-                    <div style={{ flex:1, height:4, background:'#F1F1F4', borderRadius:2, overflow:'hidden' }}>
-                      <div style={{ width:`${pct}%`, height:'100%', background:pct>=100?'#17C653':pct>=50?'#1B84FF':'#7A4E00', borderRadius:2 }}/>
+                    <div style={{ flex:1, height:4, background:'var(--border)', borderRadius:2, overflow:'hidden' }}>
+                      <div style={{ width:`${pct}%`, height:'100%', background:pct>=100?'var(--c-success)':pct>=50?'var(--c-primary)':'var(--t-secondary)', borderRadius:2 }}/>
                     </div>
-                    <span style={{ fontSize:11, fontWeight:700, color:'#17C653', fontFamily:'monospace', flexShrink:0 }}>{pct}%</span>
+                    <span style={{ fontSize:11, fontWeight:700, color:'var(--c-success)', fontFamily:'monospace', flexShrink:0 }}>{pct}%</span>
                   </div>
-                  {ov>0 && <div style={{ marginTop:4, fontSize:10.5, fontWeight:700, color:'#F8285A' }}>⚠ {ov} overdue</div>}
+                  {ov>0 && <div style={{ marginTop:4, fontSize:10.5, fontWeight:700, color:'var(--c-danger)' }}>⚠ {ov} overdue</div>}
                 </div>
               );
             })}
@@ -321,13 +321,13 @@ export default function Payments() {
 
             {/* Receipt success banner */}
             {lastReceipt && (
-              <div style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:12, padding:'11px 16px', display:'flex', alignItems:'center', gap:12 }}>
-                <CheckCircle2 size={17} style={{ color:'#17C653', flexShrink:0 }}/>
+              <div style={{ background:'var(--c-success-light)', border:'1px solid var(--c-success)', borderRadius:12, padding:'11px 16px', display:'flex', alignItems:'center', gap:12 }}>
+                <CheckCircle2 size={17} style={{ color:'var(--c-success)', flexShrink:0 }}/>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#17C653' }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'var(--c-success)' }}>
                     Payment recorded — Receipt: <span style={{ fontFamily:'monospace' }}>{lastReceipt.receipt_no}</span>
                   </div>
-                  <div style={{ fontSize:11.5, color:'#17C653', marginTop:1 }}>
+                  <div style={{ fontSize:11.5, color:'var(--c-success)', marginTop:1 }}>
                     {inr(lastReceipt.amount)} &nbsp;·&nbsp; {lastReceipt.mode} &nbsp;·&nbsp; {lastReceipt.milestone}
                   </div>
                 </div>
@@ -336,10 +336,10 @@ export default function Payments() {
                     const ms = (b.milestones||[]).find(m=>(m.payments||[]).some(p=>p.receipt_no===lastReceipt.receipt_no));
                     if (ms) printReceipt(b, ms, lastReceipt.payment_rows||[lastReceipt], b.gst_rate, lastReceipt.projectName, lastReceipt.receipt_no);
                   }}
-                  style={{ background:'#071437', color:'#fff', border:'none', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:12, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
+                  style={{ background:'var(--c-dark)', color:'#fff', border:'none', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:12, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
                   <Printer size={13}/> Print Receipt
                 </button>
-                <button onClick={()=>setLastReceipt(null)} style={{ background:'transparent', border:'none', cursor:'pointer', color:'#4B5675', padding:4 }}>
+                <button onClick={()=>setLastReceipt(null)} style={{ background:'transparent', border:'none', cursor:'pointer', color:'var(--t-secondary)', padding:4 }}>
                   <X size={14}/>
                 </button>
               </div>
@@ -348,103 +348,103 @@ export default function Payments() {
             {/* Per-allottee summary */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:9 }}>
               {[
-                { l:'Agreement',  v:inr(b.agreement_value), c:'#071437' },
-                { l:'Demanded',   v:inr(totDemnd),           c:'#7A4E00' },
-                { l:'Collected',  v:inr(totColl),            c:'#17C653' },
-                { l:'Balance',    v:inr(totBal),             c:'#7A4E00' },
-                { l:'% Paid',     v:`${collPct}%`,           c:collPct>=100?'#17C653':collPct>=50?'#071437':'#7A4E00' },
+                { l:'Agreement',  v:inr(b.agreement_value), c:'var(--c-dark)' },
+                { l:'Demanded',   v:inr(totDemnd),           c:'var(--t-secondary)' },
+                { l:'Collected',  v:inr(totColl),            c:'var(--c-success)' },
+                { l:'Balance',    v:inr(totBal),             c:'var(--t-secondary)' },
+                { l:'% Paid',     v:`${collPct}%`,           c:collPct>=100?'var(--c-success)':collPct>=50?'var(--c-dark)':'var(--t-secondary)' },
               ].map(s=>(
-                <div key={s.l} style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:10, padding:'9px 12px' }}>
-                  <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{s.l}</div>
+                <div key={s.l} style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'9px 12px' }}>
+                  <div style={{ fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{s.l}</div>
                   <div style={{ fontSize:14, fontWeight:800, color:s.c, fontFamily:'monospace' }}>{s.v}</div>
                 </div>
               ))}
             </div>
 
             {/* Progress bar */}
-            <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:11, padding:'11px 16px' }}>
+            <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:11, padding:'11px 16px' }}>
               <div style={{ display:'flex', justifyContent:'space-between', marginBottom:7, alignItems:'center' }}>
-                <span style={{ fontSize:12.5, fontWeight:700, color:'#071437' }}>
+                <span style={{ fontSize:12.5, fontWeight:700, color:'var(--c-dark)' }}>
                   {b.unit_no || b.flat || '—'} — {b.allottees?.[0]?.name || b.allottee || '—'} · {b.allottees?.[0]?.phone || b.phone || '—'}
                 </span>
                 <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                  {ovCount>0 && <span style={{ fontSize:11, fontWeight:700, color:'#F8285A', background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:8, padding:'2px 8px' }}>{ovCount} overdue</span>}
-                  <span style={{ fontSize:12, fontWeight:700, color:'#17C653', fontFamily:'monospace' }}>{collPct}% collected</span>
+                  {ovCount>0 && <span style={{ fontSize:11, fontWeight:700, color:'var(--c-danger)', background:'var(--c-danger-light)', border:'1px solid var(--c-danger)', borderRadius:8, padding:'2px 8px' }}>{ovCount} overdue</span>}
+                  <span style={{ fontSize:12, fontWeight:700, color:'var(--c-success)', fontFamily:'monospace' }}>{collPct}% collected</span>
                 </div>
               </div>
-              <div style={{ height:7, background:'#FCFCFC', borderRadius:4, overflow:'hidden' }}>
-                <div style={{ width:`${collPct}%`, height:'100%', background:collPct>=100?'#17C653':collPct>=50?'#1B84FF':'#7A4E00', borderRadius:4, transition:'width .4s' }}/>
+              <div style={{ height:7, background:'var(--bg-subtle)', borderRadius:4, overflow:'hidden' }}>
+                <div style={{ width:`${collPct}%`, height:'100%', background:collPct>=100?'var(--c-success)':collPct>=50?'var(--c-primary)':'var(--t-secondary)', borderRadius:4, transition:'width .4s' }}/>
               </div>
             </div>
 
             {/* Toolbar */}
             <div style={{ display:'flex', gap:8, alignItems:'center' }}>
               <button onClick={()=>setFilterOverdue(v=>!v)}
-                style={{ display:'flex', alignItems:'center', gap:6, background:filterOverdue?'#FFE2E5':'#fff', border:`1px solid ${filterOverdue?'#FFB8C6':'#F1F1F4'}`, borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:filterOverdue?'#7F1D1D':'#252F4A' }}>
+                style={{ display:'flex', alignItems:'center', gap:6, background:filterOverdue?'var(--c-danger-light)':'#fff', border:`1px solid ${filterOverdue?'var(--c-danger)':'var(--border)'}`, borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:filterOverdue?'#7F1D1D':'var(--t-primary)' }}>
                 <Filter size={12}/>{filterOverdue?'Show All':'Overdue / Pending Only'}
               </button>
               <div style={{ flex:1 }}/>
               <button onClick={()=>exportCSV(b)}
-                style={{ display:'flex', alignItems:'center', gap:6, background:'#fff', border:'1px solid #F1F1F4', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'#252F4A' }}>
+                style={{ display:'flex', alignItems:'center', gap:6, background:'#fff', border:'1px solid var(--border)', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--t-primary)' }}>
                 <Download size={12}/> Export CSV
               </button>
             </div>
 
             {/* Milestone table */}
-            <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ padding:'11px 16px', borderBottom:'1px solid #FCFCFC', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <span style={{ fontSize:11.5, fontWeight:700, color:'#071437', textTransform:'uppercase', letterSpacing:'0.5px' }}>
-                  Payment Milestones {filterOverdue&&<span style={{ color:'#F8285A', fontWeight:600 }}> — Overdue Filter ON</span>}
+            <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div style={{ padding:'11px 16px', borderBottom:'1px solid var(--bg-subtle)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span style={{ fontSize:11.5, fontWeight:700, color:'var(--c-dark)', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+                  Payment Milestones {filterOverdue&&<span style={{ color:'var(--c-danger)', fontWeight:600 }}> — Overdue Filter ON</span>}
                 </span>
-                <span style={{ fontSize:11, color:'#4B5675' }}>GST {b.gst_rate}% Composite Supply</span>
+                <span style={{ fontSize:11, color:'var(--t-secondary)' }}>GST {b.gst_rate}% Composite Supply</span>
               </div>
               <div style={{ overflowX:'auto' }}>
                 <table style={{ width:'100%', borderCollapse:'collapse', minWidth:980 }}>
                   <thead>
-                    <tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
+                    <tr style={{ background:'var(--bg-subtle)', borderBottom:'2px solid var(--border)' }}>
                       {['#','Milestone','%','Base Due (₹)','GST (₹)','Total w/GST (₹)','Paid (₹)','Balance (₹)','Due Date','Demand No.','Status','Actions'].map(h=>(
-                        <th key={h} style={{ padding:'8px 10px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
+                        <th key={h} style={{ padding:'8px 10px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {dispMs.length===0 ? (
-                      <tr><td colSpan={12} style={{ textAlign:'center', padding:32, color:'#78829D', fontSize:13 }}>No overdue or pending demand milestones.</td></tr>
+                      <tr><td colSpan={12} style={{ textAlign:'center', padding:32, color:'var(--t-muted)', fontSize:13 }}>No overdue or pending demand milestones.</td></tr>
                     ) : dispMs.map((m,i) => {
                       const bal = ((m.amt||m.total)+(m.gst||0)) - m.paid;
-                      const bg  = m.status==='Paid'?'#E8FFF3':m.status==='Overdue'?'#FFE2E5':i%2===0?'#fff':'#FAFAFA';
+                      const bg  = m.status==='Paid'?'var(--c-success-light)':m.status==='Overdue'?'var(--c-danger-light)':i%2===0?'#fff':'#FAFAFA';
                       return (
-                        <tr key={m.id} style={{ borderBottom:'1px solid #FCFCFC', background:bg }}>
-                          <td style={{ padding:'8px 10px', fontSize:12, color:'#4B5675' }}>{m.id}</td>
-                          <td style={{ padding:'8px 10px', fontSize:12.5, fontWeight:600, color:'#071437', whiteSpace:'nowrap' }}>{m.name}</td>
-                          <td style={{ padding:'8px 10px', fontSize:11.5, fontFamily:'monospace', color:'#252F4A' }}>{m.pct}%</td>
-                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#252F4A' }}>{inr(m.amt)}</td>
-                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#7A4E00' }}>{inr(m.gst)}</td>
-                          <td style={{ padding:'8px 10px', fontSize:12.5, fontWeight:700, fontFamily:'monospace', textAlign:'right', color:'#071437' }}>{inr((m.amt||m.total)+(m.gst||0))}</td>
-                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#17C653', fontWeight:700 }}>{inr(m.paid)}</td>
-                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:bal>0?'#7A4E00':'#17C653', fontWeight:bal>0?700:400 }}>{inr(bal)}</td>
-                          <td style={{ padding:'8px 10px', fontSize:11.5, color:m.status==='Overdue'?'#F8285A':'#252F4A', fontWeight:m.status==='Overdue'?700:400, whiteSpace:'nowrap' }}>{fmtDate(m.due)}</td>
-                          <td style={{ padding:'8px 10px', fontSize:10.5, fontFamily:'monospace', color:'#4B5675', whiteSpace:'nowrap' }}>{m.demand_no||'—'}</td>
+                        <tr key={m.id} style={{ borderBottom:'1px solid var(--bg-subtle)', background:bg }}>
+                          <td style={{ padding:'8px 10px', fontSize:12, color:'var(--t-secondary)' }}>{m.id}</td>
+                          <td style={{ padding:'8px 10px', fontSize:12.5, fontWeight:600, color:'var(--c-dark)', whiteSpace:'nowrap' }}>{m.name}</td>
+                          <td style={{ padding:'8px 10px', fontSize:11.5, fontFamily:'monospace', color:'var(--t-primary)' }}>{m.pct}%</td>
+                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'var(--t-primary)' }}>{inr(m.amt)}</td>
+                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'var(--t-secondary)' }}>{inr(m.gst)}</td>
+                          <td style={{ padding:'8px 10px', fontSize:12.5, fontWeight:700, fontFamily:'monospace', textAlign:'right', color:'var(--c-dark)' }}>{inr((m.amt||m.total)+(m.gst||0))}</td>
+                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'var(--c-success)', fontWeight:700 }}>{inr(m.paid)}</td>
+                          <td style={{ padding:'8px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:bal>0?'var(--t-secondary)':'var(--c-success)', fontWeight:bal>0?700:400 }}>{inr(bal)}</td>
+                          <td style={{ padding:'8px 10px', fontSize:11.5, color:m.status==='Overdue'?'var(--c-danger)':'var(--t-primary)', fontWeight:m.status==='Overdue'?700:400, whiteSpace:'nowrap' }}>{fmtDate(m.due)}</td>
+                          <td style={{ padding:'8px 10px', fontSize:10.5, fontFamily:'monospace', color:'var(--t-secondary)', whiteSpace:'nowrap' }}>{m.demand_no||'—'}</td>
                           <td style={{ padding:'8px 10px' }}><Badge value={m.status}/></td>
                           <td style={{ padding:'8px 10px' }}>
                             <div style={{ display:'flex', gap:4, flexWrap:'nowrap' }}>
                               {m.status==='Pending' && (
-                                <button onClick={()=>issueDemand(m)} style={{ background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:700, color:'#7A4E00', whiteSpace:'nowrap' }}>
+                                <button onClick={()=>issueDemand(m)} style={{ background:'var(--c-warning-light)', border:'1px solid var(--c-warning)', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:700, color:'var(--t-secondary)', whiteSpace:'nowrap' }}>
                                   Issue Demand
                                 </button>
                               )}
                               {['Demand Issued','Part Paid','Overdue'].includes(m.status) && (
-                                <button onClick={()=>openPayModal(m)} style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:700, color:'#17C653', whiteSpace:'nowrap' }}>
+                                <button onClick={()=>openPayModal(m)} style={{ background:'var(--c-success-light)', border:'1px solid var(--c-success)', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:700, color:'var(--c-success)', whiteSpace:'nowrap' }}>
                                   Record Payment
                                 </button>
                               )}
                               {(m.payments||[]).length>0 && (
-                                <button onClick={()=>setHistoryModal(m)} style={{ background:'#F1E8FF', border:'1px solid #D4B9FF', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:700, color:'#7239EA', whiteSpace:'nowrap' }}>
+                                <button onClick={()=>setHistoryModal(m)} style={{ background:'#F1E8FF', border:'1px solid #D4B9FF', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:700, color:'var(--c-info)', whiteSpace:'nowrap' }}>
                                   History ({m.payments.length})
                                 </button>
                               )}
                               {m.status==='Paid' && (m.payments||[]).length>0 && (
-                                <button onClick={()=>{const p=m.payments[m.payments.length-1]; printReceipt(b,m,p.payment_rows||[p],b.gst_rate,entityProjects.find(pr=>pr.id===b.project_id)?.name||'',p.receipt_no);}} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:3, whiteSpace:'nowrap' }}>
+                                <button onClick={()=>{const p=m.payments[m.payments.length-1]; printReceipt(b,m,p.payment_rows||[p],b.gst_rate,entityProjects.find(pr=>pr.id===b.project_id)?.name||'',p.receipt_no);}} style={{ background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:6, padding:'3px 7px', cursor:'pointer', fontSize:10, fontWeight:600, color:'var(--t-primary)', display:'flex', alignItems:'center', gap:3, whiteSpace:'nowrap' }}>
                                   <Printer size={9}/> Print
                                 </button>
                               )}
@@ -459,7 +459,7 @@ export default function Payments() {
             </div>
           </div>
         ) : (
-          <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', color:'#78829D', fontSize:13 }}>
+          <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', color:'var(--t-muted)', fontSize:13 }}>
             Select an allottee to view milestones
           </div>
         )}
@@ -477,12 +477,12 @@ export default function Payments() {
           <div>
             {/* Milestone summary */}
             <div style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'10px 14px', marginBottom:14 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#071437', marginBottom:8 }}>{payModal.name}</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--c-dark)', marginBottom:8 }}>{payModal.name}</div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, fontSize:12 }}>
-                <div><span style={{ color:'#4B5675', fontWeight:600 }}>Base Due: </span><strong style={{ fontFamily:'monospace' }}>{inr(payModal.amt||payModal.total)}</strong></div>
-                <div><span style={{ color:'#4B5675', fontWeight:600 }}>GST ({b?.gst_rate||5}%): </span><strong style={{ fontFamily:'monospace', color:'#7A4E00' }}>{inr(payModal.gst||0)}</strong></div>
-                <div><span style={{ color:'#4B5675', fontWeight:600 }}>Total w/ GST: </span><strong style={{ fontFamily:'monospace' }}>{inr((payModal.amt||payModal.total)+(payModal.gst||0))}</strong></div>
-                <div><span style={{ color:'#4B5675', fontWeight:600 }}>Balance Due: </span><strong style={{ color:'#7F1D1D', fontFamily:'monospace' }}>{inr(Math.max(0,(payModal.amt||payModal.total)+(payModal.gst||0)-payModal.paid))}</strong></div>
+                <div><span style={{ color:'var(--t-secondary)', fontWeight:600 }}>Base Due: </span><strong style={{ fontFamily:'monospace' }}>{inr(payModal.amt||payModal.total)}</strong></div>
+                <div><span style={{ color:'var(--t-secondary)', fontWeight:600 }}>GST ({b?.gst_rate||5}%): </span><strong style={{ fontFamily:'monospace', color:'var(--t-secondary)' }}>{inr(payModal.gst||0)}</strong></div>
+                <div><span style={{ color:'var(--t-secondary)', fontWeight:600 }}>Total w/ GST: </span><strong style={{ fontFamily:'monospace' }}>{inr((payModal.amt||payModal.total)+(payModal.gst||0))}</strong></div>
+                <div><span style={{ color:'var(--t-secondary)', fontWeight:600 }}>Balance Due: </span><strong style={{ color:'#7F1D1D', fontFamily:'monospace' }}>{inr(Math.max(0,(payModal.amt||payModal.total)+(payModal.gst||0)-payModal.paid))}</strong></div>
               </div>
             </div>
 
@@ -491,10 +491,10 @@ export default function Payments() {
               const proj = entityProjects.find(p=>p.id===(selBooking?.project_id));
               const projCode = proj?.code || entityCode;
               return (
-                <div style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:9, padding:'8px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:8 }}>
-                  <FileText size={13} style={{ color:'#17C653' }}/>
-                  <span style={{ fontSize:12, color:'#17C653' }}>Receipt no. will be: </span>
-                  <span style={{ fontFamily:'monospace', fontSize:13, fontWeight:800, color:'#17C653' }}>
+                <div style={{ background:'var(--c-success-light)', border:'1px solid var(--c-success)', borderRadius:9, padding:'8px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:8 }}>
+                  <FileText size={13} style={{ color:'var(--c-success)' }}/>
+                  <span style={{ fontSize:12, color:'var(--c-success)' }}>Receipt no. will be: </span>
+                  <span style={{ fontFamily:'monospace', fontSize:13, fontWeight:800, color:'var(--c-success)' }}>
                     {projCode}/{fyString()}/REC/{String(receiptCounter+1).padStart(3,'0')}
                   </span>
                 </div>
@@ -503,29 +503,29 @@ export default function Payments() {
 
             {/* Receipt date */}
             <div style={{ marginBottom:14 }}>
-              <label style={{ display:'block', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>Receipt Date</label>
+              <label style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>Receipt Date</label>
               <input style={{ ...inp, maxWidth:200 }} type="date" value={payDate} onChange={e=>setPayDate(e.target.value)}/>
             </div>
 
             {/* Payment rows */}
-            <div style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:12, overflow:'hidden', marginBottom:12 }}>
-              <div style={{ padding:'9px 14px', background:'#071437', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <div style={{ background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:12, overflow:'hidden', marginBottom:12 }}>
+              <div style={{ padding:'9px 14px', background:'var(--c-dark)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <span style={{ fontSize:11, fontWeight:700, color:'#fff', textTransform:'uppercase', letterSpacing:'0.5px' }}>Payment Rows — add up to 3 cheques / instruments</span>
                 {payRows.length < 3 && (
-                  <button onClick={addPayRow} style={{ background:'#F6C000', border:'none', borderRadius:6, padding:'3px 10px', cursor:'pointer', fontSize:11, fontWeight:700, color:'#071437', display:'flex', alignItems:'center', gap:4 }}>
+                  <button onClick={addPayRow} style={{ background:'var(--c-warning)', border:'none', borderRadius:6, padding:'3px 10px', cursor:'pointer', fontSize:11, fontWeight:700, color:'var(--c-dark)', display:'flex', alignItems:'center', gap:4 }}>
                     <Plus size={11}/> Add Row
                   </button>
                 )}
               </div>
               <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
+                <thead><tr style={{ background:'var(--bg-subtle)', borderBottom:'2px solid var(--border)' }}>
                   {['Payment Type','Amount (₹)','Mode','Cheque / UTR No.','Buyer\'s Bank',''].map(h=>(
-                    <th key={h} style={{ padding:'8px 10px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
+                    <th key={h} style={{ padding:'8px 10px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                   ))}
                 </tr></thead>
                 <tbody>
                   {payRows.map((row,ri)=>(
-                    <tr key={row.id} style={{ borderBottom:'1px solid #FCFCFC', background:ri%2===0?'#fff':'#FAFAFA' }}>
+                    <tr key={row.id} style={{ borderBottom:'1px solid var(--bg-subtle)', background:ri%2===0?'#fff':'#FAFAFA' }}>
                       <td style={{ padding:'6px 8px', minWidth:160 }}>
                         <select style={{ ...sel, padding:'5px 7px', fontSize:12 }} value={row.payment_type} onChange={e=>updatePayRow(row.id,'payment_type',e.target.value)}>
                           {PAYMENT_TYPES.map(t=><option key={t}>{t}</option>)}
@@ -543,7 +543,7 @@ export default function Payments() {
                         </select>
                       </td>
                       <td style={{ padding:'6px 8px', minWidth:130 }}>
-                        <input style={{ ...inp, padding:'5px 7px', fontSize:12, background:row.mode==='Cash'?'#FCFCFC':'#fff' }}
+                        <input style={{ ...inp, padding:'5px 7px', fontSize:12, background:row.mode==='Cash'?'var(--bg-subtle)':'#fff' }}
                           value={row.mode==='Cash'?'N/A':row.cheque_utr} placeholder="Ref no."
                           readOnly={row.mode==='Cash'}
                           onChange={e=>updatePayRow(row.id,'cheque_utr',e.target.value)}/>
@@ -553,7 +553,7 @@ export default function Payments() {
                       </td>
                       <td style={{ padding:'6px 8px' }}>
                         {payRows.length>1 && (
-                          <button onClick={()=>removePayRow(row.id)} style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:6, padding:'3px 7px', cursor:'pointer', color:'#7F1D1D' }}>
+                          <button onClick={()=>removePayRow(row.id)} style={{ background:'var(--c-danger-light)', border:'1px solid var(--c-danger)', borderRadius:6, padding:'3px 7px', cursor:'pointer', color:'#7F1D1D' }}>
                             <Trash2 size={11}/>
                           </button>
                         )}
@@ -569,14 +569,14 @@ export default function Payments() {
               const total = payRows.reduce((s,r)=>s+Number(r.amount||0),0);
               const words = numWords(total);
               return total>0 ? (
-                <div style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:10, padding:'12px 16px' }}>
+                <div style={{ background:'var(--c-success-light)', border:'1px solid var(--c-success)', borderRadius:10, padding:'12px 16px' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-                    <span style={{ fontSize:12, fontWeight:700, color:'#17C653' }}>Total Amount</span>
-                    <span style={{ fontSize:20, fontWeight:800, color:'#17C653', fontFamily:'monospace' }}>{inr(total)}</span>
+                    <span style={{ fontSize:12, fontWeight:700, color:'var(--c-success)' }}>Total Amount</span>
+                    <span style={{ fontSize:20, fontWeight:800, color:'var(--c-success)', fontFamily:'monospace' }}>{inr(total)}</span>
                   </div>
-                  <div style={{ fontSize:12, color:'#4B5675', fontStyle:'italic' }}>Rupees {words} Only</div>
+                  <div style={{ fontSize:12, color:'var(--t-secondary)', fontStyle:'italic' }}>Rupees {words} Only</div>
                   {total > (payModal.total - payModal.paid) && (
-                    <div style={{ marginTop:6, fontSize:11.5, color:'#7A4E00', fontWeight:600 }}>
+                    <div style={{ marginTop:6, fontSize:11.5, color:'var(--t-secondary)', fontWeight:600 }}>
                       ⚠ Amount exceeds balance due of {inr(Math.max(0,(payModal.amt||payModal.total)+(payModal.gst||0)-payModal.paid))}. Only balance will be recorded.
                     </div>
                   )}
@@ -594,35 +594,35 @@ export default function Payments() {
           <div>
             <div style={{ background:'#EAF0F8', borderRadius:10, padding:'11px 14px', marginBottom:14 }}>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, fontSize:12 }}>
-                {[['Total Demand',inr(historyModal.total),'#071437'],['Paid',inr(historyModal.paid),'#17C653'],['Balance',inr(historyModal.total-historyModal.paid),'#7A4E00'],['Status',historyModal.status,'#252F4A']].map(([l,v,c])=>(
+                {[['Total Demand',inr(historyModal.total),'var(--c-dark)'],['Paid',inr(historyModal.paid),'var(--c-success)'],['Balance',inr(historyModal.total-historyModal.paid),'var(--t-secondary)'],['Status',historyModal.status,'var(--t-primary)']].map(([l,v,c])=>(
                   <div key={l}>
-                    <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
+                    <div style={{ fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
                     <div style={{ fontSize:13, fontWeight:800, color:c, fontFamily:l!=='Status'?'monospace':'inherit' }}>{v}</div>
                   </div>
                 ))}
               </div>
             </div>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
-              <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
+              <thead><tr style={{ background:'var(--bg-subtle)', borderBottom:'2px solid var(--border)' }}>
                 {['Receipt No.','Date','Amount Paid','GST (approx)','Mode','Cheque / UTR','Bank',''].map(h=>(
-                  <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
+                  <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
                 {(historyModal.payments||[]).map((p,i)=>{
                   const gAmt = Math.round(p.amount*(b?.gst_rate||5)/(100+(b?.gst_rate||5)));
                   return (
-                    <tr key={i} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
-                      <td style={{ padding:'9px 12px', fontSize:11.5, fontFamily:'monospace', fontWeight:700, color:'#071437' }}>{p.receipt_no}</td>
-                      <td style={{ padding:'9px 12px', fontSize:12.5, color:'#252F4A' }}>{fmtDate(p.date)}</td>
-                      <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#17C653' }}>{inr(p.amount)}</td>
-                      <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#7A4E00' }}>{inr(gAmt)}</td>
-                      <td style={{ padding:'9px 12px', fontSize:12.5, color:'#252F4A' }}>{p.mode}</td>
-                      <td style={{ padding:'9px 12px', fontSize:11.5, fontFamily:'monospace', color:'#4B5675' }}>{p.cheque_utr||'—'}</td>
-                      <td style={{ padding:'9px 12px', fontSize:12, color:'#252F4A' }}>{p.bank||'—'}</td>
+                    <tr key={i} style={{ borderBottom:'1px solid var(--bg-subtle)', background:i%2===0?'#fff':'#FAFAFA' }}>
+                      <td style={{ padding:'9px 12px', fontSize:11.5, fontFamily:'monospace', fontWeight:700, color:'var(--c-dark)' }}>{p.receipt_no}</td>
+                      <td style={{ padding:'9px 12px', fontSize:12.5, color:'var(--t-primary)' }}>{fmtDate(p.date)}</td>
+                      <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'var(--c-success)' }}>{inr(p.amount)}</td>
+                      <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'var(--t-secondary)' }}>{inr(gAmt)}</td>
+                      <td style={{ padding:'9px 12px', fontSize:12.5, color:'var(--t-primary)' }}>{p.mode}</td>
+                      <td style={{ padding:'9px 12px', fontSize:11.5, fontFamily:'monospace', color:'var(--t-secondary)' }}>{p.cheque_utr||'—'}</td>
+                      <td style={{ padding:'9px 12px', fontSize:12, color:'var(--t-primary)' }}>{p.bank||'—'}</td>
                       <td style={{ padding:'9px 12px' }}>
                         <button onClick={()=>printReceipt(b,historyModal,p.payment_rows||[p],b?.gst_rate||5,entityProjects.find(pr=>pr.id===b?.project_id)?.name||'',p.receipt_no)}
-                          style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:4 }}>
+                          style={{ background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:600, color:'var(--t-primary)', display:'flex', alignItems:'center', gap:4 }}>
                           <Printer size={10}/> Print
                         </button>
                       </td>
@@ -631,9 +631,9 @@ export default function Payments() {
                 })}
               </tbody>
               <tfoot>
-                <tr style={{ background:'#071437' }}>
+                <tr style={{ background:'var(--c-dark)' }}>
                   <td colSpan={2} style={{ padding:'9px 12px', fontSize:12, fontWeight:800, color:'#fff' }}>TOTAL RECEIVED</td>
-                  <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#50CD89' }}>
+                  <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'var(--c-success)' }}>
                     {inr((historyModal.payments||[]).reduce((s,p)=>s+p.amount,0))}
                   </td>
                   <td colSpan={5}/>

@@ -3,6 +3,19 @@ import { useAppStore } from '../../stores/appStore';
 import { Plus, Search, Upload, Download, RefreshCw, X, ChevronDown, Filter } from 'lucide-react';
 import { sortRows, filterRowsByDateRange, paginateRows } from '../../utils/table';
 import { SortHeader, DateRangeFilter, PaginationControls } from '../ui/TableUtilities';
+import {
+  moduleBtnStyle,
+  ModuleModalOverlay as ModalOverlay,
+  ModuleTableTh as Th,
+  ModuleTableTd as Td,
+  formLabelStyle,
+  fieldStyle,
+  onFieldFocus,
+  onFieldBlur,
+  PAGE_HEADER_STYLE,
+  PAGE_TITLE_STYLE,
+  PAGE_SUBTITLE_STYLE,
+} from '../theme/moduleUi';
 
 export default function FinanceModule({ viewOnly }) {
   const { activeSubTab } = useAppStore();
@@ -25,46 +38,27 @@ export default function FinanceModule({ viewOnly }) {
 }
 
 // ── SHARED ─────────────────────────────────────────────────────────────────
-const Btn = ({ children, onClick, color = '#17C653', small, disabled, style = {} }) => (
-  <button onClick={onClick} disabled={disabled} style={{
-    background: disabled ? '#F1F1F4' : color, color: disabled ? '#78829D' : '#fff',
-    border: 'none', borderRadius: 8, padding: small ? '5px 12px' : '7px 16px',
-    fontSize: small ? 11 : 12, fontWeight: 700, cursor: disabled ? 'default' : 'pointer',
-    display: 'flex', alignItems: 'center', gap: 5, ...style,
-  }}>{children}</button>
+const Btn = ({ children, onClick, color = 'var(--c-success)', small, disabled, style = {} }) => (
+  <button onClick={onClick} disabled={disabled} style={moduleBtnStyle(color, small, disabled, style)}>{children}</button>
 );
 
-const Badge = ({ label, color = '#17C653' }) => (
+const Badge = ({ label, color = 'var(--c-success)' }) => (
   <span style={{ background: color + '18', color, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>{label}</span>
 );
-
-function ModalOverlay({ children, onClose, title, wide }) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
-      <div style={{ background: '#fff', borderRadius: 14, width: wide ? 820 : 520, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #FCFCFC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
-          <span style={{ fontWeight: 800, fontSize: 14, color: '#071437' }}>{title}</span>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78829D' }}><X size={16} /></button>
-        </div>
-        <div style={{ padding: '16px 20px' }}>{children}</div>
-      </div>
-    </div>
-  );
-}
 
 function FormField({ label, value, onChange, type = 'text', options, required }) {
   return (
     <div>
-      <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>{label}{required && ' *'}</label>
+      <label style={formLabelStyle()}>{label}{required && <span style={{ color: 'var(--c-danger)' }}> *</span>}</label>
       {options ? (
-        <select value={value || ''} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, boxSizing: 'border-box' }}>
+        <select value={value || ''} onChange={e => onChange(e.target.value)} style={fieldStyle(false)} onFocus={onFieldFocus} onBlur={e => onFieldBlur(e, false)}>
           {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
         </select>
       ) : (
         <input type={type} value={value ?? ''} onChange={e => onChange(e.target.value)}
-          style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
-          onFocus={e => e.target.style.borderColor = '#17C653'}
-          onBlur={e => e.target.style.borderColor = '#F1F1F4'} />
+          style={fieldStyle(false)}
+          onFocus={onFieldFocus}
+          onBlur={e => onFieldBlur(e, false)} />
       )}
     </div>
   );
@@ -72,18 +66,11 @@ function FormField({ label, value, onChange, type = 'text', options, required })
 
 function SectionHeader({ title, sub }) {
   return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>{title}</div>
-      {sub && <div style={{ fontSize: 11, color: '#78829D', marginTop: 2 }}>{sub}</div>}
+    <div style={PAGE_HEADER_STYLE}>
+      <div style={PAGE_TITLE_STYLE}>{title}</div>
+      {sub && <div style={PAGE_SUBTITLE_STYLE}>{sub}</div>}
     </div>
   );
-}
-
-function Th({ children }) {
-  return <th style={{ padding: '9px 14px', fontSize: 11, fontWeight: 700, color: '#4B5675', textAlign: 'left', borderBottom: '1px solid #FCFCFC', background: '#FCFCFC' }}>{children}</th>;
-}
-function Td({ children, style = {} }) {
-  return <td style={{ padding: '8px 14px', fontSize: 12, color: '#252F4A', borderBottom: '1px solid #FCFCFC', ...style }}>{children}</td>;
 }
 
 // ── COA ────────────────────────────────────────────────────────────────────
@@ -109,7 +96,7 @@ function COATab({ viewOnly }) {
     return acc;
   }, []);
 
-  const GROUP_COLORS = { Assets: '#1B84FF', Liabilities: '#F8285A', Capital: '#7239EA', Income: '#17C653', Expenses: '#F6C000' };
+  const GROUP_COLORS = { Assets: 'var(--c-primary)', Liabilities: 'var(--c-danger)', Capital: 'var(--c-info)', Income: 'var(--c-success)', Expenses: 'var(--c-warning)' };
 
   return (
     <div>
@@ -117,8 +104,8 @@ function COATab({ viewOnly }) {
         <SectionHeader title="Chart of Accounts" sub={`${coa.length} accounts`} />
         <div style={{ display: 'flex', gap: 8 }}>
           <div style={{ position: 'relative' }}>
-            <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#78829D' }} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…" style={{ paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', width: 180 }} />
+            <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--t-muted)' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…" style={{ paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, outline: 'none', width: 180 }} />
           </div>
           {!viewOnly && <Btn onClick={() => { setForm({ code: '', name: '', group: 'Assets', subGroup: '', type: 'asset', openingBalance: 0 }); setModal(true); }} small><Plus size={12} /> Add Account</Btn>}
         </div>
@@ -129,14 +116,14 @@ function COATab({ viewOnly }) {
           <div style={{ fontSize: 11, fontWeight: 700, color: GROUP_COLORS[group], textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: GROUP_COLORS[group] }} />{group}
           </div>
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid var(--border)', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr><Th>Code</Th><Th>Account Name</Th><Th>Sub-Group</Th><Th>Opening Balance</Th><Th>Type</Th></tr></thead>
               <tbody>
                 {items.map(a => (
                   <tr key={a.id}>
-                    <Td style={{ fontWeight: 700, color: '#071437', fontFamily: 'monospace' }}>{a.code}</Td>
-                    <Td style={{ fontWeight: 500 }}>{a.name} {a.isSystem && <Badge label="System" color="#4B5675" />}</Td>
+                    <Td style={{ fontWeight: 700, color: 'var(--c-dark)', fontFamily: 'monospace' }}>{a.code}</Td>
+                    <Td style={{ fontWeight: 500 }}>{a.name} {a.isSystem && <Badge label="System" color="var(--t-secondary)" />}</Td>
                     <Td>{a.subGroup || '—'}</Td>
                     <Td style={{ fontWeight: 600 }}>₹{(a.openingBalance || 0).toLocaleString('en-IN')}</Td>
                     <Td><Badge label={a.type} color={GROUP_COLORS[group]} /></Td>
@@ -158,7 +145,7 @@ function COATab({ viewOnly }) {
             <FormField label="Opening Balance (₹)" value={form.openingBalance} onChange={v => setForm(f => ({ ...f, openingBalance: Number(v) }))} type="number" />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveAccount} small>Save Account</Btn>
           </div>
         </ModalOverlay>
@@ -169,7 +156,7 @@ function COATab({ viewOnly }) {
 
 // ── LEDGER / JOURNAL ───────────────────────────────────────────────────────
 const VOUCHER_TYPES = ['Receipt', 'Payment', 'Journal', 'Sales', 'Purchase', 'Contra'];
-const VOUCHER_COLORS = { Receipt: '#17C653', Payment: '#F8285A', Journal: '#1B84FF', Sales: '#7239EA', Purchase: '#F6C000', Contra: '#0E9F8A' };
+const VOUCHER_COLORS = { Receipt: 'var(--c-success)', Payment: 'var(--c-danger)', Journal: 'var(--c-primary)', Sales: 'var(--c-info)', Purchase: 'var(--c-warning)', Contra: 'var(--c-teal)' };
 
 function LedgerTab({ viewOnly }) {
   const { journalEntries, setJournalEntries, coa, addToast, user, activeEntity } = useAppStore();
@@ -263,14 +250,14 @@ function LedgerTab({ viewOnly }) {
         <SectionHeader title="Ledger & Journal" sub={`${sortedRows.length} entries`} />
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#78829D' }} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search narration…" style={{ paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', width: 180 }} />
+            <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--t-muted)' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search narration…" style={{ paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, outline: 'none', width: 180 }} />
           </div>
-          <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '6px 10px', fontSize: 11 }}>
+          <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', fontSize: 11 }}>
             <option value="all">All Types</option>
             {VOUCHER_TYPES.map(t => <option key={t}>{t}</option>)}
           </select>
-          <select value={filterAccount} onChange={e => setFilterAccount(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '6px 10px', fontSize: 11, maxWidth: 200 }}>
+          <select value={filterAccount} onChange={e => setFilterAccount(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', fontSize: 11, maxWidth: 200 }}>
             {coaOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
           <DateRangeFilter from={dateFrom} to={dateTo} onChangeFrom={setDateFrom} onChangeTo={setDateTo} compact />
@@ -279,14 +266,14 @@ function LedgerTab({ viewOnly }) {
       </div>
 
       {accountBalance && (
-        <div style={{ background: '#EEF6FF', borderRadius: 10, padding: '10px 16px', marginBottom: 14, display: 'flex', gap: 20 }}>
-          <div><div style={{ fontSize: 10, color: '#78829D' }}>Account</div><div style={{ fontSize: 13, fontWeight: 700, color: '#071437' }}>{accountBalance.name}</div></div>
-          <div><div style={{ fontSize: 10, color: '#78829D' }}>Closing Balance</div><div style={{ fontSize: 13, fontWeight: 700, color: accountBalance.balance >= 0 ? '#17C653' : '#F8285A' }}>₹{Math.abs(accountBalance.balance).toLocaleString('en-IN')} {accountBalance.balance >= 0 ? 'Dr' : 'Cr'}</div></div>
-          <div><div style={{ fontSize: 10, color: '#78829D' }}>Entries Shown</div><div style={{ fontSize: 13, fontWeight: 700, color: '#071437' }}>{sortedRows.length}</div></div>
+        <div style={{ background: 'var(--c-primary-light)', borderRadius: 10, padding: '10px 16px', marginBottom: 14, display: 'flex', gap: 20 }}>
+          <div><div style={{ fontSize: 10, color: 'var(--t-muted)' }}>Account</div><div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-dark)' }}>{accountBalance.name}</div></div>
+          <div><div style={{ fontSize: 10, color: 'var(--t-muted)' }}>Closing Balance</div><div style={{ fontSize: 13, fontWeight: 700, color: accountBalance.balance >= 0 ? 'var(--c-success)' : 'var(--c-danger)' }}>₹{Math.abs(accountBalance.balance).toLocaleString('en-IN')} {accountBalance.balance >= 0 ? 'Dr' : 'Cr'}</div></div>
+          <div><div style={{ fontSize: 10, color: 'var(--t-muted)' }}>Entries Shown</div><div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-dark)' }}>{sortedRows.length}</div></div>
         </div>
       )}
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -302,28 +289,28 @@ function LedgerTab({ viewOnly }) {
           <tbody>
             {paged.data.map(e => (
               <tr key={e.id} style={{ cursor: 'pointer' }} onClick={() => setViewEntry(e)}
-                onMouseEnter={ev => ev.currentTarget.style.background = '#FCFCFC'}
+                onMouseEnter={ev => ev.currentTarget.style.background = 'var(--bg-subtle)'}
                 onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}>
                 <Td>{e.date}</Td>
-                <Td style={{ fontWeight: 700, color: '#071437', fontSize: 11 }}>{e.voucherNo || '—'}</Td>
-                <Td><Badge label={e.voucherType} color={VOUCHER_COLORS[e.voucherType] || '#4B5675'} /></Td>
+                <Td style={{ fontWeight: 700, color: 'var(--c-dark)', fontSize: 11 }}>{e.voucherNo || '—'}</Td>
+                <Td><Badge label={e.voucherType} color={VOUCHER_COLORS[e.voucherType] || 'var(--t-secondary)'} /></Td>
                 <Td style={{ maxWidth: 220 }}><div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.narration}</div></Td>
                 <Td style={{ fontFamily: 'monospace', fontSize: 11 }}>{e.drAccount}</Td>
                 <Td style={{ fontFamily: 'monospace', fontSize: 11 }}>{e.crAccount}</Td>
-                <Td style={{ fontWeight: 700, color: '#17C653' }}>₹{Number(e.amount || 0).toLocaleString('en-IN')}</Td>
+                <Td style={{ fontWeight: 700, color: 'var(--c-success)' }}>₹{Number(e.amount || 0).toLocaleString('en-IN')}</Td>
               </tr>
             ))}
           </tbody>
           {sortedRows.length > 0 && (
             <tfoot>
-              <tr style={{ background: '#FCFCFC' }}>
-                <td colSpan={6} style={{ padding: '9px 14px', fontWeight: 700, fontSize: 12, color: '#071437', textAlign: 'right' }}>Total</td>
-                <td style={{ padding: '9px 14px', fontWeight: 800, fontSize: 13, color: '#17C653' }}>₹{totalDr.toLocaleString('en-IN')}</td>
+              <tr style={{ background: 'var(--bg-subtle)' }}>
+                <td colSpan={6} style={{ padding: '9px 14px', fontWeight: 700, fontSize: 12, color: 'var(--c-dark)', textAlign: 'right' }}>Total</td>
+                <td style={{ padding: '9px 14px', fontWeight: 800, fontSize: 13, color: 'var(--c-success)' }}>₹{totalDr.toLocaleString('en-IN')}</td>
               </tr>
             </tfoot>
           )}
         </table>
-        {sortedRows.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No journal entries found.</div>}
+        {sortedRows.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No journal entries found.</div>}
       </div>
       <PaginationControls
         page={paged.page}
@@ -336,7 +323,7 @@ function LedgerTab({ viewOnly }) {
 
       {modal && (
         <ModalOverlay onClose={() => setModal(false)} title="New Journal Entry" wide>
-          <div style={{ background: '#FCFCFC', borderRadius: 10, padding: '12px 14px', marginBottom: 14, fontSize: 11.5, color: '#252F4A' }}>
+          <div style={{ background: 'var(--bg-subtle)', borderRadius: 10, padding: '12px 14px', marginBottom: 14, fontSize: 11.5, color: 'var(--t-primary)' }}>
             💡 Double-entry: every debit (Dr) has an equal credit (Cr). Amount is debited to Dr Account and credited to Cr Account.
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
@@ -349,20 +336,20 @@ function LedgerTab({ viewOnly }) {
             <FormField label="Cr Account (Credit)" value={form.crAccount} onChange={v => setForm(f => ({ ...f, crAccount: v }))} options={[{ value: '', label: '— Select —' }, ...coa.map(a => ({ value: a.code, label: `${a.code} — ${a.name}` }))]} required />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>Narration *</label>
-            <textarea value={form.narration} onChange={e => setForm(f => ({ ...f, narration: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
+            <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t-primary)', display: 'block', marginBottom: 4 }}>Narration *</label>
+            <textarea value={form.narration} onChange={e => setForm(f => ({ ...f, narration: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
             <FormField label="Reference / Cheque No" value={form.ref} onChange={v => setForm(f => ({ ...f, ref: v }))} />
             <FormField label="GSTIN (if applicable)" value={form.gstin} onChange={v => setForm(f => ({ ...f, gstin: v }))} />
           </div>
           {form.drAccount && form.crAccount && Number(form.amount) > 0 && (
-            <div style={{ background: '#E8FFF3', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12 }}>
+            <div style={{ background: 'var(--c-success-light)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12 }}>
               <strong>Preview:</strong> Dr {form.drAccount} ₹{Number(form.amount).toLocaleString('en-IN')} | Cr {form.crAccount} ₹{Number(form.amount).toLocaleString('en-IN')}
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveEntry} small>Save Entry</Btn>
           </div>
         </ModalOverlay>
@@ -372,12 +359,12 @@ function LedgerTab({ viewOnly }) {
         <ModalOverlay onClose={() => setViewEntry(null)} title={`Entry — ${viewEntry.voucherNo || viewEntry.id}`}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             {[['Date', viewEntry.date], ['Type', viewEntry.voucherType], ['Amount', `₹${Number(viewEntry.amount).toLocaleString('en-IN')}`], ['Dr Account', viewEntry.drAccount], ['Cr Account', viewEntry.crAccount], ['Reference', viewEntry.ref || '—'], ['Created By', viewEntry.createdBy || '—'], ['Created At', viewEntry.createdAt ? new Date(viewEntry.createdAt).toLocaleString('en-IN') : '—']].map(([k, v]) => (
-              <div key={k}><div style={{ fontSize: 10, color: '#78829D' }}>{k}</div><div style={{ fontSize: 13, fontWeight: 600, color: '#071437' }}>{v}</div></div>
+              <div key={k}><div style={{ fontSize: 10, color: 'var(--t-muted)' }}>{k}</div><div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-dark)' }}>{v}</div></div>
             ))}
           </div>
-          <div style={{ background: '#FCFCFC', borderRadius: 8, padding: '10px 14px' }}>
-            <div style={{ fontSize: 10, color: '#78829D' }}>Narration</div>
-            <div style={{ fontSize: 13, color: '#252F4A', marginTop: 4 }}>{viewEntry.narration}</div>
+          <div style={{ background: 'var(--bg-subtle)', borderRadius: 8, padding: '10px 14px' }}>
+            <div style={{ fontSize: 10, color: 'var(--t-muted)' }}>Narration</div>
+            <div style={{ fontSize: 13, color: 'var(--t-primary)', marginTop: 4 }}>{viewEntry.narration}</div>
           </div>
         </ModalOverlay>
       )}
@@ -446,29 +433,29 @@ function BankReconTab({ viewOnly }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <SectionHeader title="Bank Reconciliation" />
         <div style={{ display: 'flex', gap: 8 }}>
-          {!viewOnly && <Btn onClick={() => { setForm({ bankName: '', accountNo: '', ifsc: '', openingBalance: 0 }); setModal('addBank'); }} small color="#4B5675"><Plus size={12} /> Add Bank</Btn>}
+          {!viewOnly && <Btn onClick={() => { setForm({ bankName: '', accountNo: '', ifsc: '', openingBalance: 0 }); setModal('addBank'); }} small color="var(--t-secondary)"><Plus size={12} /> Add Bank</Btn>}
           <Btn onClick={importCSV} small><Upload size={12} /> Import Bank CSV</Btn>
-          {csvRows.length > 0 && <Btn onClick={autoMatch} small color="#7239EA"><RefreshCw size={12} /> Auto-Match</Btn>}
-          {!viewOnly && csvRows.length > 0 && <Btn onClick={postMatchedRows} small color="#17C653">Post Matched</Btn>}
+          {csvRows.length > 0 && <Btn onClick={autoMatch} small color="var(--c-info)"><RefreshCw size={12} /> Auto-Match</Btn>}
+          {!viewOnly && csvRows.length > 0 && <Btn onClick={postMatchedRows} small color="var(--c-success)">Post Matched</Btn>}
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        <select value={selBank} onChange={e => setSelBank(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 240 }}>
+        <select value={selBank} onChange={e => setSelBank(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 240 }}>
           <option value="">— Select Bank Account —</option>
           {bankAccounts.map(b => <option key={b.id} value={b.id}>{b.bankName} — {b.accountNo}</option>)}
         </select>
         {bank && (
           <>
-            <div style={{ background: '#E8FFF3', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#17C653' }}>Opening: ₹{(bank.openingBalance || 0).toLocaleString('en-IN')}</div>
-            <div style={{ background: '#EEF6FF', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#1B84FF' }}>Closing: ₹{closingBalance.toLocaleString('en-IN')}</div>
+            <div style={{ background: 'var(--c-success-light)', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: 'var(--c-success)' }}>Opening: ₹{(bank.openingBalance || 0).toLocaleString('en-IN')}</div>
+            <div style={{ background: 'var(--c-primary-light)', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: 'var(--c-primary)' }}>Closing: ₹{closingBalance.toLocaleString('en-IN')}</div>
           </>
         )}
       </div>
 
       {csvRows.length > 0 && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden', marginBottom: 16 }}>
-          <div style={{ padding: '10px 16px', borderBottom: '1px solid #FCFCFC', fontWeight: 700, fontSize: 13, color: '#071437' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 16 }}>
+          <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--bg-subtle)', fontWeight: 700, fontSize: 13, color: 'var(--c-dark)' }}>
             Imported Bank Statement — {csvRows.length} rows ({csvRows.filter(r => r.matched).length} matched)
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -478,9 +465,9 @@ function BankReconTab({ viewOnly }) {
                 <tr key={i}>
                   <Td>{r.date}</Td>
                   <Td>{r.narration}</Td>
-                  <Td style={{ fontWeight: 600, color: r.type === 'credit' ? '#17C653' : '#F8285A' }}>₹{Math.abs(r.amount).toLocaleString('en-IN')}</Td>
-                  <Td><Badge label={r.type} color={r.type === 'credit' ? '#17C653' : '#F8285A'} /></Td>
-                  <Td>{r.matched ? <Badge label="✓ Matched" color="#17C653" /> : <Badge label="Unmatched" color="#F6C000" />}</Td>
+                  <Td style={{ fontWeight: 600, color: r.type === 'credit' ? 'var(--c-success)' : 'var(--c-danger)' }}>₹{Math.abs(r.amount).toLocaleString('en-IN')}</Td>
+                  <Td><Badge label={r.type} color={r.type === 'credit' ? 'var(--c-success)' : 'var(--c-danger)'} /></Td>
+                  <Td>{r.matched ? <Badge label="✓ Matched" color="var(--c-success)" /> : <Badge label="Unmatched" color="var(--c-warning)" />}</Td>
                 </tr>
               ))}
             </tbody>
@@ -497,7 +484,7 @@ function BankReconTab({ viewOnly }) {
             <FormField label="Opening Balance (₹)" value={form.openingBalance} onChange={v => setForm(f => ({ ...f, openingBalance: Number(v) }))} type="number" />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={addBank} small>Add Bank</Btn>
           </div>
         </ModalOverlay>
@@ -520,8 +507,8 @@ function computeStatement(coa, journalEntries) {
 function ReportTable({ title, rows, showNet = true }) {
   const total = rows.reduce((s, r) => s + (r.net || 0), 0);
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden', marginBottom: 16 }}>
-      <div style={{ padding: '10px 16px', borderBottom: '1px solid #FCFCFC', fontWeight: 700, fontSize: 13, color: '#071437' }}>{title}</div>
+    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 16 }}>
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--bg-subtle)', fontWeight: 700, fontSize: 13, color: 'var(--c-dark)' }}>{title}</div>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead><tr><Th>Account</Th><Th>Debit (₹)</Th><Th>Credit (₹)</Th>{showNet && <Th>Net (₹)</Th>}</tr></thead>
         <tbody>
@@ -530,16 +517,16 @@ function ReportTable({ title, rows, showNet = true }) {
               <Td style={{ fontWeight: 500 }}>{r.code} — {r.name}</Td>
               <Td style={{ fontWeight: 600 }}>₹{(r.dr || 0).toLocaleString('en-IN')}</Td>
               <Td style={{ fontWeight: 600 }}>₹{(r.cr || 0).toLocaleString('en-IN')}</Td>
-              {showNet && <Td style={{ fontWeight: 700, color: r.net >= 0 ? '#17C653' : '#F8285A' }}>₹{Math.abs(r.net || 0).toLocaleString('en-IN')} {r.net >= 0 ? 'Dr' : 'Cr'}</Td>}
+              {showNet && <Td style={{ fontWeight: 700, color: r.net >= 0 ? 'var(--c-success)' : 'var(--c-danger)' }}>₹{Math.abs(r.net || 0).toLocaleString('en-IN')} {r.net >= 0 ? 'Dr' : 'Cr'}</Td>}
             </tr>
           ))}
         </tbody>
         <tfoot>
-          <tr style={{ background: '#FCFCFC' }}>
+          <tr style={{ background: 'var(--bg-subtle)' }}>
             <td style={{ padding: '9px 14px', fontWeight: 700 }}>Total</td>
             <td style={{ padding: '9px 14px', fontWeight: 800, fontSize: 13 }}>₹{rows.reduce((s, r) => s + (r.dr || 0), 0).toLocaleString('en-IN')}</td>
             <td style={{ padding: '9px 14px', fontWeight: 800, fontSize: 13 }}>₹{rows.reduce((s, r) => s + (r.cr || 0), 0).toLocaleString('en-IN')}</td>
-            {showNet && <td style={{ padding: '9px 14px', fontWeight: 800, fontSize: 13, color: total >= 0 ? '#17C653' : '#F8285A' }}>₹{Math.abs(total).toLocaleString('en-IN')} {total >= 0 ? 'Dr' : 'Cr'}</td>}
+            {showNet && <td style={{ padding: '9px 14px', fontWeight: 800, fontSize: 13, color: total >= 0 ? 'var(--c-success)' : 'var(--c-danger)' }}>₹{Math.abs(total).toLocaleString('en-IN')} {total >= 0 ? 'Dr' : 'Cr'}</td>}
           </tr>
         </tfoot>
       </table>
@@ -557,9 +544,9 @@ function TrialBalanceTab() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <SectionHeader title="Trial Balance" sub="As at today" />
         <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ background: '#E8FFF3', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#17C653' }}>Total Dr: ₹{totalDr.toLocaleString('en-IN')}</div>
-          <div style={{ background: '#FFE2E5', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#F8285A' }}>Total Cr: ₹{totalCr.toLocaleString('en-IN')}</div>
-          {Math.abs(totalDr - totalCr) < 1 && <div style={{ background: '#E8FFF3', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#17C653' }}>✓ Balanced</div>}
+          <div style={{ background: 'var(--c-success-light)', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: 'var(--c-success)' }}>Total Dr: ₹{totalDr.toLocaleString('en-IN')}</div>
+          <div style={{ background: 'var(--c-danger-light)', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: 'var(--c-danger)' }}>Total Cr: ₹{totalCr.toLocaleString('en-IN')}</div>
+          {Math.abs(totalDr - totalCr) < 1 && <div style={{ background: 'var(--c-success-light)', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: 'var(--c-success)' }}>✓ Balanced</div>}
         </div>
       </div>
       <ReportTable title="Trial Balance" rows={balances} />
@@ -579,7 +566,7 @@ function PAndLTab() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <SectionHeader title="Profit & Loss Statement" />
-        <div style={{ background: netProfit >= 0 ? '#E8FFF3' : '#FFE2E5', borderRadius: 8, padding: '8px 16px', fontWeight: 800, color: netProfit >= 0 ? '#17C653' : '#F8285A' }}>
+        <div style={{ background: netProfit >= 0 ? 'var(--c-success-light)' : 'var(--c-danger-light)', borderRadius: 8, padding: '8px 16px', fontWeight: 800, color: netProfit >= 0 ? 'var(--c-success)' : 'var(--c-danger)' }}>
           Net {netProfit >= 0 ? 'Profit' : 'Loss'}: ₹{Math.abs(netProfit).toLocaleString('en-IN')}
         </div>
       </div>
@@ -602,8 +589,8 @@ function BalanceSheetTab() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <SectionHeader title="Balance Sheet" />
         <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ background: '#EEF6FF', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#1B84FF' }}>Total Assets: ₹{totalAssets.toLocaleString('en-IN')}</div>
-          <div style={{ background: Math.abs(totalAssets - totalLiabCap) < 1 ? '#E8FFF3' : '#FFF8DD', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: Math.abs(totalAssets - totalLiabCap) < 1 ? '#17C653' : '#7A4E00' }}>
+          <div style={{ background: 'var(--c-primary-light)', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: 'var(--c-primary)' }}>Total Assets: ₹{totalAssets.toLocaleString('en-IN')}</div>
+          <div style={{ background: Math.abs(totalAssets - totalLiabCap) < 1 ? 'var(--c-success-light)' : 'var(--c-warning-light)', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: Math.abs(totalAssets - totalLiabCap) < 1 ? 'var(--c-success)' : 'var(--t-secondary)' }}>
             {Math.abs(totalAssets - totalLiabCap) < 1 ? '✓ Balanced' : `Diff: ₹${Math.abs(totalAssets - totalLiabCap).toLocaleString('en-IN')}`}
           </div>
         </div>
@@ -625,11 +612,11 @@ function CashFlowTab() {
     <div>
       <SectionHeader title="Cash Flow Statement" />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
-        {[['Cash Inflows', inflows.length, inflows.reduce((s, e) => s + e.amount, 0), '#17C653'], ['Cash Outflows', outflows.length, outflows.reduce((s, e) => s + e.amount, 0), '#F8285A'], ['Net Cash Flow', inflows.length + outflows.length, netInflow, netInflow >= 0 ? '#17C653' : '#F8285A']].map(([l, cnt, amt, c]) => (
-          <div key={l} style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 18 }}>
-            <div style={{ fontSize: 11, color: '#78829D' }}>{l}</div>
+        {[['Cash Inflows', inflows.length, inflows.reduce((s, e) => s + e.amount, 0), 'var(--c-success)'], ['Cash Outflows', outflows.length, outflows.reduce((s, e) => s + e.amount, 0), 'var(--c-danger)'], ['Net Cash Flow', inflows.length + outflows.length, netInflow, netInflow >= 0 ? 'var(--c-success)' : 'var(--c-danger)']].map(([l, cnt, amt, c]) => (
+          <div key={l} style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 18 }}>
+            <div style={{ fontSize: 11, color: 'var(--t-muted)' }}>{l}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: c, marginTop: 4 }}>₹{Math.abs(amt).toLocaleString('en-IN')}</div>
-            <div style={{ fontSize: 10, color: '#78829D', marginTop: 2 }}>{cnt} entries</div>
+            <div style={{ fontSize: 10, color: 'var(--t-muted)', marginTop: 2 }}>{cnt} entries</div>
           </div>
         ))}
       </div>
@@ -684,16 +671,16 @@ function GSTTab({ viewOnly }) {
       {/* Sub-tabs */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginBottom: 16, paddingBottom: 4 }}>
         {GST_TABS.map(([id, l]) => (
-          <button key={id} onClick={() => setSubTab(id)} style={{ whiteSpace: 'nowrap', padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: subTab === id ? 700 : 400, color: subTab === id ? '#17C653' : '#4B5675', background: subTab === id ? '#E8FFF3' : '#FCFCFC', border: '1px solid ' + (subTab === id ? '#50CD89' : 'transparent'), cursor: 'pointer' }}>{l}</button>
+          <button key={id} onClick={() => setSubTab(id)} style={{ whiteSpace: 'nowrap', padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: subTab === id ? 700 : 400, color: subTab === id ? 'var(--c-success)' : 'var(--t-secondary)', background: subTab === id ? 'var(--c-success-light)' : 'var(--bg-subtle)', border: '1px solid ' + (subTab === id ? 'var(--c-success)' : 'transparent'), cursor: 'pointer' }}>{l}</button>
         ))}
       </div>
 
       {/* Summary totals */}
       {rows.length > 0 && (
         <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
-          {[['Taxable Value', totalTaxable, '#1B84FF'], ['Total Tax', totalTax, '#17C653'], ['Records', rows.length, '#4B5675']].map(([l, v, c]) => (
-            <div key={l} style={{ background: '#fff', borderRadius: 8, border: '1px solid #F1F1F4', padding: '8px 16px' }}>
-              <div style={{ fontSize: 10, color: '#78829D' }}>{l}</div>
+          {[['Taxable Value', totalTaxable, 'var(--c-primary)'], ['Total Tax', totalTax, 'var(--c-success)'], ['Records', rows.length, 'var(--t-secondary)']].map(([l, v, c]) => (
+            <div key={l} style={{ background: '#fff', borderRadius: 8, border: '1px solid var(--border)', padding: '8px 16px' }}>
+              <div style={{ fontSize: 10, color: 'var(--t-muted)' }}>{l}</div>
               <div style={{ fontSize: 16, fontWeight: 800, color: c }}>{typeof v === 'number' && l !== 'Records' ? `₹${v.toLocaleString('en-IN')}` : v}</div>
             </div>
           ))}
@@ -707,20 +694,20 @@ function GSTTab({ viewOnly }) {
       )}
 
       {subTab === 'gstrSummary' ? (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 20 }}>
-          <div style={{ fontWeight: 700, fontSize: 13, color: '#071437', marginBottom: 12 }}>GSTR Summary</div>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 20 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--c-dark)', marginBottom: 12 }}>GSTR Summary</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {[['GSTR-1 (Sales)', (gstData.salesInvoices || []).length, totalTaxable], ['GSTR-3B (Tax Liability)', (gstData.gstChallans || []).length, totalTax], ['ITC Available', (gstData.purchaseInvoices || []).length, (gstData.purchaseInvoices || []).reduce((s, r) => s + Number(r.cgst || 0) + Number(r.sgst || 0) + Number(r.igst || 0), 0)]].map(([l, cnt, amt]) => (
-              <div key={l} style={{ background: '#FCFCFC', borderRadius: 8, padding: '12px 16px' }}>
-                <div style={{ fontSize: 11, color: '#78829D' }}>{l}</div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#17C653', marginTop: 4 }}>₹{amt.toLocaleString('en-IN')}</div>
-                <div style={{ fontSize: 10, color: '#78829D', marginTop: 2 }}>{cnt} entries</div>
+              <div key={l} style={{ background: 'var(--bg-subtle)', borderRadius: 8, padding: '12px 16px' }}>
+                <div style={{ fontSize: 11, color: 'var(--t-muted)' }}>{l}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--c-success)', marginTop: 4 }}>₹{amt.toLocaleString('en-IN')}</div>
+                <div style={{ fontSize: 10, color: 'var(--t-muted)', marginTop: 2 }}>{cnt} entries</div>
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Date</Th><Th>Invoice No</Th><Th>Party</Th><Th>GSTIN</Th><Th>Taxable Value</Th><Th>CGST</Th><Th>SGST</Th><Th>IGST</Th><Th>Total</Th></tr></thead>
             <tbody>
@@ -734,12 +721,12 @@ function GSTTab({ viewOnly }) {
                   <Td>₹{Number(r.cgst || 0).toLocaleString('en-IN')}</Td>
                   <Td>₹{Number(r.sgst || 0).toLocaleString('en-IN')}</Td>
                   <Td>₹{Number(r.igst || 0).toLocaleString('en-IN')}</Td>
-                  <Td style={{ fontWeight: 700, color: '#17C653' }}>₹{Number(r.total || 0).toLocaleString('en-IN')}</Td>
+                  <Td style={{ fontWeight: 700, color: 'var(--c-success)' }}>₹{Number(r.total || 0).toLocaleString('en-IN')}</Td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {rows.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No entries in this section.</div>}
+          {rows.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No entries in this section.</div>}
         </div>
       )}
 
@@ -757,7 +744,7 @@ function GSTTab({ viewOnly }) {
             <FormField label="IGST (₹)" value={form.igst} onChange={v => setForm(f => ({ ...f, igst: v }))} type="number" />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveInvoice} small>Save</Btn>
           </div>
         </ModalOverlay>
@@ -807,7 +794,7 @@ function TDSTab({ viewOnly }) {
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {TDS_SECTIONS_LIST.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)} style={{ padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: section === s.id ? 700 : 400, color: section === s.id ? '#F8285A' : '#4B5675', background: section === s.id ? '#FFE2E5' : '#FCFCFC', border: '1px solid ' + (section === s.id ? '#FFB8C6' : 'transparent'), cursor: 'pointer' }}>
+          <button key={s.id} onClick={() => setSection(s.id)} style={{ padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: section === s.id ? 700 : 400, color: section === s.id ? 'var(--c-danger)' : 'var(--t-secondary)', background: section === s.id ? 'var(--c-danger-light)' : 'var(--bg-subtle)', border: '1px solid ' + (section === s.id ? 'var(--c-danger)' : 'transparent'), cursor: 'pointer' }}>
             {s.id} ({s.rate})
           </button>
         ))}
@@ -815,16 +802,16 @@ function TDSTab({ viewOnly }) {
 
       {rows.length > 0 && (
         <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
-          {[['Base Amount', `₹${totalBase.toLocaleString('en-IN')}`, '#1B84FF'], ['TDS Deducted', `₹${totalTDS.toLocaleString('en-IN')}`, '#F8285A'], ['Section', TDS_SECTIONS_LIST.find(s => s.id === section)?.label, '#4B5675']].map(([l, v, c]) => (
-            <div key={l} style={{ background: '#fff', borderRadius: 8, border: '1px solid #F1F1F4', padding: '8px 16px' }}>
-              <div style={{ fontSize: 10, color: '#78829D' }}>{l}</div>
+          {[['Base Amount', `₹${totalBase.toLocaleString('en-IN')}`, 'var(--c-primary)'], ['TDS Deducted', `₹${totalTDS.toLocaleString('en-IN')}`, 'var(--c-danger)'], ['Section', TDS_SECTIONS_LIST.find(s => s.id === section)?.label, 'var(--t-secondary)']].map(([l, v, c]) => (
+            <div key={l} style={{ background: '#fff', borderRadius: 8, border: '1px solid var(--border)', padding: '8px 16px' }}>
+              <div style={{ fontSize: 10, color: 'var(--t-muted)' }}>{l}</div>
               <div style={{ fontSize: 14, fontWeight: 800, color: c }}>{v}</div>
             </div>
           ))}
         </div>
       )}
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Date</Th><Th>Party</Th><Th>PAN</Th><Th>Base Amount</Th><Th>TDS %</Th><Th>TDS Amount</Th><Th>BSR Code</Th><Th>Challan No</Th></tr></thead>
           <tbody>
@@ -835,14 +822,14 @@ function TDSTab({ viewOnly }) {
                 <Td style={{ fontFamily: 'monospace' }}>{r.pan || '—'}</Td>
                 <Td>₹{Number(r.amount || 0).toLocaleString('en-IN')}</Td>
                 <Td>{r.tdsRate}%</Td>
-                <Td style={{ fontWeight: 700, color: '#F8285A' }}>₹{Number(r.tdsAmount || 0).toLocaleString('en-IN')}</Td>
+                <Td style={{ fontWeight: 700, color: 'var(--c-danger)' }}>₹{Number(r.tdsAmount || 0).toLocaleString('en-IN')}</Td>
                 <Td>{r.bsrCode || '—'}</Td>
                 <Td>{r.challanNo || '—'}</Td>
               </tr>
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No TDS entries for section {section}.</div>}
+        {rows.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No TDS entries for section {section}.</div>}
       </div>
 
       {modal && (
@@ -858,7 +845,7 @@ function TDSTab({ viewOnly }) {
             <FormField label="Challan No" value={form.challanNo} onChange={v => setForm(f => ({ ...f, challanNo: v }))} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveEntry} small>Save TDS Entry</Btn>
           </div>
         </ModalOverlay>
@@ -904,16 +891,16 @@ function ExpensesTab({ viewOnly }) {
 
   const pettyBalance = (pettyCache || []).reduce((s, e) => s + (e.type === 'receipt' ? Number(e.amount || 0) : -Number(e.amount || 0)), 0);
 
-  const STATUS_COLORS = { pending: '#F6C000', approved: '#17C653', rejected: '#F8285A' };
+  const STATUS_COLORS = { pending: 'var(--c-warning)', approved: 'var(--c-success)', rejected: 'var(--c-danger)' };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <SectionHeader title="Expense Claims & Petty Cash" />
         <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ display: 'flex', background: '#FCFCFC', borderRadius: 8, padding: 2 }}>
+          <div style={{ display: 'flex', background: 'var(--bg-subtle)', borderRadius: 8, padding: 2 }}>
             {[['claims', 'Claims'], ['petty', 'Petty Cash']].map(([v, l]) => (
-              <button key={v} onClick={() => setSubTab(v)} style={{ padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: subTab === v ? 700 : 400, color: subTab === v ? '#071437' : '#4B5675', background: subTab === v ? '#fff' : 'transparent', border: '1px solid ' + (subTab === v ? '#F1F1F4' : 'transparent'), cursor: 'pointer' }}>{l}</button>
+              <button key={v} onClick={() => setSubTab(v)} style={{ padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: subTab === v ? 700 : 400, color: subTab === v ? 'var(--c-dark)' : 'var(--t-secondary)', background: subTab === v ? '#fff' : 'transparent', border: '1px solid ' + (subTab === v ? 'var(--border)' : 'transparent'), cursor: 'pointer' }}>{l}</button>
             ))}
           </div>
           {!viewOnly && <Btn onClick={() => { setForm({ date: new Date().toISOString().split('T')[0], claimedBy: '', category: 'Travel', amount: '', description: '', billNo: '', status: 'pending' }); setModal(true); }} small><Plus size={12} /> Add Claim</Btn>}
@@ -921,7 +908,7 @@ function ExpensesTab({ viewOnly }) {
       </div>
 
       {subTab === 'claims' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Date</Th><Th>Claimed By</Th><Th>Category</Th><Th>Description</Th><Th>Amount</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
             <tbody>
@@ -932,28 +919,28 @@ function ExpensesTab({ viewOnly }) {
                   <Td>{e.category}</Td>
                   <Td>{e.description}</Td>
                   <Td style={{ fontWeight: 600 }}>₹{Number(e.amount || 0).toLocaleString('en-IN')}</Td>
-                  <Td><Badge label={e.status} color={STATUS_COLORS[e.status] || '#4B5675'} /></Td>
+                  <Td><Badge label={e.status} color={STATUS_COLORS[e.status] || 'var(--t-secondary)'} /></Td>
                   <Td>
                     {!viewOnly && e.status === 'pending' && (user?.role === 'super_admin' || user?.role === 'director' || user?.role === 'accounts_manager') && (
-                      <button onClick={() => approveClaim(e.id)} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
+                      <button onClick={() => approveClaim(e.id)} style={{ background: 'var(--c-success-light)', color: 'var(--c-success)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
                     )}
                   </Td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {expenseClaims.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No expense claims submitted.</div>}
+          {expenseClaims.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No expense claims submitted.</div>}
         </div>
       )}
 
       {subTab === 'petty' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 20 }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#071437' }}>Petty Cash Ledger</div>
-              <div style={{ fontSize: 12, color: '#4B5675' }}>Track receipts and expenses for day-to-day cash.</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-dark)' }}>Petty Cash Ledger</div>
+              <div style={{ fontSize: 12, color: 'var(--t-secondary)' }}>Track receipts and expenses for day-to-day cash.</div>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: pettyBalance >= 0 ? '#17C653' : '#F8285A' }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: pettyBalance >= 0 ? 'var(--c-success)' : 'var(--c-danger)' }}>
               Balance: ₹{Math.abs(pettyBalance).toLocaleString('en-IN')} {pettyBalance >= 0 ? 'Dr' : 'Cr'}
             </div>
           </div>
@@ -969,24 +956,24 @@ function ExpensesTab({ viewOnly }) {
             </div>
           )}
 
-          <div style={{ border:'1px solid #F1F1F4', borderRadius:10, overflow:'hidden' }}>
+          <div style={{ border:'1px solid var(--border)', borderRadius:10, overflow:'hidden' }}>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead><tr><Th>Date</Th><Th>Type</Th><Th>Purpose</Th><Th>Ref</Th><Th>Amount</Th></tr></thead>
               <tbody>
                 {(pettyCache || []).map(e => (
                   <tr key={e.id}>
                     <Td>{e.date}</Td>
-                    <Td><Badge label={e.type} color={e.type === 'receipt' ? '#17C653' : '#F8285A'} /></Td>
+                    <Td><Badge label={e.type} color={e.type === 'receipt' ? 'var(--c-success)' : 'var(--c-danger)'} /></Td>
                     <Td>{e.purpose}</Td>
                     <Td>{e.ref || '—'}</Td>
-                    <Td style={{ fontWeight:700, color:e.type === 'receipt' ? '#17C653' : '#F8285A' }}>
+                    <Td style={{ fontWeight:700, color:e.type === 'receipt' ? 'var(--c-success)' : 'var(--c-danger)' }}>
                       ₹{Number(e.amount || 0).toLocaleString('en-IN')}
                     </Td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {(pettyCache || []).length === 0 && <div style={{ padding: 20, color: '#78829D', fontSize: 12 }}>No petty cash entries yet.</div>}
+            {(pettyCache || []).length === 0 && <div style={{ padding: 20, color: 'var(--t-muted)', fontSize: 12 }}>No petty cash entries yet.</div>}
           </div>
         </div>
       )}
@@ -1000,12 +987,12 @@ function ExpensesTab({ viewOnly }) {
             <FormField label="Amount (₹)" value={form.amount} onChange={v => setForm(f => ({ ...f, amount: v }))} type="number" required />
             <FormField label="Bill No / Reference" value={form.billNo} onChange={v => setForm(f => ({ ...f, billNo: v }))} />
             <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>Description</label>
-              <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
+              <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t-primary)', display: 'block', marginBottom: 4 }}>Description</label>
+              <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveClaim} small>Submit Claim</Btn>
           </div>
         </ModalOverlay>
@@ -1043,15 +1030,15 @@ function VendorAdvanceTab({ viewOnly }) {
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        {[['Total Advances', totalAdvance, '#1B84FF'], ['Recovered', totalRecovered, '#17C653'], ['Outstanding', totalAdvance - totalRecovered, '#F8285A']].map(([l, v, c]) => (
-          <div key={l} style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', padding: '12px 20px' }}>
-            <div style={{ fontSize: 11, color: '#78829D' }}>{l}</div>
+        {[['Total Advances', totalAdvance, 'var(--c-primary)'], ['Recovered', totalRecovered, 'var(--c-success)'], ['Outstanding', totalAdvance - totalRecovered, 'var(--c-danger)']].map(([l, v, c]) => (
+          <div key={l} style={{ background: '#fff', borderRadius: 10, border: '1px solid var(--border)', padding: '12px 20px' }}>
+            <div style={{ fontSize: 11, color: 'var(--t-muted)' }}>{l}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: c, marginTop: 4 }}>₹{v.toLocaleString('en-IN')}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Date</Th><Th>Vendor</Th><Th>Advance Amount</Th><Th>Purpose</Th><Th>Recovered</Th><Th>Balance</Th><Th>Actions</Th></tr></thead>
           <tbody>
@@ -1061,8 +1048,8 @@ function VendorAdvanceTab({ viewOnly }) {
                 <Td style={{ fontWeight: 500 }}>{a.vendorName}</Td>
                 <Td style={{ fontWeight: 600 }}>₹{Number(a.amount || 0).toLocaleString('en-IN')}</Td>
                 <Td>{a.purpose || '—'}</Td>
-                <Td style={{ color: '#17C653' }}>₹{Number(a.recoveredAmount || 0).toLocaleString('en-IN')}</Td>
-                <Td style={{ fontWeight: 700, color: (a.balance || a.amount - a.recoveredAmount) > 0 ? '#F8285A' : '#17C653' }}>₹{(a.balance ?? (a.amount - (a.recoveredAmount || 0))).toLocaleString('en-IN')}</Td>
+                <Td style={{ color: 'var(--c-success)' }}>₹{Number(a.recoveredAmount || 0).toLocaleString('en-IN')}</Td>
+                <Td style={{ fontWeight: 700, color: (a.balance || a.amount - a.recoveredAmount) > 0 ? 'var(--c-danger)' : 'var(--c-success)' }}>₹{(a.balance ?? (a.amount - (a.recoveredAmount || 0))).toLocaleString('en-IN')}</Td>
                 <Td>
                   {!viewOnly && (a.balance ?? (a.amount - (a.recoveredAmount || 0))) > 0 && (
                     <div style={{ display:'flex', gap:6, alignItems:'center' }}>
@@ -1071,7 +1058,7 @@ function VendorAdvanceTab({ viewOnly }) {
                         value={recoverInputs[a.id] || ''}
                         onChange={e => setRecoverInputs(prev => ({ ...prev, [a.id]: e.target.value }))}
                         placeholder="Amt"
-                        style={{ width: 90, padding: '4px 8px', border: '1px solid #F1F1F4', borderRadius: 6, fontSize: 11 }}
+                        style={{ width: 90, padding: '4px 8px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 11 }}
                       />
                       <button
                         onClick={() => {
@@ -1081,7 +1068,7 @@ function VendorAdvanceTab({ viewOnly }) {
                             setRecoverInputs(prev => ({ ...prev, [a.id]: '' }));
                           }
                         }}
-                        style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}
+                        style={{ background: 'var(--c-success-light)', color: 'var(--c-success)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}
                       >
                         Recover
                       </button>
@@ -1092,7 +1079,7 @@ function VendorAdvanceTab({ viewOnly }) {
             ))}
           </tbody>
         </table>
-        {vendorAdvances.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No vendor advances recorded.</div>}
+        {vendorAdvances.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No vendor advances recorded.</div>}
       </div>
 
       {modal && (
@@ -1104,7 +1091,7 @@ function VendorAdvanceTab({ viewOnly }) {
             <FormField label="Purpose" value={form.purpose} onChange={v => setForm(f => ({ ...f, purpose: v }))} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveAdvance} small>Save Advance</Btn>
           </div>
         </ModalOverlay>

@@ -4,6 +4,17 @@ import { Plus, Search, Eye, Check, X, Edit3, Phone, Mail, Download, Send, Printe
 import { suggestGSTRate } from '../../data.js';
 import { sortRows, filterRowsByDateRange, paginateRows } from '../../utils/table';
 import { SortHeader, DateRangeFilter, PaginationControls } from '../ui/TableUtilities';
+import {
+  moduleBtnStyle,
+  ModuleModalOverlay as ThemeModalOverlay,
+  formLabelStyle,
+  fieldStyle,
+  onFieldFocus,
+  onFieldBlur,
+  PAGE_HEADER_STYLE,
+  PAGE_TITLE_STYLE,
+  PAGE_SUBTITLE_STYLE,
+} from '../theme/moduleUi';
 
 // ── SUB-TAB ROUTER ─────────────────────────────────────────────────────────
 export default function SalesModule({ viewOnly }) {
@@ -23,21 +34,16 @@ export default function SalesModule({ viewOnly }) {
 }
 
 // ── SHARED ─────────────────────────────────────────────────────────────────
-const Btn = ({ children, onClick, color = '#1B84FF', small, disabled, style = {} }) => (
-  <button onClick={onClick} disabled={disabled} style={{
-    background: disabled ? '#F1F1F4' : color, color: disabled ? '#78829D' : '#fff',
-    border: 'none', borderRadius: 8, padding: small ? '5px 12px' : '7px 16px',
-    fontSize: small ? 11 : 12, fontWeight: 700, cursor: disabled ? 'default' : 'pointer',
-    display: 'flex', alignItems: 'center', gap: 5, ...style,
-  }}>{children}</button>
+const Btn = ({ children, onClick, color = 'var(--c-primary)', small, disabled, style = {} }) => (
+  <button onClick={onClick} disabled={disabled} style={moduleBtnStyle(color, small, disabled, style)}>{children}</button>
 );
 
-const Badge = ({ label, color = '#1B84FF', bg }) => (
+const Badge = ({ label, color = 'var(--c-primary)', bg }) => (
   <span style={{ background: bg || color + '18', color, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>{label}</span>
 );
 
 const PIPELINE_STAGES = ['New', 'Contacted', 'Site Visit', 'Negotiation', 'Booked', 'Lost'];
-const STAGE_COLORS = { New: '#4B5675', Contacted: '#1B84FF', 'Site Visit': '#7239EA', Negotiation: '#F6C000', Booked: '#17C653', Lost: '#F8285A' };
+const STAGE_COLORS = { New: 'var(--t-secondary)', Contacted: 'var(--c-primary)', 'Site Visit': 'var(--c-info)', Negotiation: 'var(--c-warning)', Booked: 'var(--c-success)', Lost: 'var(--c-danger)' };
 const LEAD_SOURCES = ['Walk-in', 'Referral', 'Broker', 'Social Media', 'Hoarding', 'Online Ad', 'Other'];
 
 // ── CRM & LEADS ────────────────────────────────────────────────────────────
@@ -82,17 +88,17 @@ function CRMTab({ viewOnly }) {
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
         <div>
-          <div style={{ fontSize:15, fontWeight:800, color:'#071437' }}>CRM & Leads</div>
-          <div style={{ fontSize:11, color:'#78829D' }}>{crmLeads.length} total leads{overdueCount > 0 ? ` · ${overdueCount} follow-up overdue` : ''}</div>
+          <div style={{ fontSize:15, fontWeight:800, color:'var(--c-dark)' }}>CRM & Leads</div>
+          <div style={{ fontSize:11, color:'var(--t-muted)' }}>{crmLeads.length} total leads{overdueCount > 0 ? ` · ${overdueCount} follow-up overdue` : ''}</div>
         </div>
         <div style={{ display:'flex', gap:8 }}>
           <div style={{ position:'relative' }}>
-            <Search size={12} style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', color:'#78829D' }} />
-            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search leads…" style={{ paddingLeft:26, paddingRight:10, paddingTop:6, paddingBottom:6, border:'1px solid #F1F1F4', borderRadius:8, fontSize:12, outline:'none', width:200 }} />
+            <Search size={12} style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', color:'var(--t-muted)' }} />
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search leads…" style={{ paddingLeft:26, paddingRight:10, paddingTop:6, paddingBottom:6, border:'1px solid var(--border)', borderRadius:8, fontSize:12, outline:'none', width:200 }} />
           </div>
-          <div style={{ display:'flex', background:'#FCFCFC', borderRadius:8, padding:3 }}>
+          <div style={{ display:'flex', background:'var(--bg-subtle)', borderRadius:8, padding:3 }}>
             {[['pipeline','Pipeline'],['list','List']].map(([v,l])=>(
-              <button key={v} onClick={()=>setView(v)} style={{ padding:'4px 14px', borderRadius:6, fontSize:11, fontWeight:view===v?700:500, color:view===v?'#071437':'#4B5675', background:view===v?'#fff':'transparent', border:view===v?'1px solid #F1F1F4':'1px solid transparent', cursor:'pointer' }}>{l}</button>
+              <button key={v} onClick={()=>setView(v)} style={{ padding:'4px 14px', borderRadius:6, fontSize:11, fontWeight:view===v?700:500, color:view===v?'var(--c-dark)':'var(--t-secondary)', background:view===v?'#fff':'transparent', border:view===v?'1px solid var(--border)':'1px solid transparent', cursor:'pointer' }}>{l}</button>
             ))}
           </div>
           {!viewOnly && <Btn onClick={openAdd} small><Plus size={12}/> Add Lead</Btn>}
@@ -104,26 +110,26 @@ function CRMTab({ viewOnly }) {
         <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:8 }}>
           {PIPELINE_STAGES.map(stage => (
             <div key={stage} style={{ minWidth:200, maxWidth:220 }}>
-              <div style={{ background:'#fff', borderRadius:10, border:'1px solid #F1F1F4', overflow:'hidden' }}>
-                <div style={{ padding:'10px 12px', borderBottom:'1px solid #FCFCFC', background:STAGE_COLORS[stage]+'12' }}>
+              <div style={{ background:'#fff', borderRadius:10, border:'1px solid var(--border)', overflow:'hidden' }}>
+                <div style={{ padding:'10px 12px', borderBottom:'1px solid var(--bg-subtle)', background:STAGE_COLORS[stage]+'12' }}>
                   <div style={{ fontWeight:700, fontSize:12, color:STAGE_COLORS[stage] }}>{stage}</div>
-                  <div style={{ fontSize:10, color:'#78829D' }}>{byStage[stage].length} leads</div>
+                  <div style={{ fontSize:10, color:'var(--t-muted)' }}>{byStage[stage].length} leads</div>
                 </div>
                 <div style={{ maxHeight:400, overflowY:'auto' }}>
                   {byStage[stage].map(l => (
-                    <div key={l.id} onClick={()=>openView(l)} style={{ padding:'10px 12px', borderBottom:'1px solid #FCFCFC', cursor:'pointer' }}
-                      onMouseEnter={e=>e.currentTarget.style.background='#FCFCFC'}
+                    <div key={l.id} onClick={()=>openView(l)} style={{ padding:'10px 12px', borderBottom:'1px solid var(--bg-subtle)', cursor:'pointer' }}
+                      onMouseEnter={e=>e.currentTarget.style.background='var(--bg-subtle)'}
                       onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                      <div style={{ fontSize:12, fontWeight:600, color:'#071437' }}>{l.name}</div>
-                      <div style={{ fontSize:10, color:'#78829D', marginTop:2 }}>{l.phone} · {l.source}</div>
+                      <div style={{ fontSize:12, fontWeight:600, color:'var(--c-dark)' }}>{l.name}</div>
+                      <div style={{ fontSize:10, color:'var(--t-muted)', marginTop:2 }}>{l.phone} · {l.source}</div>
                       {l.followUpDate && (
-                        <div style={{ fontSize:9.5, color: new Date(l.followUpDate) < new Date() ? '#F8285A' : '#17C653', marginTop:3, fontWeight:600 }}>
+                        <div style={{ fontSize:9.5, color: new Date(l.followUpDate) < new Date() ? 'var(--c-danger)' : 'var(--c-success)', marginTop:3, fontWeight:600 }}>
                           Follow-up: {l.followUpDate}
                         </div>
                       )}
                     </div>
                   ))}
-                  {byStage[stage].length === 0 && <div style={{ padding:16, textAlign:'center', color:'#DBDFE9', fontSize:11 }}>No leads</div>}
+                  {byStage[stage].length === 0 && <div style={{ padding:16, textAlign:'center', color:'var(--border-md)', fontSize:11 }}>No leads</div>}
                 </div>
               </div>
             </div>
@@ -133,31 +139,31 @@ function CRMTab({ viewOnly }) {
 
       {/* List View */}
       {view === 'list' && (
-        <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', overflow:'hidden' }}>
+        <div style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
             <thead>
-              <tr style={{ background:'#FCFCFC' }}>
+              <tr style={{ background:'var(--bg-subtle)' }}>
                 {['Name','Phone','Source','Stage','Interested In','Follow-up','Actions'].map(h=>(
-                  <th key={h} style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>
+                  <th key={h} style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'var(--t-secondary)', textAlign:'left', borderBottom:'1px solid var(--bg-subtle)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map(l=>(
-                <tr key={l.id} style={{ borderBottom:'1px solid #FCFCFC' }}
-                  onMouseEnter={e=>e.currentTarget.style.background='#FCFCFC'}
+                <tr key={l.id} style={{ borderBottom:'1px solid var(--bg-subtle)' }}
+                  onMouseEnter={e=>e.currentTarget.style.background='var(--bg-subtle)'}
                   onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                  <td style={{ padding:'9px 14px', fontSize:12, fontWeight:600, color:'#071437' }}>{l.name}</td>
-                  <td style={{ padding:'9px 14px', fontSize:12, color:'#252F4A' }}>{l.phone}</td>
-                  <td style={{ padding:'9px 14px' }}><Badge label={l.source} color="#4B5675" /></td>
+                  <td style={{ padding:'9px 14px', fontSize:12, fontWeight:600, color:'var(--c-dark)' }}>{l.name}</td>
+                  <td style={{ padding:'9px 14px', fontSize:12, color:'var(--t-primary)' }}>{l.phone}</td>
+                  <td style={{ padding:'9px 14px' }}><Badge label={l.source} color="var(--t-secondary)" /></td>
                   <td style={{ padding:'9px 14px' }}><Badge label={l.stage} color={STAGE_COLORS[l.stage]} /></td>
-                  <td style={{ padding:'9px 14px', fontSize:12, color:'#252F4A' }}>{l.interestedIn}</td>
-                  <td style={{ padding:'9px 14px', fontSize:11, color: l.followUpDate && new Date(l.followUpDate)<new Date() ? '#F8285A' : '#252F4A' }}>{l.followUpDate || '—'}</td>
+                  <td style={{ padding:'9px 14px', fontSize:12, color:'var(--t-primary)' }}>{l.interestedIn}</td>
+                  <td style={{ padding:'9px 14px', fontSize:11, color: l.followUpDate && new Date(l.followUpDate)<new Date() ? 'var(--c-danger)' : 'var(--t-primary)' }}>{l.followUpDate || '—'}</td>
                   <td style={{ padding:'9px 14px' }}>
                     <div style={{ display:'flex', gap:4 }}>
-                      <button onClick={()=>openView(l)} style={{ background:'#EEF6FF', color:'#1B84FF', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>View</button>
+                      <button onClick={()=>openView(l)} style={{ background:'var(--c-primary-light)', color:'var(--c-primary)', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>View</button>
                       {!viewOnly && (
-                        <select value={l.stage} onChange={e=>updateStage(l.id, e.target.value)} style={{ fontSize:10, border:'1px solid #F1F1F4', borderRadius:6, padding:'3px 6px', cursor:'pointer' }}>
+                        <select value={l.stage} onChange={e=>updateStage(l.id, e.target.value)} style={{ fontSize:10, border:'1px solid var(--border)', borderRadius:6, padding:'3px 6px', cursor:'pointer' }}>
                           {PIPELINE_STAGES.map(s=><option key={s} value={s}>{s}</option>)}
                         </select>
                       )}
@@ -167,7 +173,7 @@ function CRMTab({ viewOnly }) {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && <div style={{ padding:32, textAlign:'center', color:'#78829D', fontSize:13 }}>No leads yet. Click Add Lead to get started.</div>}
+          {filtered.length === 0 && <div style={{ padding:32, textAlign:'center', color:'var(--t-muted)', fontSize:13 }}>No leads yet. Click Add Lead to get started.</div>}
         </div>
       )}
 
@@ -179,14 +185,14 @@ function CRMTab({ viewOnly }) {
               <FormField key={k} label={l} value={form[k]} onChange={v=>setForm(f=>({...f,[k]:v}))} />
             ))}
             <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Source</label>
-              <select value={form.source} onChange={e=>setForm(f=>({...f,source:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Source</label>
+              <select value={form.source} onChange={e=>setForm(f=>({...f,source:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 {LEAD_SOURCES.map(s=><option key={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Stage</label>
-              <select value={form.stage} onChange={e=>setForm(f=>({...f,stage:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Stage</label>
+              <select value={form.stage} onChange={e=>setForm(f=>({...f,stage:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 {PIPELINE_STAGES.map(s=><option key={s}>{s}</option>)}
               </select>
             </div>
@@ -194,11 +200,11 @@ function CRMTab({ viewOnly }) {
             <FormField label="Follow-up Date" value={form.followUpDate} onChange={v=>setForm(f=>({...f,followUpDate:v}))} type="date" />
           </div>
           <div style={{ marginTop:12 }}>
-            <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Remarks</label>
-            <textarea value={form.remarks} onChange={e=>setForm(f=>({...f,remarks:e.target.value}))} rows={2} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12, resize:'vertical', boxSizing:'border-box' }} />
+            <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Remarks</label>
+            <textarea value={form.remarks} onChange={e=>setForm(f=>({...f,remarks:e.target.value}))} rows={2} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12, resize:'vertical', boxSizing:'border-box' }} />
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:16 }}>
-            <Btn onClick={()=>setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={()=>setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveLead} small>Save Lead</Btn>
           </div>
         </ModalOverlay>
@@ -209,16 +215,16 @@ function CRMTab({ viewOnly }) {
         <ModalOverlay onClose={()=>setModal(null)} title={selected.name} wide>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
             {[['Phone',selected.phone],['Email',selected.email],['Source',selected.source],['Stage',selected.stage],['Interested In',selected.interestedIn],['Budget',selected.budget?'₹'+Number(selected.budget).toLocaleString('en-IN'):'—'],['Follow-up',selected.followUpDate||'—'],['Added',selected.createdAt?new Date(selected.createdAt).toLocaleDateString('en-IN'):'—']].map(([k,v])=>(
-              <div key={k}><div style={{ fontSize:10, color:'#78829D' }}>{k}</div><div style={{ fontSize:13, fontWeight:600, color:'#071437' }}>{v||'—'}</div></div>
+              <div key={k}><div style={{ fontSize:10, color:'var(--t-muted)' }}>{k}</div><div style={{ fontSize:13, fontWeight:600, color:'var(--c-dark)' }}>{v||'—'}</div></div>
             ))}
           </div>
-          {selected.remarks && <div style={{ background:'#FCFCFC', borderRadius:8, padding:'10px 14px', marginBottom:12 }}><div style={{ fontSize:10, color:'#78829D', marginBottom:4 }}>Remarks</div><div style={{ fontSize:12, color:'#252F4A' }}>{selected.remarks}</div></div>}
+          {selected.remarks && <div style={{ background:'var(--bg-subtle)', borderRadius:8, padding:'10px 14px', marginBottom:12 }}><div style={{ fontSize:10, color:'var(--t-muted)', marginBottom:4 }}>Remarks</div><div style={{ fontSize:12, color:'var(--t-primary)' }}>{selected.remarks}</div></div>}
           {!viewOnly && (
             <div style={{ display:'flex', gap:8, marginTop:8 }}>
-              <select value={selected.stage} onChange={e=>{ updateStage(selected.id, e.target.value); setSelected(s=>({...s,stage:e.target.value})); }} style={{ fontSize:11, border:'1px solid #F1F1F4', borderRadius:8, padding:'6px 10px', cursor:'pointer' }}>
+              <select value={selected.stage} onChange={e=>{ updateStage(selected.id, e.target.value); setSelected(s=>({...s,stage:e.target.value})); }} style={{ fontSize:11, border:'1px solid var(--border)', borderRadius:8, padding:'6px 10px', cursor:'pointer' }}>
                 {PIPELINE_STAGES.map(s=><option key={s}>{s}</option>)}
               </select>
-              <input type="date" value={selected.followUpDate||''} onChange={e=>{ setFollowUp(selected.id, e.target.value); setSelected(s=>({...s,followUpDate:e.target.value})); }} style={{ fontSize:11, border:'1px solid #F1F1F4', borderRadius:8, padding:'6px 10px' }} />
+              <input type="date" value={selected.followUpDate||''} onChange={e=>{ setFollowUp(selected.id, e.target.value); setSelected(s=>({...s,followUpDate:e.target.value})); }} style={{ fontSize:11, border:'1px solid var(--border)', borderRadius:8, padding:'6px 10px' }} />
             </div>
           )}
         </ModalOverlay>
@@ -255,7 +261,7 @@ function InventoryTab({ viewOnly }) {
   return (
     <div>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
-        <div style={{ fontSize:15, fontWeight:800, color:'#071437' }}>Projects & Inventory</div>
+        <div style={{ fontSize:15, fontWeight:800, color:'var(--c-dark)' }}>Projects & Inventory</div>
         {!viewOnly && <Btn onClick={()=>{ setForm({name:'',location:'',totalUnits:0,reraNo:'',completionPct:0,status:'active'}); setModal('addProject'); }} small><Plus size={12}/> Add Project</Btn>}
       </div>
 
@@ -266,65 +272,65 @@ function InventoryTab({ viewOnly }) {
             const booked = bookings.filter(b=>b.projectId===p.id && b.status!=='cancelled').length;
             const avail = units.filter(u=>u.status==='Available').length;
             return (
-              <div key={p.id} onClick={()=>setSelProject(p)} style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', padding:18, cursor:'pointer' }}
+              <div key={p.id} onClick={()=>setSelProject(p)} style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', padding:18, cursor:'pointer' }}
                 onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'}
                 onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
-                <div style={{ fontSize:14, fontWeight:800, color:'#071437', marginBottom:4 }}>{p.name}</div>
-                <div style={{ fontSize:11, color:'#78829D', marginBottom:12 }}>{p.location}</div>
+                <div style={{ fontSize:14, fontWeight:800, color:'var(--c-dark)', marginBottom:4 }}>{p.name}</div>
+                <div style={{ fontSize:11, color:'var(--t-muted)', marginBottom:12 }}>{p.location}</div>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:12 }}>
-                  {[['Total',units.length,'#4B5675'],['Booked',booked,'#1B84FF'],['Available',avail,'#17C653']].map(([l,v,c])=>(
+                  {[['Total',units.length,'var(--t-secondary)'],['Booked',booked,'var(--c-primary)'],['Available',avail,'var(--c-success)']].map(([l,v,c])=>(
                     <div key={l} style={{ textAlign:'center', background:c+'10', borderRadius:8, padding:'8px 4px' }}>
                       <div style={{ fontSize:16, fontWeight:800, color:c }}>{v}</div>
                       <div style={{ fontSize:9.5, color:c }}>{l}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ height:5, background:'#FCFCFC', borderRadius:3, overflow:'hidden' }}>
-                  <div style={{ width:`${p.completionPct||0}%`, height:'100%', background:'#1B84FF', borderRadius:3 }}/>
+                <div style={{ height:5, background:'var(--bg-subtle)', borderRadius:3, overflow:'hidden' }}>
+                  <div style={{ width:`${p.completionPct||0}%`, height:'100%', background:'var(--c-primary)', borderRadius:3 }}/>
                 </div>
-                <div style={{ fontSize:9.5, color:'#78829D', marginTop:4 }}>{p.completionPct||0}% complete</div>
+                <div style={{ fontSize:9.5, color:'var(--t-muted)', marginTop:4 }}>{p.completionPct||0}% complete</div>
               </div>
             );
           })}
-          {projects.length===0 && <div style={{ gridColumn:'1/-1', padding:48, textAlign:'center', color:'#78829D', fontSize:13, background:'#fff', borderRadius:12, border:'1px solid #F1F1F4' }}>No projects yet. Add your first project.</div>}
+          {projects.length===0 && <div style={{ gridColumn:'1/-1', padding:48, textAlign:'center', color:'var(--t-muted)', fontSize:13, background:'#fff', borderRadius:12, border:'1px solid var(--border)' }}>No projects yet. Add your first project.</div>}
         </div>
       ) : (
         <div>
-          <button onClick={()=>setSelProject(null)} style={{ fontSize:12, color:'#1B84FF', background:'none', border:'none', cursor:'pointer', marginBottom:14, display:'flex', alignItems:'center', gap:4 }}>
+          <button onClick={()=>setSelProject(null)} style={{ fontSize:12, color:'var(--c-primary)', background:'none', border:'none', cursor:'pointer', marginBottom:14, display:'flex', alignItems:'center', gap:4 }}>
             ← Back to Projects
           </button>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
-            <div style={{ fontSize:14, fontWeight:800, color:'#071437' }}>{proj.name} — Units</div>
+            <div style={{ fontSize:14, fontWeight:800, color:'var(--c-dark)' }}>{proj.name} — Units</div>
             {!viewOnly && <Btn onClick={()=>{ setUnitForm({unitNo:'',type:'2BHK',floor:'',carpetArea:'',agreementValue:'',facing:''}); setModal('addUnit'); }} small><Plus size={12}/> Add Unit</Btn>}
           </div>
-          <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', overflow:'hidden' }}>
+          <div style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
-                <tr style={{ background:'#FCFCFC' }}>
+                <tr style={{ background:'var(--bg-subtle)' }}>
                   {['Unit No','Type','Floor','Carpet Area','Agreement Value','Facing','Status'].map(h=>(
-                    <th key={h} style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>
+                    <th key={h} style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'var(--t-secondary)', textAlign:'left', borderBottom:'1px solid var(--bg-subtle)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {(proj.units||[]).map(u=>{
                   const bkg = bookings.find(b=>b.unitId===u.id && b.status!=='cancelled');
-                  const statusColor = { Available:'#17C653', Booked:'#1B84FF', Registered:'#7239EA', Blocked:'#F6C000', Cancelled:'#F8285A' };
+                  const statusColor = { Available:'var(--c-success)', Booked:'var(--c-primary)', Registered:'var(--c-info)', Blocked:'var(--c-warning)', Cancelled:'var(--c-danger)' };
                   return (
                     <tr key={u.id}>
-                      <td style={{ padding:'8px 14px', fontSize:12, fontWeight:700, color:'#071437' }}>{u.unitNo}</td>
-                      <td style={{ padding:'8px 14px', fontSize:12, color:'#252F4A' }}>{u.type}</td>
-                      <td style={{ padding:'8px 14px', fontSize:12, color:'#252F4A' }}>{u.floor}</td>
-                      <td style={{ padding:'8px 14px', fontSize:12, color:'#252F4A' }}>{u.carpetArea} sq.ft.</td>
-                      <td style={{ padding:'8px 14px', fontSize:12, color:'#252F4A' }}>{u.agreementValue?'₹'+Number(u.agreementValue).toLocaleString('en-IN'):'—'}</td>
-                      <td style={{ padding:'8px 14px', fontSize:12, color:'#252F4A' }}>{u.facing||'—'}</td>
-                      <td style={{ padding:'8px 14px' }}><Badge label={bkg?'Booked':u.status||'Available'} color={statusColor[bkg?'Booked':u.status||'Available']||'#4B5675'} /></td>
+                      <td style={{ padding:'8px 14px', fontSize:12, fontWeight:700, color:'var(--c-dark)' }}>{u.unitNo}</td>
+                      <td style={{ padding:'8px 14px', fontSize:12, color:'var(--t-primary)' }}>{u.type}</td>
+                      <td style={{ padding:'8px 14px', fontSize:12, color:'var(--t-primary)' }}>{u.floor}</td>
+                      <td style={{ padding:'8px 14px', fontSize:12, color:'var(--t-primary)' }}>{u.carpetArea} sq.ft.</td>
+                      <td style={{ padding:'8px 14px', fontSize:12, color:'var(--t-primary)' }}>{u.agreementValue?'₹'+Number(u.agreementValue).toLocaleString('en-IN'):'—'}</td>
+                      <td style={{ padding:'8px 14px', fontSize:12, color:'var(--t-primary)' }}>{u.facing||'—'}</td>
+                      <td style={{ padding:'8px 14px' }}><Badge label={bkg?'Booked':u.status||'Available'} color={statusColor[bkg?'Booked':u.status||'Available']||'var(--t-secondary)'} /></td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-            {(proj.units||[]).length===0 && <div style={{ padding:32, textAlign:'center', color:'#78829D', fontSize:13 }}>No units added yet.</div>}
+            {(proj.units||[]).length===0 && <div style={{ padding:32, textAlign:'center', color:'var(--t-muted)', fontSize:13 }}>No units added yet.</div>}
           </div>
         </div>
       )}
@@ -338,7 +344,7 @@ function InventoryTab({ viewOnly }) {
             <FormField label="Completion %" value={form.completionPct} onChange={v=>setForm(f=>({...f,completionPct:v}))} type="number" />
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:16 }}>
-            <Btn onClick={()=>setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={()=>setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={addProject} small>Add Project</Btn>
           </div>
         </ModalOverlay>
@@ -349,8 +355,8 @@ function InventoryTab({ viewOnly }) {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
             <FormField label="Unit No *" value={unitForm.unitNo} onChange={v=>setUnitForm(f=>({...f,unitNo:v}))} />
             <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Type</label>
-              <select value={unitForm.type} onChange={e=>setUnitForm(f=>({...f,type:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Type</label>
+              <select value={unitForm.type} onChange={e=>setUnitForm(f=>({...f,type:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 {['Studio','1RK','1BHK','2BHK','3BHK','4BHK','Shop','Office'].map(t=><option key={t}>{t}</option>)}
               </select>
             </div>
@@ -360,7 +366,7 @@ function InventoryTab({ viewOnly }) {
             <FormField label="Facing" value={unitForm.facing} onChange={v=>setUnitForm(f=>({...f,facing:v}))} />
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:16 }}>
-            <Btn onClick={()=>setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={()=>setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={addUnit} small>Add Unit</Btn>
           </div>
         </ModalOverlay>
@@ -605,18 +611,18 @@ function BookingsTab({ viewOnly }) {
   const canApprove = user?.role==='super_admin' || user?.role==='director';
   const canCancel = user?.role==='super_admin' || user?.role==='director';
 
-  const STATUS_COLORS = { pending:'#F6C000', approved:'#17C653', registered:'#1B84FF', cancelled:'#F8285A' };
+  const STATUS_COLORS = { pending:'var(--c-warning)', approved:'var(--c-success)', registered:'var(--c-primary)', cancelled:'var(--c-danger)' };
 
   return (
     <div>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
-        <div style={{ fontSize:15, fontWeight:800, color:'#071437' }}>Bookings</div>
+        <div style={{ fontSize:15, fontWeight:800, color:'var(--c-dark)' }}>Bookings</div>
         <div style={{ display:'flex', gap:8 }}>
           <div style={{ position:'relative' }}>
-            <Search size={12} style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', color:'#78829D' }} />
-            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search…" style={{ paddingLeft:26, paddingRight:10, paddingTop:6, paddingBottom:6, border:'1px solid #F1F1F4', borderRadius:8, fontSize:12, outline:'none', width:180 }}/>
+            <Search size={12} style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', color:'var(--t-muted)' }} />
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search…" style={{ paddingLeft:26, paddingRight:10, paddingTop:6, paddingBottom:6, border:'1px solid var(--border)', borderRadius:8, fontSize:12, outline:'none', width:180 }}/>
           </div>
-          <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} style={{ border:'1px solid #F1F1F4', borderRadius:8, padding:'6px 10px', fontSize:12 }}>
+          <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} style={{ border:'1px solid var(--border)', borderRadius:8, padding:'6px 10px', fontSize:12 }}>
             {[['all','All Status'],['pending','Pending'],['approved','Approved'],['registered','Registered'],['cancelled','Cancelled']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
           </select>
           <DateRangeFilter from={dateFrom} to={dateTo} onChangeFrom={setDateFrom} onChangeTo={setDateTo} compact />
@@ -624,17 +630,17 @@ function BookingsTab({ viewOnly }) {
         </div>
       </div>
 
-      <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', overflow:'hidden' }}>
+      <div style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
         <table style={{ width:'100%', borderCollapse:'collapse' }}>
           <thead>
             <tr>
               <SortHeader label="Booking No" sortKey="bookingNo" sortState={sortState} onToggle={toggleSort} />
               <SortHeader label="Customer" sortKey="customerName" sortState={sortState} onToggle={toggleSort} />
-              <th style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC', background:'#FCFCFC' }}>Unit</th>
+              <th style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'var(--t-secondary)', textAlign:'left', borderBottom:'1px solid var(--bg-subtle)', background:'var(--bg-subtle)' }}>Unit</th>
               <SortHeader label="Agreement Value" sortKey="agreementValue" sortState={sortState} onToggle={toggleSort} align="right" />
               <SortHeader label="Collected" sortKey="collected" sortState={sortState} onToggle={toggleSort} align="right" />
               <SortHeader label="Status" sortKey="status" sortState={sortState} onToggle={toggleSort} />
-              <th style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC', background:'#FCFCFC' }}>Actions</th>
+              <th style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'var(--t-secondary)', textAlign:'left', borderBottom:'1px solid var(--bg-subtle)', background:'var(--bg-subtle)' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -642,31 +648,31 @@ function BookingsTab({ viewOnly }) {
               const collected = (b.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
               const balance = (b.agreementValue||0) - collected;
               return (
-                <tr key={b.id} style={{ borderBottom:'1px solid #FCFCFC' }}>
-                  <td style={{ padding:'9px 14px', fontSize:11.5, fontWeight:700, color:'#071437' }}>{b.bookingNo||b.id}</td>
+                <tr key={b.id} style={{ borderBottom:'1px solid var(--bg-subtle)' }}>
+                  <td style={{ padding:'9px 14px', fontSize:11.5, fontWeight:700, color:'var(--c-dark)' }}>{b.bookingNo||b.id}</td>
                   <td style={{ padding:'9px 14px' }}>
-                    <div style={{ fontSize:12, fontWeight:600, color:'#071437' }}>{b.customerName}</div>
-                    <div style={{ fontSize:10, color:'#78829D' }}>{b.customerPhone}</div>
+                    <div style={{ fontSize:12, fontWeight:600, color:'var(--c-dark)' }}>{b.customerName}</div>
+                    <div style={{ fontSize:10, color:'var(--t-muted)' }}>{b.customerPhone}</div>
                   </td>
-                  <td style={{ padding:'9px 14px', fontSize:12, color:'#252F4A' }}>{(() => {
+                  <td style={{ padding:'9px 14px', fontSize:12, color:'var(--t-primary)' }}>{(() => {
                     const proj = projects.find(p => String(p.id) === String(b.projectId));
                     const unit = (proj?.units || []).find(u => String(u.id) === String(b.unitId));
                     return unit?.unitNo || b.unitId || '—';
                   })()}</td>
-                  <td style={{ padding:'9px 14px', fontSize:12, color:'#252F4A' }}>₹{(b.agreementValue||0).toLocaleString('en-IN')}</td>
+                  <td style={{ padding:'9px 14px', fontSize:12, color:'var(--t-primary)' }}>₹{(b.agreementValue||0).toLocaleString('en-IN')}</td>
                   <td style={{ padding:'9px 14px' }}>
-                    <div style={{ fontSize:12, color:'#17C653', fontWeight:600 }}>₹{collected.toLocaleString('en-IN')}</div>
-                    {balance > 0 && <div style={{ fontSize:10, color:'#F8285A' }}>Balance: ₹{balance.toLocaleString('en-IN')}</div>}
+                    <div style={{ fontSize:12, color:'var(--c-success)', fontWeight:600 }}>₹{collected.toLocaleString('en-IN')}</div>
+                    {balance > 0 && <div style={{ fontSize:10, color:'var(--c-danger)' }}>Balance: ₹{balance.toLocaleString('en-IN')}</div>}
                   </td>
-                  <td style={{ padding:'9px 14px' }}><Badge label={b.status} color={STATUS_COLORS[b.status]||'#4B5675'} /></td>
+                  <td style={{ padding:'9px 14px' }}><Badge label={b.status} color={STATUS_COLORS[b.status]||'var(--t-secondary)'} /></td>
                   <td style={{ padding:'9px 14px' }}>
                     <div style={{ display:'flex', gap:4 }}>
-                      <button onClick={()=>{ setSelected(b); setModal('view'); }} style={{ background:'#EEF6FF', color:'#1B84FF', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>View</button>
+                      <button onClick={()=>{ setSelected(b); setModal('view'); }} style={{ background:'var(--c-primary-light)', color:'var(--c-primary)', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>View</button>
                       {!viewOnly && canApprove && b.status==='pending' && (
-                        <button onClick={()=>approveBooking(b.id)} style={{ background:'#E8FFF3', color:'#17C653', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>Approve</button>
+                        <button onClick={()=>approveBooking(b.id)} style={{ background:'var(--c-success-light)', color:'var(--c-success)', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>Approve</button>
                       )}
                       {!viewOnly && canCancel && (b.status==='approved'||b.status==='registered') && (
-                        <button onClick={()=>{ setSelected(b); setCancelForm({reason:'',chargeType:'flat',chargeValue:''}); setModal('cancel'); }} style={{ background:'#FFE2E5', color:'#F8285A', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>Cancel</button>
+                        <button onClick={()=>{ setSelected(b); setCancelForm({reason:'',chargeType:'flat',chargeValue:''}); setModal('cancel'); }} style={{ background:'var(--c-danger-light)', color:'var(--c-danger)', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}>Cancel</button>
                       )}
                     </div>
                   </td>
@@ -675,7 +681,7 @@ function BookingsTab({ viewOnly }) {
             })}
           </tbody>
         </table>
-        {sortedRows.length===0 && <div style={{ padding:32, textAlign:'center', color:'#78829D', fontSize:13 }}>No bookings found.</div>}
+        {sortedRows.length===0 && <div style={{ padding:32, textAlign:'center', color:'var(--t-muted)', fontSize:13 }}>No bookings found.</div>}
       </div>
       <PaginationControls
         page={paged.page}
@@ -696,15 +702,15 @@ function BookingsTab({ viewOnly }) {
             <FormField label="Co-applicant Name" value={form.coApplicantName} onChange={v=>setForm(f=>({...f,coApplicantName:v}))} />
             <FormField label="Co-applicant PAN" value={form.coApplicantPAN} onChange={v=>setForm(f=>({...f,coApplicantPAN:v}))} />
             <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Project *</label>
-              <select value={form.projectId} onChange={e=>setForm(f=>({...f,projectId:Number(e.target.value),unitId:'',unitType:''}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Project *</label>
+              <select value={form.projectId} onChange={e=>setForm(f=>({...f,projectId:Number(e.target.value),unitId:'',unitType:''}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 <option value="">Select Project</option>
                 {projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
             <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Unit *</label>
-              <select value={form.unitId} onChange={e=>setForm(f=>({...f,unitId:Number(e.target.value)}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Unit *</label>
+              <select value={form.unitId} onChange={e=>setForm(f=>({...f,unitId:Number(e.target.value)}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 <option value="">Select Unit</option>
                 {availableUnits.map(u => (
                   <option key={u.id} value={u.id}>
@@ -716,18 +722,18 @@ function BookingsTab({ viewOnly }) {
             <FormField label="Booking Date" value={form.bookingDate} onChange={v=>setForm(f=>({...f,bookingDate:v}))} type="date" />
             <FormField label="Agreement Value (₹)" value={form.agreementValue} onChange={v=>setForm(f=>({...f,agreementValue:Number(v)}))} type="number" />
             <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>GST Rate</label>
-              <select value={form.gstRate} onChange={e=>setForm(f=>({...f,gstRate:Number(e.target.value)}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>GST Rate</label>
+              <select value={form.gstRate} onChange={e=>setForm(f=>({...f,gstRate:Number(e.target.value)}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 {[1,5,12,18].map(r=><option key={r} value={r}>{r}%</option>)}
               </select>
             </div>
             <div style={{ gridColumn:'1/-1', marginTop:4 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
-                <label style={{ fontSize:11, fontWeight:700, color:'#252F4A' }}>Milestones</label>
-                <Btn onClick={addMilestoneRow} small color="#4B5675"><Plus size={11}/> Add Milestone</Btn>
+                <label style={{ fontSize:11, fontWeight:700, color:'var(--t-primary)' }}>Milestones</label>
+                <Btn onClick={addMilestoneRow} small color="var(--t-secondary)"><Plus size={11}/> Add Milestone</Btn>
               </div>
               {(form.milestones || []).length === 0 ? (
-                <div style={{ fontSize:11, color:'#78829D', padding:'8px 0' }}>No milestones added yet.</div>
+                <div style={{ fontSize:11, color:'var(--t-muted)', padding:'8px 0' }}>No milestones added yet.</div>
               ) : (
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   {(form.milestones || []).map((m, idx) => (
@@ -735,7 +741,7 @@ function BookingsTab({ viewOnly }) {
                       <FormField label="Label" value={m.label} onChange={v=>updateMilestoneRow(m.id, 'label', v)} />
                       <FormField label="Amount (₹)" type="number" value={m.amount} onChange={v=>updateMilestoneRow(m.id, 'amount', Number(v))} />
                       <FormField label="Due Date" type="date" value={m.dueDate} onChange={v=>updateMilestoneRow(m.id, 'dueDate', v)} />
-                      <button onClick={()=>removeMilestoneRow(m.id)} style={{ height:32, border:'1px solid #FFB8C6', background:'#FFE2E5', color:'#F8285A', borderRadius:8, padding:'0 10px' }}>Del</button>
+                      <button onClick={()=>removeMilestoneRow(m.id)} style={{ height:32, border:'1px solid var(--c-danger)', background:'var(--c-danger-light)', color:'var(--c-danger)', borderRadius:8, padding:'0 10px' }}>Del</button>
                     </div>
                   ))}
                 </div>
@@ -743,7 +749,7 @@ function BookingsTab({ viewOnly }) {
             </div>
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:8 }}>
-            <Btn onClick={()=>setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={()=>setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveBooking} small>Create Booking</Btn>
           </div>
         </ModalOverlay>
@@ -752,17 +758,17 @@ function BookingsTab({ viewOnly }) {
       {/* Cancel Booking */}
       {modal==='cancel' && selected && (
         <ModalOverlay onClose={()=>setModal(null)} title={`Cancel Booking — ${selected.bookingNo}`}>
-          <div style={{ background:'#FFE2E5', borderRadius:8, padding:'10px 14px', marginBottom:14, fontSize:12, color:'#B42318' }}>
+          <div style={{ background:'var(--c-danger-light)', borderRadius:8, padding:'10px 14px', marginBottom:14, fontSize:12, color:'#B42318' }}>
             ⚠ This will reverse all committed milestones and set unit status to Available.
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
             <div style={{ gridColumn:'1/-1' }}>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Cancellation Reason *</label>
-              <textarea value={cancelForm.reason} onChange={e=>setCancelForm(f=>({...f,reason:e.target.value}))} rows={2} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12, resize:'vertical', boxSizing:'border-box' }}/>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Cancellation Reason *</label>
+              <textarea value={cancelForm.reason} onChange={e=>setCancelForm(f=>({...f,reason:e.target.value}))} rows={2} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12, resize:'vertical', boxSizing:'border-box' }}/>
             </div>
             <div>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Charge Type</label>
-              <select value={cancelForm.chargeType} onChange={e=>setCancelForm(f=>({...f,chargeType:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Charge Type</label>
+              <select value={cancelForm.chargeType} onChange={e=>setCancelForm(f=>({...f,chargeType:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 <option value="flat">Flat Amount (₹)</option>
                 <option value="percent">% of Agreement Value</option>
               </select>
@@ -770,8 +776,8 @@ function BookingsTab({ viewOnly }) {
             <FormField label="Cancellation Charge" value={cancelForm.chargeValue} onChange={v=>setCancelForm(f=>({...f,chargeValue:v}))} type="number" />
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap:8 }}>
-            <Btn onClick={()=>setModal(null)} color="#4B5675" small>Close</Btn>
-            <Btn onClick={cancelBooking} color="#F8285A" small>Confirm Cancellation</Btn>
+            <Btn onClick={()=>setModal(null)} color="var(--t-secondary)" small>Close</Btn>
+            <Btn onClick={cancelBooking} color="var(--c-danger)" small>Confirm Cancellation</Btn>
           </div>
         </ModalOverlay>
       )}
@@ -785,18 +791,18 @@ function BookingsTab({ viewOnly }) {
               const unit = (proj?.units || []).find(u => String(u.id) === String(selected.unitId));
               return unit?.unitNo || selected.unitId || '—';
             })()],['Agreement Value',`₹${(selected.agreementValue||0).toLocaleString('en-IN')}`],['Status',selected.status],['Booking Date',selected.bookingDate],['Approved By',selected.approvedBy||'—'],['Booking No',selected.bookingNo||'—']].map(([k,v])=>(
-              <div key={k}><div style={{ fontSize:10, color:'#78829D' }}>{k}</div><div style={{ fontSize:13, fontWeight:600, color:'#071437' }}>{v}</div></div>
+              <div key={k}><div style={{ fontSize:10, color:'var(--t-muted)' }}>{k}</div><div style={{ fontSize:13, fontWeight:600, color:'var(--c-dark)' }}>{v}</div></div>
             ))}
           </div>
 
           {/* Payment history */}
-          <div style={{ fontWeight:700, fontSize:13, color:'#071437', marginBottom:8 }}>Payment History</div>
-          {(selected.payments||[]).length===0 ? <div style={{ fontSize:12, color:'#78829D', marginBottom:12 }}>No payments recorded.</div> : (
+          <div style={{ fontWeight:700, fontSize:13, color:'var(--c-dark)', marginBottom:8 }}>Payment History</div>
+          {(selected.payments||[]).length===0 ? <div style={{ fontSize:12, color:'var(--t-muted)', marginBottom:12 }}>No payments recorded.</div> : (
             <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:12, fontSize:12 }}>
-              <thead><tr style={{ background:'#FCFCFC' }}>{['Date','Amount','Mode','Reference'].map(h=><th key={h} style={{ padding:'7px 12px', fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>)}</tr></thead>
+              <thead><tr style={{ background:'var(--bg-subtle)' }}>{['Date','Amount','Mode','Reference'].map(h=><th key={h} style={{ padding:'7px 12px', fontWeight:700, color:'var(--t-secondary)', textAlign:'left', borderBottom:'1px solid var(--bg-subtle)' }}>{h}</th>)}</tr></thead>
               <tbody>
                 {(selected.payments||[]).map(p=>(
-                  <tr key={p.id}><td style={{ padding:'7px 12px' }}>{p.date?.split('T')[0]}</td><td style={{ padding:'7px 12px', fontWeight:600, color:'#17C653' }}>₹{(p.amount||0).toLocaleString('en-IN')}</td><td style={{ padding:'7px 12px' }}>{p.mode}</td><td style={{ padding:'7px 12px', color:'#78829D' }}>{p.ref||'—'}</td></tr>
+                  <tr key={p.id}><td style={{ padding:'7px 12px' }}>{p.date?.split('T')[0]}</td><td style={{ padding:'7px 12px', fontWeight:600, color:'var(--c-success)' }}>₹{(p.amount||0).toLocaleString('en-IN')}</td><td style={{ padding:'7px 12px' }}>{p.mode}</td><td style={{ padding:'7px 12px', color:'var(--t-muted)' }}>{p.ref||'—'}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -833,13 +839,13 @@ function AddPaymentForm({ onAdd, milestones = [], payments = [] }) {
     setForm({ amount:'', mode:'NEFT', ref:'', date:new Date().toISOString().split('T')[0], milestoneId:'' });
   }
   return (
-    <div style={{ background:'#FCFCFC', borderRadius:10, padding:'12px 14px' }}>
-      <div style={{ fontWeight:700, fontSize:12, color:'#071437', marginBottom:8 }}>Record Payment</div>
+    <div style={{ background:'var(--bg-subtle)', borderRadius:10, padding:'12px 14px' }}>
+      <div style={{ fontWeight:700, fontSize:12, color:'var(--c-dark)', marginBottom:8 }}>Record Payment</div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1.2fr 1fr 1fr 1fr auto', gap:8, alignItems:'flex-end' }}>
         <FormField label="Amount (₹)" value={form.amount} onChange={v=>setForm(f=>({...f,amount:Number(v)}))} type="number" />
         <div>
-          <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Milestone</label>
-          <select value={form.milestoneId} onChange={e=>setForm(f=>({...f,milestoneId:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+          <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Milestone</label>
+          <select value={form.milestoneId} onChange={e=>setForm(f=>({...f,milestoneId:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
             <option value="">General payment</option>
             {openMilestones.map(m => (
               <option key={m.id} value={m.id}>{m.label} • ₹{Number(m.amount || 0).toLocaleString('en-IN')}</option>
@@ -847,8 +853,8 @@ function AddPaymentForm({ onAdd, milestones = [], payments = [] }) {
           </select>
         </div>
         <div>
-          <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Mode</label>
-          <select value={form.mode} onChange={e=>setForm(f=>({...f,mode:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+          <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Mode</label>
+          <select value={form.mode} onChange={e=>setForm(f=>({...f,mode:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
             {['NEFT','RTGS','Cheque','Cash','UPI','DD'].map(m=><option key={m}>{m}</option>)}
           </select>
         </div>
@@ -897,14 +903,14 @@ function CollectionsTab({ viewOnly }) {
 
   return (
     <div>
-      <div style={{ fontSize:15, fontWeight:800, color:'#071437', marginBottom:16 }}>Collections & Overdue</div>
+      <div style={{ fontSize:15, fontWeight:800, color:'var(--c-dark)', marginBottom:16 }}>Collections & Overdue</div>
 
       {/* Aging summary */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
-        {[['0-30 Days','#17C653',agingBuckets['0-30']],['31-60 Days','#F6C000',agingBuckets['31-60']],['61-90 Days','#DC6B19',agingBuckets['61-90']],['90+ Days','#F8285A',agingBuckets['90+']]].map(([l,c,items])=>(
-          <div key={l} onClick={()=>setAgingFilter(l==='0-30 Days'?'0-30':l==='31-60 Days'?'31-60':l==='61-90 Days'?'61-90':'90+')} style={{ background:'#fff', borderRadius:12, padding:16, border:`2px solid ${agingFilter===l?c:'#F1F1F4'}`, cursor:'pointer' }}>
+        {[['0-30 Days','var(--c-success)',agingBuckets['0-30']],['31-60 Days','var(--c-warning)',agingBuckets['31-60']],['61-90 Days','#DC6B19',agingBuckets['61-90']],['90+ Days','var(--c-danger)',agingBuckets['90+']]].map(([l,c,items])=>(
+          <div key={l} onClick={()=>setAgingFilter(l==='0-30 Days'?'0-30':l==='31-60 Days'?'31-60':l==='61-90 Days'?'61-90':'90+')} style={{ background:'#fff', borderRadius:12, padding:16, border:`2px solid ${agingFilter===l?c:'var(--border)'}`, cursor:'pointer' }}>
             <div style={{ fontSize:22, fontWeight:800, color:c }}>{items.length}</div>
-            <div style={{ fontSize:12, color:'#4B5675', marginTop:2 }}>{l}</div>
+            <div style={{ fontSize:12, color:'var(--t-secondary)', marginTop:2 }}>{l}</div>
             <div style={{ fontSize:11, color:c, fontWeight:600, marginTop:2 }}>₹{items.reduce((s,d)=>s+(d.amount||0),0).toLocaleString('en-IN')}</div>
           </div>
         ))}
@@ -913,37 +919,37 @@ function CollectionsTab({ viewOnly }) {
       {/* Forecast */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:20 }}>
         {[['Next 30 Days',next30],['31-60 Days Ahead',next60]].map(([l,items])=>(
-          <div key={l} style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', padding:16 }}>
-            <div style={{ fontWeight:700, fontSize:12, color:'#071437', marginBottom:6 }}>Forecast: {l}</div>
-            <div style={{ fontSize:20, fontWeight:800, color:'#1B84FF' }}>₹{items.reduce((s,d)=>s+(d.amount||0),0).toLocaleString('en-IN')}</div>
-            <div style={{ fontSize:11, color:'#78829D' }}>{items.length} demands expected</div>
+          <div key={l} style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', padding:16 }}>
+            <div style={{ fontWeight:700, fontSize:12, color:'var(--c-dark)', marginBottom:6 }}>Forecast: {l}</div>
+            <div style={{ fontSize:20, fontWeight:800, color:'var(--c-primary)' }}>₹{items.reduce((s,d)=>s+(d.amount||0),0).toLocaleString('en-IN')}</div>
+            <div style={{ fontSize:11, color:'var(--t-muted)' }}>{items.length} demands expected</div>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', overflow:'hidden' }}>
-        <div style={{ padding:'10px 16px', borderBottom:'1px solid #FCFCFC', display:'flex', gap:8 }}>
+      <div style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
+        <div style={{ padding:'10px 16px', borderBottom:'1px solid var(--bg-subtle)', display:'flex', gap:8 }}>
           {[['all','All'],['0-30','0-30d'],['31-60','31-60d'],['61-90','61-90d'],['90+','90+d']].map(([v,l])=>(
-            <button key={v} onClick={()=>setAgingFilter(v)} style={{ padding:'4px 12px', borderRadius:6, fontSize:11, fontWeight:agingFilter===v?700:400, color:agingFilter===v?'#1B84FF':'#4B5675', background:agingFilter===v?'#EEF6FF':'transparent', border:'1px solid '+(agingFilter===v?'#B5D8FF':'transparent'), cursor:'pointer' }}>{l}</button>
+            <button key={v} onClick={()=>setAgingFilter(v)} style={{ padding:'4px 12px', borderRadius:6, fontSize:11, fontWeight:agingFilter===v?700:400, color:agingFilter===v?'var(--c-primary)':'var(--t-secondary)', background:agingFilter===v?'var(--c-primary-light)':'transparent', border:'1px solid '+(agingFilter===v?'#B5D8FF':'transparent'), cursor:'pointer' }}>{l}</button>
           ))}
         </div>
         <table style={{ width:'100%', borderCollapse:'collapse' }}>
-          <thead><tr style={{ background:'#FCFCFC' }}>{['Booking No','Customer','Milestone','Due Date','Amount','Overdue By','Actions'].map(h=><th key={h} style={{ padding:'9px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ background:'var(--bg-subtle)' }}>{['Booking No','Customer','Milestone','Due Date','Amount','Overdue By','Actions'].map(h=><th key={h} style={{ padding:'9px 14px', fontSize:11, fontWeight:700, color:'var(--t-secondary)', textAlign:'left', borderBottom:'1px solid var(--bg-subtle)' }}>{h}</th>)}</tr></thead>
           <tbody>
             {displayed.map((d,i)=>(
-              <tr key={i} style={{ borderBottom:'1px solid #FCFCFC' }}>
-                <td style={{ padding:'8px 14px', fontSize:11.5, fontWeight:700, color:'#071437' }}>{d.bookingNo}</td>
+              <tr key={i} style={{ borderBottom:'1px solid var(--bg-subtle)' }}>
+                <td style={{ padding:'8px 14px', fontSize:11.5, fontWeight:700, color:'var(--c-dark)' }}>{d.bookingNo}</td>
                 <td style={{ padding:'8px 14px', fontSize:12 }}>{d.customerName}</td>
                 <td style={{ padding:'8px 14px', fontSize:12 }}>{d.label||d.name||'—'}</td>
                 <td style={{ padding:'8px 14px', fontSize:12 }}>{d.dueDate}</td>
                 <td style={{ padding:'8px 14px', fontSize:12, fontWeight:600 }}>₹{(d.amount||0).toLocaleString('en-IN')}</td>
-                <td style={{ padding:'8px 14px' }}><Badge label={d.daysOverdue>0?`${d.daysOverdue} days`:'Upcoming'} color={d.daysOverdue>90?'#F8285A':d.daysOverdue>60?'#DC6B19':d.daysOverdue>30?'#F6C000':'#17C653'} /></td>
+                <td style={{ padding:'8px 14px' }}><Badge label={d.daysOverdue>0?`${d.daysOverdue} days`:'Upcoming'} color={d.daysOverdue>90?'var(--c-danger)':d.daysOverdue>60?'#DC6B19':d.daysOverdue>30?'var(--c-warning)':'var(--c-success)'} /></td>
                 <td style={{ padding:'8px 14px' }}>
                   {!viewOnly && (
                     <button
                       onClick={() => sendDemandNotice(d)}
-                      style={{ background:'#EEF6FF', color:'#1B84FF', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}
+                      style={{ background:'var(--c-primary-light)', color:'var(--c-primary)', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}
                     >
                       Send Demand
                     </button>
@@ -953,7 +959,7 @@ function CollectionsTab({ viewOnly }) {
             ))}
           </tbody>
         </table>
-        {displayed.length===0 && <div style={{ padding:32, textAlign:'center', color:'#78829D', fontSize:13 }}>No overdue demands. 🎉</div>}
+        {displayed.length===0 && <div style={{ padding:32, textAlign:'center', color:'var(--t-muted)', fontSize:13 }}>No overdue demands. 🎉</div>}
       </div>
     </div>
   );
@@ -974,32 +980,32 @@ function BrokersTab({ viewOnly }) {
   return (
     <div>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
-        <div style={{ fontSize:15, fontWeight:800, color:'#071437' }}>Brokers</div>
+        <div style={{ fontSize:15, fontWeight:800, color:'var(--c-dark)' }}>Brokers</div>
         {!viewOnly && <Btn onClick={()=>{ setForm({name:'',phone:'',email:'',reraNo:'',brokeragePercent:2,pan:'',gstin:''}); setModal('add'); }} small><Plus size={12}/> Add Broker</Btn>}
       </div>
-      <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', overflow:'hidden' }}>
+      <div style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
         <table style={{ width:'100%', borderCollapse:'collapse' }}>
-          <thead><tr style={{ background:'#FCFCFC' }}>{['Name','Phone','RERA No','Commission %','Bookings','Commission Earned','TDS (194H)'].map(h=><th key={h} style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ background:'var(--bg-subtle)' }}>{['Name','Phone','RERA No','Commission %','Bookings','Commission Earned','TDS (194H)'].map(h=><th key={h} style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'var(--t-secondary)', textAlign:'left', borderBottom:'1px solid var(--bg-subtle)' }}>{h}</th>)}</tr></thead>
           <tbody>
             {brokers.map(b=>{
               const bkgs = bookings.filter(bk=>bk.brokerId===b.id && bk.status==='approved');
               const commission = bkgs.reduce((s,bk)=>(s+(bk.agreementValue||0)*((b.brokeragePercent||2)/100)),0);
               const tds = commission * 0.05;
               return (
-                <tr key={b.id} style={{ borderBottom:'1px solid #FCFCFC' }}>
-                  <td style={{ padding:'9px 14px', fontSize:12, fontWeight:600, color:'#071437' }}>{b.name}</td>
+                <tr key={b.id} style={{ borderBottom:'1px solid var(--bg-subtle)' }}>
+                  <td style={{ padding:'9px 14px', fontSize:12, fontWeight:600, color:'var(--c-dark)' }}>{b.name}</td>
                   <td style={{ padding:'9px 14px', fontSize:12 }}>{b.phone}</td>
                   <td style={{ padding:'9px 14px', fontSize:12 }}>{b.reraNo||'—'}</td>
                   <td style={{ padding:'9px 14px', fontSize:12 }}>{b.brokeragePercent||2}%</td>
                   <td style={{ padding:'9px 14px', fontSize:12 }}>{bkgs.length}</td>
-                  <td style={{ padding:'9px 14px', fontSize:12, fontWeight:600, color:'#17C653' }}>₹{commission.toLocaleString('en-IN')}</td>
-                  <td style={{ padding:'9px 14px', fontSize:12, color:'#F8285A' }}>₹{tds.toLocaleString('en-IN')}</td>
+                  <td style={{ padding:'9px 14px', fontSize:12, fontWeight:600, color:'var(--c-success)' }}>₹{commission.toLocaleString('en-IN')}</td>
+                  <td style={{ padding:'9px 14px', fontSize:12, color:'var(--c-danger)' }}>₹{tds.toLocaleString('en-IN')}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-        {brokers.length===0 && <div style={{ padding:32, textAlign:'center', color:'#78829D', fontSize:13 }}>No brokers added.</div>}
+        {brokers.length===0 && <div style={{ padding:32, textAlign:'center', color:'var(--t-muted)', fontSize:13 }}>No brokers added.</div>}
       </div>
       {modal==='add' && (
         <ModalOverlay onClose={()=>setModal(null)} title="Add Broker">
@@ -1008,7 +1014,7 @@ function BrokersTab({ viewOnly }) {
             <FormField label="Commission %" value={form.brokeragePercent} onChange={v=>setForm(f=>({...f,brokeragePercent:Number(v)}))} type="number" />
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:16 }}>
-            <Btn onClick={()=>setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={()=>setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveBroker} small>Save</Btn>
           </div>
         </ModalOverlay>
@@ -1045,23 +1051,23 @@ function DocumentsTab({ viewOnly }) {
 
   return (
     <div>
-      <div style={{ fontSize:15, fontWeight:800, color:'#071437', marginBottom:4 }}>Document Automation</div>
-      <div style={{ fontSize:11, color:'#78829D', marginBottom:20 }}>All documents print-ready — format for letterhead</div>
+      <div style={{ fontSize:15, fontWeight:800, color:'var(--c-dark)', marginBottom:4 }}>Document Automation</div>
+      <div style={{ fontSize:11, color:'var(--t-muted)', marginBottom:20 }}>All documents print-ready — format for letterhead</div>
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
         <div>
-          <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', padding:18, marginBottom:16 }}>
-            <div style={{ fontWeight:700, fontSize:13, color:'#071437', marginBottom:12 }}>Generate Document</div>
+          <div style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', padding:18, marginBottom:16 }}>
+            <div style={{ fontWeight:700, fontSize:13, color:'var(--c-dark)', marginBottom:12 }}>Generate Document</div>
             <div style={{ marginBottom:10 }}>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Select Booking</label>
-              <select value={booking} onChange={e=>setBooking(e.target.value)} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Select Booking</label>
+              <select value={booking} onChange={e=>setBooking(e.target.value)} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 <option value="">— Select Booking —</option>
                 {bookings.map(b=><option key={b.id} value={b.id}>{b.bookingNo||b.id} — {b.customerName}</option>)}
               </select>
             </div>
             <div style={{ marginBottom:14 }}>
-              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Document Type</label>
-              <select value={selected} onChange={e=>setSelected(e.target.value)} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <label style={{ fontSize:11, fontWeight:600, color:'var(--t-primary)', display:'block', marginBottom:4 }}>Document Type</label>
+              <select value={selected} onChange={e=>setSelected(e.target.value)} style={{ width:'100%', padding:'7px 10px', border:'1px solid var(--border)', borderRadius:8, fontSize:12 }}>
                 <option value="">— Select Document —</option>
                 {DOC_TYPES.map(d=><option key={d.id} value={d.id}>{d.label}</option>)}
               </select>
@@ -1069,24 +1075,24 @@ function DocumentsTab({ viewOnly }) {
             {!viewOnly && (
               <div style={{ display:'flex', gap:8 }}>
                 <Btn onClick={generateDoc}><Download size={13}/> Generate DOCX</Btn>
-                <Btn color="#17C653" onClick={()=>addToast('WhatsApp: opening…')}><Send size={13}/> WhatsApp</Btn>
+                <Btn color="var(--c-success)" onClick={()=>addToast('WhatsApp: opening…')}><Send size={13}/> WhatsApp</Btn>
               </div>
             )}
           </div>
         </div>
 
-        <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', overflow:'hidden' }}>
-          <div style={{ padding:'12px 16px', borderBottom:'1px solid #FCFCFC' }}>
-            <div style={{ fontWeight:700, fontSize:13, color:'#071437' }}>Document Templates</div>
+        <div style={{ background:'#fff', borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
+          <div style={{ padding:'12px 16px', borderBottom:'1px solid var(--bg-subtle)' }}>
+            <div style={{ fontWeight:700, fontSize:13, color:'var(--c-dark)' }}>Document Templates</div>
           </div>
           {DOC_TYPES.map(d=>(
-            <div key={d.id} style={{ padding:'10px 16px', borderBottom:'1px solid #FCFCFC', display:'flex', alignItems:'center', gap:10 }}>
-              <div style={{ width:32, height:32, borderRadius:8, background:'#EEF6FF', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <Download size={14} style={{ color:'#1B84FF' }} />
+            <div key={d.id} style={{ padding:'10px 16px', borderBottom:'1px solid var(--bg-subtle)', display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{ width:32, height:32, borderRadius:8, background:'var(--c-primary-light)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <Download size={14} style={{ color:'var(--c-primary)' }} />
               </div>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:12, fontWeight:600, color:'#071437' }}>{d.label}</div>
-                <div style={{ fontSize:10, color:'#78829D' }}>{d.auto}</div>
+                <div style={{ fontSize:12, fontWeight:600, color:'var(--c-dark)' }}>{d.label}</div>
+                <div style={{ fontSize:10, color:'var(--t-muted)' }}>{d.auto}</div>
               </div>
             </div>
           ))}
@@ -1098,26 +1104,16 @@ function DocumentsTab({ viewOnly }) {
 
 // ── SHARED UI HELPERS ─────────────────────────────────────────────────────
 function ModalOverlay({ children, onClose, title, wide }) {
-  return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.4)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }} onClick={onClose}>
-      <div style={{ background:'#fff', borderRadius:14, width:wide?820:520, maxWidth:'95vw', maxHeight:'90vh', overflowY:'auto', boxShadow:'0 20px 60px rgba(0,0,0,0.2)' }} onClick={e=>e.stopPropagation()}>
-        <div style={{ padding:'16px 20px', borderBottom:'1px solid #FCFCFC', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, background:'#fff', zIndex:1 }}>
-          <span style={{ fontWeight:800, fontSize:14, color:'#071437' }}>{title}</span>
-          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'#78829D' }}><X size={16}/></button>
-        </div>
-        <div style={{ padding:'18px 20px' }}>{children}</div>
-      </div>
-    </div>
-  );
+  return <ThemeModalOverlay onClose={onClose} title={title} wide={wide}>{children}</ThemeModalOverlay>;
 }
 
 function FormField({ label, value, onChange, type='text', placeholder='' }) {
   return (
     <div>
-      <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>{label}</label>
+      <label style={formLabelStyle()}>{label}</label>
       <input type={type} value={value||''} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
-        style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12, outline:'none', boxSizing:'border-box' }}
-        onFocus={e=>e.target.style.borderColor='#1B84FF'} onBlur={e=>e.target.style.borderColor='#F1F1F4'} />
+        style={fieldStyle(false)}
+        onFocus={onFieldFocus} onBlur={e=>onFieldBlur(e, false)} />
     </div>
   );
 }

@@ -6,12 +6,12 @@ import Modal from '../ui/Modal';
 import { Grid, List, Lock, ChevronRight } from 'lucide-react';
 
 // Landowner — grey locked style
-const LANDOWNER_COLOR = { bg:'#F5F8FA', text:'#78829D', dot:'#99A1B7' };
+const LANDOWNER_COLOR = { bg:'var(--bg-page)', text:'var(--t-muted)', dot:'var(--t-muted)' };
 
 // Status display config (includes Landowner)
 function getStatusColor(unit) {
   if (unit.is_landowner) return LANDOWNER_COLOR;
-  return UNIT_STATUS_COLORS[unit.status] || { bg:'#FCFCFC', text:'#4B5675', dot:'#78829D' };
+  return UNIT_STATUS_COLORS[unit.status] || { bg:'var(--bg-subtle)', text:'var(--t-secondary)', dot:'var(--t-muted)' };
 }
 
 const STATUS_ORDER = ['Available','Booked','Agreement Done','Registered','Possession Given','Landowner','Cancelled'];
@@ -144,9 +144,9 @@ export default function Inventory() {
         {selProject && (
           <div className="flex gap-3 ml-2 flex-wrap">
             {[
-              ['Available',    availableCount, '#17C653', '#E8F5EE'],
-              ['Booked',       bookedCount,    '#1B84FF', '#EEF4FF'],
-              ['Landowner',    landownerCount, '#99A1B7', '#F5F8FA'],
+              ['Available',    availableCount, 'var(--c-success)', '#E8F5EE'],
+              ['Booked',       bookedCount,    'var(--c-primary)', '#EEF4FF'],
+              ['Landowner',    landownerCount, 'var(--t-muted)', 'var(--bg-page)'],
             ].filter(([,cnt]) => cnt > 0).map(([label, cnt, tc, bg]) => (
               <span key={label} style={{ background:bg, color:tc }}
                 className="text-xs font-bold px-2.5 py-1 rounded-full">
@@ -232,7 +232,7 @@ export default function Inventory() {
                           {/* Lock icon overlay for landowner */}
                           {isLO && (
                             <div className="absolute top-1 right-1">
-                              <Lock size={9} style={{ color: '#99A1B7' }}/>
+                              <Lock size={9} style={{ color: 'var(--t-muted)' }}/>
                             </div>
                           )}
 

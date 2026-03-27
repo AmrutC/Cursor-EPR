@@ -2,6 +2,16 @@ import React, { useState, useMemo, useRef } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { Plus, Search, Upload, Camera, Download, RefreshCw, X, Package, Truck, ClipboardList, AlertTriangle } from 'lucide-react';
 import { runOCR, parseIndentOCR, parseGRNOCR } from '../../utils/ocr.js';
+import {
+  moduleBtnStyle,
+  ModuleModalOverlay as ThemeModalOverlay,
+  ModuleTableTh as ThemeTh,
+  ModuleTableTd as ThemeTd,
+  formLabelStyle,
+  fieldStyle,
+  onFieldFocus,
+  onFieldBlur,
+} from '../theme/moduleUi';
 
 export default function ConstructionModule({ viewOnly }) {
   const { activeSubTab } = useAppStore();
@@ -22,41 +32,31 @@ export default function ConstructionModule({ viewOnly }) {
 }
 
 // ── SHARED ─────────────────────────────────────────────────────────────────
-const Btn = ({ children, onClick, color = '#7239EA', small, disabled, style = {} }) => (
-  <button onClick={onClick} disabled={disabled} style={{ background: disabled ? '#F1F1F4' : color, color: disabled ? '#78829D' : '#fff', border: 'none', borderRadius: 8, padding: small ? '5px 12px' : '7px 16px', fontSize: small ? 11 : 12, fontWeight: 700, cursor: disabled ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 5, ...style }}>{children}</button>
+const Btn = ({ children, onClick, color = 'var(--c-info)', small, disabled, style = {} }) => (
+  <button onClick={onClick} disabled={disabled} style={moduleBtnStyle(color, small, disabled, style)}>{children}</button>
 );
-const Badge = ({ label, color = '#7239EA' }) => <span style={{ background: color + '18', color, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>{label}</span>;
+const Badge = ({ label, color = 'var(--c-info)' }) => <span style={{ background: color + '18', color, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>{label}</span>;
 function ModalOverlay({ children, onClose, title, wide }) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
-      <div style={{ background: '#fff', borderRadius: 14, width: wide ? 820 : 520, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #FCFCFC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
-          <span style={{ fontWeight: 800, fontSize: 14, color: '#071437' }}>{title}</span>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78829D' }}><X size={16} /></button>
-        </div>
-        <div style={{ padding: '16px 20px' }}>{children}</div>
-      </div>
-    </div>
-  );
+  return <ThemeModalOverlay onClose={onClose} title={title} wide={wide}>{children}</ThemeModalOverlay>;
 }
 function FormField({ label, value, onChange, type = 'text', options }) {
   return (
     <div>
-      <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>{label}</label>
+      <label style={formLabelStyle()}>{label}</label>
       {options ? (
-        <select value={value || ''} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, boxSizing: 'border-box' }}>
+        <select value={value || ''} onChange={e => onChange(e.target.value)} style={fieldStyle(false)} onFocus={onFieldFocus} onBlur={e => onFieldBlur(e, false)}>
           {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
         </select>
       ) : (
         <input type={type} value={value ?? ''} onChange={e => onChange(e.target.value)}
-          style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
-          onFocus={e => e.target.style.borderColor = '#7239EA'} onBlur={e => e.target.style.borderColor = '#F1F1F4'} />
+          style={fieldStyle(false)}
+          onFocus={onFieldFocus} onBlur={e => onFieldBlur(e, false)} />
       )}
     </div>
   );
 }
-function Th({ children }) { return <th style={{ padding: '9px 14px', fontSize: 11, fontWeight: 700, color: '#4B5675', textAlign: 'left', borderBottom: '1px solid #FCFCFC', background: '#FCFCFC' }}>{children}</th>; }
-function Td({ children, style = {} }) { return <td style={{ padding: '8px 14px', fontSize: 12, color: '#252F4A', borderBottom: '1px solid #FCFCFC', ...style }}>{children}</td>; }
+function Th({ children }) { return <ThemeTh>{children}</ThemeTh>; }
+function Td({ children, style = {} }) { return <ThemeTd style={style}>{children}</ThemeTd>; }
 
 // ── PROJECTS TAB ──────────────────────────────────────────────────────────
 function ProjectsTab({ viewOnly }) {
@@ -77,12 +77,12 @@ function ProjectsTab({ viewOnly }) {
     setModal(null);
   }
 
-  const STATUS_COLORS = { active: '#17C653', completed: '#1B84FF', onhold: '#F6C000', cancelled: '#F8285A' };
+  const STATUS_COLORS = { active: 'var(--c-success)', completed: 'var(--c-primary)', onhold: 'var(--c-warning)', cancelled: 'var(--c-danger)' };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Construction Projects</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Construction Projects</div>
         {!viewOnly && <Btn onClick={() => { setSelProject(null); setForm({ name: '', location: '', reraNo: '', totalBudget: '', startDate: '', expectedEnd: '', status: 'active', architect: '', contractor: '', completionPct: 0 }); setModal('form'); }} small><Plus size={12} /> Add Project</Btn>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
@@ -91,33 +91,33 @@ function ProjectsTab({ viewOnly }) {
           const totalBOQ = projectBOQ.reduce((s, b) => s + (b.estimatedCost || 0), 0);
           const actualCost = projectBOQ.reduce((s, b) => s + (b.actualCost || 0), 0);
           return (
-            <div key={p.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 18 }}>
+            <div key={p.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 18 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#071437' }}>{p.name}</div>
-                  <div style={{ fontSize: 11, color: '#78829D' }}>{p.location}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-dark)' }}>{p.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--t-muted)' }}>{p.location}</div>
                 </div>
-                <Badge label={p.status || 'active'} color={STATUS_COLORS[p.status] || '#17C653'} />
+                <Badge label={p.status || 'active'} color={STATUS_COLORS[p.status] || 'var(--c-success)'} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
                 {[['Budget', `₹${(p.totalBudget || 0) > 0 ? (Number(p.totalBudget) / 100000).toFixed(1) + 'L' : '—'}`], ['BOQ Est.', `₹${(totalBOQ / 100000).toFixed(1)}L`], ['Actual', `₹${(actualCost / 100000).toFixed(1)}L`], ['Variance', `${totalBOQ > 0 ? (((actualCost - totalBOQ) / totalBOQ) * 100).toFixed(1) : '0'}%`]].map(([l, v]) => (
-                  <div key={l} style={{ background: '#FCFCFC', borderRadius: 7, padding: '7px 10px' }}>
-                    <div style={{ fontSize: 9.5, color: '#78829D' }}>{l}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#071437' }}>{v}</div>
+                  <div key={l} style={{ background: 'var(--bg-subtle)', borderRadius: 7, padding: '7px 10px' }}>
+                    <div style={{ fontSize: 9.5, color: 'var(--t-muted)' }}>{l}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-dark)' }}>{v}</div>
                   </div>
                 ))}
               </div>
-              <div style={{ height: 5, background: '#FCFCFC', borderRadius: 3, overflow: 'hidden', marginBottom: 6 }}>
-                <div style={{ width: `${Math.min(p.completionPct || 0, 100)}%`, height: '100%', background: '#7239EA', borderRadius: 3 }} />
+              <div style={{ height: 5, background: 'var(--bg-subtle)', borderRadius: 3, overflow: 'hidden', marginBottom: 6 }}>
+                <div style={{ width: `${Math.min(p.completionPct || 0, 100)}%`, height: '100%', background: 'var(--c-info)', borderRadius: 3 }} />
               </div>
-              <div style={{ fontSize: 10, color: '#78829D', marginBottom: 10 }}>{p.completionPct || 0}% complete</div>
+              <div style={{ fontSize: 10, color: 'var(--t-muted)', marginBottom: 10 }}>{p.completionPct || 0}% complete</div>
               {!viewOnly && (
-                <button onClick={() => { setSelProject(p); setForm({ ...p }); setModal('form'); }} style={{ fontSize: 11, color: '#7239EA', background: 'none', border: '1px solid #7239EA', borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>Edit</button>
+                <button onClick={() => { setSelProject(p); setForm({ ...p }); setModal('form'); }} style={{ fontSize: 11, color: 'var(--c-info)', background: 'none', border: '1px solid var(--c-info)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>Edit</button>
               )}
             </div>
           );
         })}
-        {projects.length === 0 && <div style={{ gridColumn: '1/-1', padding: 48, textAlign: 'center', color: '#78829D', fontSize: 13, background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4' }}>No construction projects yet.</div>}
+        {projects.length === 0 && <div style={{ gridColumn: '1/-1', padding: 48, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13, background: '#fff', borderRadius: 12, border: '1px solid var(--border)' }}>No construction projects yet.</div>}
       </div>
 
       {modal === 'form' && (
@@ -135,7 +135,7 @@ function ProjectsTab({ viewOnly }) {
             <FormField label="Status" value={form.status} onChange={v => setForm(f => ({ ...f, status: v }))} options={['active', 'completed', 'onhold', 'cancelled']} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveProject} small>Save Project</Btn>
           </div>
         </ModalOverlay>
@@ -176,9 +176,9 @@ function BOQTab({ viewOnly }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Bill of Quantities</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Bill of Quantities</div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <select value={selProject} onChange={e => setSelProject(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '6px 10px', fontSize: 12 }}>
+          <select value={selProject} onChange={e => setSelProject(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', fontSize: 12 }}>
             <option value="">All Projects</option>
             {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -187,15 +187,15 @@ function BOQTab({ viewOnly }) {
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        {[['Estimated', totalEst, '#1B84FF'], ['Actual', totalAct, '#F8285A'], ['Variance', totalAct - totalEst, totalAct > totalEst ? '#F8285A' : '#17C653']].map(([l, v, c]) => (
-          <div key={l} style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', padding: '12px 20px' }}>
-            <div style={{ fontSize: 11, color: '#78829D' }}>{l}</div>
+        {[['Estimated', totalEst, 'var(--c-primary)'], ['Actual', totalAct, 'var(--c-danger)'], ['Variance', totalAct - totalEst, totalAct > totalEst ? 'var(--c-danger)' : 'var(--c-success)']].map(([l, v, c]) => (
+          <div key={l} style={{ background: '#fff', borderRadius: 10, border: '1px solid var(--border)', padding: '12px 20px' }}>
+            <div style={{ fontSize: 11, color: 'var(--t-muted)' }}>{l}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: c }}>₹{Math.abs(v).toLocaleString('en-IN')}{v < 0 ? ' under' : v > 0 && l === 'Variance' ? ' over' : ''}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Item</Th><Th>Category</Th><Th>Unit</Th><Th>Est. Qty</Th><Th>Est. Rate</Th><Th>Est. Cost</Th><Th>Actual Cost</Th><Th>Stock Available</Th><Th>Status</Th></tr></thead>
           <tbody>
@@ -211,15 +211,15 @@ function BOQTab({ viewOnly }) {
                   <Td>{b.estimatedQty || '—'}</Td>
                   <Td>₹{(b.estimatedRate || 0).toLocaleString('en-IN')}</Td>
                   <Td style={{ fontWeight: 600 }}>₹{(b.estimatedCost || 0).toLocaleString('en-IN')}</Td>
-                  <Td style={{ fontWeight: 600, color: b.actualCost > b.estimatedCost ? '#F8285A' : '#17C653' }}>₹{(b.actualCost || 0).toLocaleString('en-IN')}</Td>
-                  <Td style={{ color: shortage ? '#F8285A' : '#17C653', fontWeight: 600 }}>{stockQty.toLocaleString('en-IN')} {b.unit}{shortage ? ' ⚠' : ''}</Td>
-                  <Td>{shortage ? <Badge label="Shortage" color="#F8285A" /> : <Badge label="OK" color="#17C653" />}</Td>
+                  <Td style={{ fontWeight: 600, color: b.actualCost > b.estimatedCost ? 'var(--c-danger)' : 'var(--c-success)' }}>₹{(b.actualCost || 0).toLocaleString('en-IN')}</Td>
+                  <Td style={{ color: shortage ? 'var(--c-danger)' : 'var(--c-success)', fontWeight: 600 }}>{stockQty.toLocaleString('en-IN')} {b.unit}{shortage ? ' ⚠' : ''}</Td>
+                  <Td>{shortage ? <Badge label="Shortage" color="var(--c-danger)" /> : <Badge label="OK" color="var(--c-success)" />}</Td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-        {projectBOQ.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No BOQ items added.</div>}
+        {projectBOQ.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No BOQ items added.</div>}
       </div>
 
       {modal && (
@@ -233,7 +233,7 @@ function BOQTab({ viewOnly }) {
             <FormField label="Est. Rate (₹)" value={form.estimatedRate} onChange={v => setForm(f => ({ ...f, estimatedRate: v }))} type="number" />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveItem} small>Add Item</Btn>
           </div>
         </ModalOverlay>
@@ -276,16 +276,16 @@ function IndentTab({ viewOnly }) {
     addToast('Indent submitted'); setModal(null);
   }
 
-  const STATUS_COLORS = { pending: '#F6C000', approved: '#17C653', 'po_raised': '#1B84FF', received: '#7239EA' };
+  const STATUS_COLORS = { pending: 'var(--c-warning)', approved: 'var(--c-success)', 'po_raised': 'var(--c-primary)', received: 'var(--c-info)' };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Material Indent</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Material Indent</div>
         {!viewOnly && <Btn onClick={() => { setForm({ projectId: '', requestedBy: user?.full_name || '', date: new Date().toISOString().split('T')[0], urgency: 'normal', remarks: '', items: [] }); setModal('form'); }} small><Plus size={12} /> New Indent</Btn>}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Indent No</Th><Th>Date</Th><Th>Project</Th><Th>Items</Th><Th>Urgency</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
           <tbody>
@@ -293,15 +293,15 @@ function IndentTab({ viewOnly }) {
               const proj = projects.find(p => String(p.id) === String(ind.projectId));
               return (
                 <tr key={ind.id}>
-                  <Td style={{ fontWeight: 700, color: '#071437', fontSize: 11 }}>{ind.indentNo}</Td>
+                  <Td style={{ fontWeight: 700, color: 'var(--c-dark)', fontSize: 11 }}>{ind.indentNo}</Td>
                   <Td>{ind.date}</Td>
                   <Td>{proj?.name || ind.projectId}</Td>
                   <Td>{(ind.items || []).length} items</Td>
-                  <Td><Badge label={ind.urgency} color={ind.urgency === 'urgent' ? '#F8285A' : '#F6C000'} /></Td>
-                  <Td><Badge label={ind.status} color={STATUS_COLORS[ind.status] || '#4B5675'} /></Td>
+                  <Td><Badge label={ind.urgency} color={ind.urgency === 'urgent' ? 'var(--c-danger)' : 'var(--c-warning)'} /></Td>
+                  <Td><Badge label={ind.status} color={STATUS_COLORS[ind.status] || 'var(--t-secondary)'} /></Td>
                   <Td>
                     {!viewOnly && ind.status === 'pending' && (
-                      <button onClick={() => setMaterialIndents(prev => prev.map(i => i.id === ind.id ? { ...i, status: 'approved' } : i))} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
+                      <button onClick={() => setMaterialIndents(prev => prev.map(i => i.id === ind.id ? { ...i, status: 'approved' } : i))} style={{ background: 'var(--c-success-light)', color: 'var(--c-success)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
                     )}
                   </Td>
                 </tr>
@@ -309,7 +309,7 @@ function IndentTab({ viewOnly }) {
             })}
           </tbody>
         </table>
-        {materialIndents.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No indents raised yet.</div>}
+        {materialIndents.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No indents raised yet.</div>}
       </div>
 
       {modal === 'form' && (
@@ -322,15 +322,15 @@ function IndentTab({ viewOnly }) {
           </div>
 
           {/* OCR Upload */}
-          <div style={{ background: '#F5F0FF', borderRadius: 10, padding: '12px 14px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Btn onClick={runOCRIndent} color="#7239EA" small disabled={ocrRunning}><Upload size={12} /> {ocrRunning ? `Scanning… ${ocrProgress}%` : 'Scan Indent via OCR'}</Btn>
-            <span style={{ fontSize: 11, color: '#4B5675' }}>Upload a photo/PDF of handwritten or printed indent — auto-fills items below</span>
+          <div style={{ background: 'var(--c-info-light)', borderRadius: 10, padding: '12px 14px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Btn onClick={runOCRIndent} color="var(--c-info)" small disabled={ocrRunning}><Upload size={12} /> {ocrRunning ? `Scanning… ${ocrProgress}%` : 'Scan Indent via OCR'}</Btn>
+            <span style={{ fontSize: 11, color: 'var(--t-secondary)' }}>Upload a photo/PDF of handwritten or printed indent — auto-fills items below</span>
           </div>
 
           {/* Items */}
-          <div style={{ fontWeight: 700, fontSize: 12, color: '#071437', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: 'var(--c-dark)', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             Items
-            <button onClick={addItem} style={{ background: '#7239EA', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}>+ Add Row</button>
+            <button onClick={addItem} style={{ background: 'var(--c-info)', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}>+ Add Row</button>
           </div>
           {form.items.map((item, i) => (
             <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr auto', gap: 8, marginBottom: 6, alignItems: 'flex-end' }}>
@@ -338,17 +338,17 @@ function IndentTab({ viewOnly }) {
               <FormField label={i === 0 ? 'Qty' : ''} value={item.qty} onChange={v => updateItem(i, 'qty', v)} type="number" />
               <FormField label={i === 0 ? 'Unit' : ''} value={item.unit} onChange={v => updateItem(i, 'unit', v)} options={['bags', 'kg', 'mt', 'sqft', 'rft', 'nos', 'liters', 'sets', 'rmt']} />
               <FormField label={i === 0 ? 'Preferred Vendor' : ''} value={item.vendor} onChange={v => updateItem(i, 'vendor', v)} />
-              <button onClick={() => removeItem(i)} style={{ background: 'none', border: 'none', color: '#F8285A', cursor: 'pointer', padding: '0 4px', marginBottom: 2 }}><X size={14} /></button>
+              <button onClick={() => removeItem(i)} style={{ background: 'none', border: 'none', color: 'var(--c-danger)', cursor: 'pointer', padding: '0 4px', marginBottom: 2 }}><X size={14} /></button>
             </div>
           ))}
-          {form.items.length === 0 && <div style={{ fontSize: 12, color: '#78829D', padding: '8px 0', marginBottom: 12 }}>Add items manually or use OCR scan above.</div>}
+          {form.items.length === 0 && <div style={{ fontSize: 12, color: 'var(--t-muted)', padding: '8px 0', marginBottom: 12 }}>Add items manually or use OCR scan above.</div>}
 
           <div style={{ marginTop: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>Remarks</label>
-            <textarea value={form.remarks} onChange={e => setForm(f => ({ ...f, remarks: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
+            <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t-primary)', display: 'block', marginBottom: 4 }}>Remarks</label>
+            <textarea value={form.remarks} onChange={e => setForm(f => ({ ...f, remarks: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveIndent} small>Submit Indent</Btn>
           </div>
         </ModalOverlay>
@@ -398,26 +398,26 @@ function ProcurementTab({ viewOnly }) {
     addToast('PO approved');
   }
 
-  const STATUS_COLORS = { pending_approval: '#F6C000', approved: '#17C653', sent: '#1B84FF', received: '#7239EA', cancelled: '#F8285A' };
+  const STATUS_COLORS = { pending_approval: 'var(--c-warning)', approved: 'var(--c-success)', sent: 'var(--c-primary)', received: 'var(--c-info)', cancelled: 'var(--c-danger)' };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Procurement & Purchase Orders</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Procurement & Purchase Orders</div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {!viewOnly && <Btn onClick={generateAutoPO} color="#17C653" small><RefreshCw size={12} /> Auto-generate POs</Btn>}
+          {!viewOnly && <Btn onClick={generateAutoPO} color="var(--c-success)" small><RefreshCw size={12} /> Auto-generate POs</Btn>}
           {!viewOnly && <Btn onClick={() => { setVendorForm({ name: '', phone: '', email: '', gstin: '', pan: '', category: 'Cement', address: '' }); setModal('vendor'); }} small><Plus size={12} /> Add Vendor</Btn>}
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {[['vendors', 'Vendors'], ['pos', 'Purchase Orders']].map(([v, l]) => (
-          <button key={v} onClick={() => setSubTab(v)} style={{ padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: subTab === v ? 700 : 400, color: subTab === v ? '#7239EA' : '#4B5675', background: subTab === v ? '#F5F0FF' : '#FCFCFC', border: '1px solid ' + (subTab === v ? '#EDE4FF' : 'transparent'), cursor: 'pointer' }}>{l}</button>
+          <button key={v} onClick={() => setSubTab(v)} style={{ padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: subTab === v ? 700 : 400, color: subTab === v ? 'var(--c-info)' : 'var(--t-secondary)', background: subTab === v ? 'var(--c-info-light)' : 'var(--bg-subtle)', border: '1px solid ' + (subTab === v ? '#EDE4FF' : 'transparent'), cursor: 'pointer' }}>{l}</button>
         ))}
       </div>
 
       {subTab === 'vendors' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Vendor Name</Th><Th>Phone</Th><Th>GSTIN</Th><Th>Category</Th><Th>POs</Th></tr></thead>
             <tbody>
@@ -432,12 +432,12 @@ function ProcurementTab({ viewOnly }) {
               ))}
             </tbody>
           </table>
-          {vendors.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No vendors added.</div>}
+          {vendors.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No vendors added.</div>}
         </div>
       )}
 
       {subTab === 'pos' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>PO No</Th><Th>Vendor</Th><Th>Items</Th><Th>Expected Delivery</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
             <tbody>
@@ -447,17 +447,17 @@ function ProcurementTab({ viewOnly }) {
                   <Td style={{ fontWeight: 500 }}>{po.vendorName}</Td>
                   <Td>{(po.items || []).length} items</Td>
                   <Td>{po.expectedDelivery || '—'}</Td>
-                  <Td><Badge label={po.status} color={STATUS_COLORS[po.status] || '#4B5675'} /></Td>
+                  <Td><Badge label={po.status} color={STATUS_COLORS[po.status] || 'var(--t-secondary)'} /></Td>
                   <Td>
                     {!viewOnly && po.status === 'pending_approval' && (user?.role === 'super_admin' || user?.role === 'director') && (
-                      <button onClick={() => approvePO(po.id)} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
+                      <button onClick={() => approvePO(po.id)} style={{ background: 'var(--c-success-light)', color: 'var(--c-success)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
                     )}
                   </Td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {purchaseOrders.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No POs yet. Use Auto-generate from approved indents.</div>}
+          {purchaseOrders.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No POs yet. Use Auto-generate from approved indents.</div>}
         </div>
       )}
 
@@ -472,7 +472,7 @@ function ProcurementTab({ viewOnly }) {
             <FormField label="Category" value={vendorForm.category} onChange={v => setVendorForm(f => ({ ...f, category: v }))} options={['Cement', 'Steel', 'Sand', 'Bricks', 'Plumbing', 'Electrical', 'Tiles', 'Painting', 'Labour', 'Machinery', 'Misc']} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveVendor} small>Save Vendor</Btn>
           </div>
         </ModalOverlay>
@@ -523,11 +523,11 @@ function GRNTab({ viewOnly }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Goods Receipt Note (GRN)</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Goods Receipt Note (GRN)</div>
         {!viewOnly && <Btn onClick={() => { setForm({ poId: '', date: new Date().toISOString().split('T')[0], challanNo: '', vehicle: '', receivedBy: user?.full_name || '', items: [], remarks: '' }); setModal(true); }} small><Plus size={12} /> New GRN</Btn>}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>GRN No</Th><Th>Date</Th><Th>PO No</Th><Th>Challan No</Th><Th>Vehicle</Th><Th>Items</Th><Th>Status</Th></tr></thead>
           <tbody>
@@ -541,20 +541,20 @@ function GRNTab({ viewOnly }) {
                   <Td>{g.challanNo || '—'}</Td>
                   <Td>{g.vehicle || '—'}</Td>
                   <Td>{(g.items || []).length} items</Td>
-                  <Td><Badge label={g.status || 'received'} color="#17C653" /></Td>
+                  <Td><Badge label={g.status || 'received'} color="var(--c-success)" /></Td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-        {grns.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No GRNs yet.</div>}
+        {grns.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No GRNs yet.</div>}
       </div>
 
       {modal && (
         <ModalOverlay onClose={() => setModal(false)} title="New GRN" wide>
-          <div style={{ background: '#F5F0FF', borderRadius: 10, padding: '10px 14px', marginBottom: 14, display: 'flex', gap: 12, alignItems: 'center' }}>
-            <Btn onClick={runOCRGRN} color="#7239EA" small disabled={ocrRunning}><Upload size={12} /> {ocrRunning ? `Scanning… ${ocrProgress}%` : 'Scan Delivery Challan (OCR)'}</Btn>
-            <span style={{ fontSize: 11, color: '#4B5675' }}>Auto-fills challan no, vehicle, date</span>
+          <div style={{ background: 'var(--c-info-light)', borderRadius: 10, padding: '10px 14px', marginBottom: 14, display: 'flex', gap: 12, alignItems: 'center' }}>
+            <Btn onClick={runOCRGRN} color="var(--c-info)" small disabled={ocrRunning}><Upload size={12} /> {ocrRunning ? `Scanning… ${ocrProgress}%` : 'Scan Delivery Challan (OCR)'}</Btn>
+            <span style={{ fontSize: 11, color: 'var(--t-secondary)' }}>Auto-fills challan no, vehicle, date</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
             <FormField label="PO Reference" value={form.poId} onChange={v => setForm(f => ({ ...f, poId: v }))} options={[{ value: '', label: '— Select PO —' }, ...purchaseOrders.map(p => ({ value: p.id, label: p.poNo }))]} />
@@ -564,9 +564,9 @@ function GRNTab({ viewOnly }) {
             <FormField label="Received By" value={form.receivedBy} onChange={v => setForm(f => ({ ...f, receivedBy: v }))} />
           </div>
 
-          <div style={{ fontWeight: 700, fontSize: 12, color: '#071437', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: 'var(--c-dark)', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
             Items Received
-            <button onClick={() => setForm(f => ({ ...f, items: [...f.items, { material: '', orderedQty: '', receivedQty: '', unit: 'bags', shortage: false, shortageAction: '' }] }))} style={{ background: '#7239EA', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}>+ Add Row</button>
+            <button onClick={() => setForm(f => ({ ...f, items: [...f.items, { material: '', orderedQty: '', receivedQty: '', unit: 'bags', shortage: false, shortageAction: '' }] }))} style={{ background: 'var(--c-info)', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}>+ Add Row</button>
           </div>
           {form.items.map((item, i) => (
             <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr auto', gap: 8, marginBottom: 6, alignItems: 'flex-end' }}>
@@ -576,18 +576,18 @@ function GRNTab({ viewOnly }) {
               <FormField label={i === 0 ? 'Unit' : ''} value={item.unit} onChange={v => { const items = [...form.items]; items[i] = { ...items[i], unit: v }; setForm(f => ({ ...f, items })); }} options={['bags', 'kg', 'mt', 'sqft', 'rft', 'nos', 'liters', 'sets']} />
               {item.shortage ? (
                 <div>
-                  {i === 0 && <label style={{ fontSize: 11, fontWeight: 600, color: '#F8285A', display: 'block', marginBottom: 4 }}>Shortage Action</label>}
-                  <select value={item.shortageAction || ''} onChange={e => { const items = [...form.items]; items[i] = { ...items[i], shortageAction: e.target.value }; setForm(f => ({ ...f, items })); }} style={{ width: '100%', padding: '7px 8px', border: '1px solid #FFB8C6', borderRadius: 8, fontSize: 10, color: '#F8285A' }}>
+                  {i === 0 && <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-danger)', display: 'block', marginBottom: 4 }}>Shortage Action</label>}
+                  <select value={item.shortageAction || ''} onChange={e => { const items = [...form.items]; items[i] = { ...items[i], shortageAction: e.target.value }; setForm(f => ({ ...f, items })); }} style={{ width: '100%', padding: '7px 8px', border: '1px solid var(--c-danger)', borderRadius: 8, fontSize: 10, color: 'var(--c-danger)' }}>
                     <option value="">⚠ Select action</option>
                     {SHORTAGE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
               ) : <div />}
-              <button onClick={() => setForm(f => ({ ...f, items: f.items.filter((_, idx) => idx !== i) }))} style={{ background: 'none', border: 'none', color: '#F8285A', cursor: 'pointer', marginBottom: 2 }}><X size={14} /></button>
+              <button onClick={() => setForm(f => ({ ...f, items: f.items.filter((_, idx) => idx !== i) }))} style={{ background: 'none', border: 'none', color: 'var(--c-danger)', cursor: 'pointer', marginBottom: 2 }}><X size={14} /></button>
             </div>
           ))}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveGRN} small>Save GRN & Update Stock</Btn>
           </div>
         </ModalOverlay>
@@ -625,16 +625,16 @@ function StockTab() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Stock Ledger</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Stock Ledger</div>
         <div style={{ display: 'flex', gap: 6 }}>
           {[['ledger', 'Ledger'], ['consolidated', 'Consolidated'], ['boqvs', 'BOQ vs Stock']].map(([v, l]) => (
-            <button key={v} onClick={() => setViewMode(v)} style={{ padding: '5px 14px', borderRadius: 7, fontSize: 11, fontWeight: viewMode === v ? 700 : 400, color: viewMode === v ? '#7239EA' : '#4B5675', background: viewMode === v ? '#F5F0FF' : '#FCFCFC', border: '1px solid ' + (viewMode === v ? '#EDE4FF' : 'transparent'), cursor: 'pointer' }}>{l}</button>
+            <button key={v} onClick={() => setViewMode(v)} style={{ padding: '5px 14px', borderRadius: 7, fontSize: 11, fontWeight: viewMode === v ? 700 : 400, color: viewMode === v ? 'var(--c-info)' : 'var(--t-secondary)', background: viewMode === v ? 'var(--c-info-light)' : 'var(--bg-subtle)', border: '1px solid ' + (viewMode === v ? '#EDE4FF' : 'transparent'), cursor: 'pointer' }}>{l}</button>
           ))}
         </div>
       </div>
 
       {viewMode === 'ledger' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Date</Th><Th>Material</Th><Th>Type</Th><Th>Qty</Th><Th>Unit</Th><Th>GRN Ref</Th><Th>Project</Th></tr></thead>
             <tbody>
@@ -642,8 +642,8 @@ function StockTab() {
                 <tr key={s.id}>
                   <Td>{s.date}</Td>
                   <Td style={{ fontWeight: 500 }}>{s.material}</Td>
-                  <Td><Badge label={s.type} color={s.type === 'receipt' ? '#17C653' : '#F8285A'} /></Td>
-                  <Td style={{ fontWeight: 600, color: s.type === 'receipt' ? '#17C653' : '#F8285A' }}>{s.type === 'issue' ? '-' : '+'}{s.qty} {s.unit}</Td>
+                  <Td><Badge label={s.type} color={s.type === 'receipt' ? 'var(--c-success)' : 'var(--c-danger)'} /></Td>
+                  <Td style={{ fontWeight: 600, color: s.type === 'receipt' ? 'var(--c-success)' : 'var(--c-danger)' }}>{s.type === 'issue' ? '-' : '+'}{s.qty} {s.unit}</Td>
                   <Td>{s.unit}</Td>
                   <Td style={{ fontSize: 11 }}>{s.grnNo || '—'}</Td>
                   <Td>{s.projectId ? projects.find(p => String(p.id) === String(s.projectId))?.name || '—' : '—'}</Td>
@@ -651,33 +651,33 @@ function StockTab() {
               ))}
             </tbody>
           </table>
-          {stockLedger.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No stock entries yet. GRN entries auto-populate here.</div>}
+          {stockLedger.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No stock entries yet. GRN entries auto-populate here.</div>}
         </div>
       )}
 
       {viewMode === 'consolidated' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Material</Th><Th>Total In</Th><Th>Total Out</Th><Th>Balance</Th><Th>Unit</Th><Th>Status</Th></tr></thead>
             <tbody>
               {consolidated.map((m, i) => (
                 <tr key={i}>
                   <Td style={{ fontWeight: 600 }}>{m.material}</Td>
-                  <Td style={{ color: '#17C653', fontWeight: 600 }}>{m.in}</Td>
-                  <Td style={{ color: '#F8285A', fontWeight: 600 }}>{m.out}</Td>
-                  <Td style={{ fontWeight: 800, color: m.balance < 0 ? '#F8285A' : m.balance < 10 ? '#F6C000' : '#17C653' }}>{m.balance}</Td>
+                  <Td style={{ color: 'var(--c-success)', fontWeight: 600 }}>{m.in}</Td>
+                  <Td style={{ color: 'var(--c-danger)', fontWeight: 600 }}>{m.out}</Td>
+                  <Td style={{ fontWeight: 800, color: m.balance < 0 ? 'var(--c-danger)' : m.balance < 10 ? 'var(--c-warning)' : 'var(--c-success)' }}>{m.balance}</Td>
                   <Td>{m.unit}</Td>
-                  <Td>{m.balance < 0 ? <Badge label="Deficit" color="#F8285A" /> : m.balance < 10 ? <Badge label="Low" color="#F6C000" /> : <Badge label="OK" color="#17C653" />}</Td>
+                  <Td>{m.balance < 0 ? <Badge label="Deficit" color="var(--c-danger)" /> : m.balance < 10 ? <Badge label="Low" color="var(--c-warning)" /> : <Badge label="OK" color="var(--c-success)" />}</Td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {consolidated.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No stock data.</div>}
+          {consolidated.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No stock data.</div>}
         </div>
       )}
 
       {viewMode === 'boqvs' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Material</Th><Th>BOQ Required</Th><Th>Stock Available</Th><Th>Unit</Th><Th>Status</Th><Th>Action on Excess</Th></tr></thead>
             <tbody>
@@ -685,15 +685,15 @@ function StockTab() {
                 <tr key={i}>
                   <Td style={{ fontWeight: 500 }}>{b.item}</Td>
                   <Td>{b.reqQty}</Td>
-                  <Td style={{ fontWeight: 700, color: b.shortage ? '#F8285A' : '#17C653' }}>{b.stockQty}</Td>
+                  <Td style={{ fontWeight: 700, color: b.shortage ? 'var(--c-danger)' : 'var(--c-success)' }}>{b.stockQty}</Td>
                   <Td>{b.unit}</Td>
-                  <Td>{b.shortage ? <Badge label={`Short by ${b.reqQty - b.stockQty}`} color="#F8285A" /> : b.excess ? <Badge label={`Excess ${b.stockQty - b.reqQty}`} color="#F6C000" /> : <Badge label="OK" color="#17C653" />}</Td>
-                  <Td style={{ fontSize: 11, color: '#78829D' }}>{b.excess ? 'Return / Transfer to another project / Write-off' : '—'}</Td>
+                  <Td>{b.shortage ? <Badge label={`Short by ${b.reqQty - b.stockQty}`} color="var(--c-danger)" /> : b.excess ? <Badge label={`Excess ${b.stockQty - b.reqQty}`} color="var(--c-warning)" /> : <Badge label="OK" color="var(--c-success)" />}</Td>
+                  <Td style={{ fontSize: 11, color: 'var(--t-muted)' }}>{b.excess ? 'Return / Transfer to another project / Write-off' : '—'}</Td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {boqVsStock.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>Add BOQ items to compare with stock.</div>}
+          {boqVsStock.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>Add BOQ items to compare with stock.</div>}
         </div>
       )}
     </div>
@@ -714,15 +714,15 @@ function WorkOrdersTab({ viewOnly }) {
     addToast('Work order created'); setModal(false);
   }
 
-  const STATUS_COLORS = { draft: '#4B5675', active: '#17C653', completed: '#1B84FF', cancelled: '#F8285A' };
+  const STATUS_COLORS = { draft: 'var(--t-secondary)', active: 'var(--c-success)', completed: 'var(--c-primary)', cancelled: 'var(--c-danger)' };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Work Orders</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Work Orders</div>
         {!viewOnly && <Btn onClick={() => { setForm({ projectId: '', vendorId: '', vendorName: '', workDescription: '', startDate: '', endDate: '', contractValue: '', advancePaid: '', retentionPct: 5, tdsSection: '194C', status: 'draft', measurementBook: [] }); setModal(true); }} small><Plus size={12} /> New Work Order</Btn>}
       </div>
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>WO No</Th><Th>Contractor</Th><Th>Description</Th><Th>Contract Value</Th><Th>TDS (194C)</Th><Th>Retention</Th><Th>Status</Th></tr></thead>
           <tbody>
@@ -732,14 +732,14 @@ function WorkOrdersTab({ viewOnly }) {
                 <Td>{w.vendorName}</Td>
                 <Td style={{ maxWidth: 200 }}><div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.workDescription}</div></Td>
                 <Td style={{ fontWeight: 600 }}>₹{Number(w.contractValue || 0).toLocaleString('en-IN')}</Td>
-                <Td style={{ color: '#F8285A', fontWeight: 600 }}>₹{Number(w.tdsAmount || 0).toLocaleString('en-IN')}</Td>
+                <Td style={{ color: 'var(--c-danger)', fontWeight: 600 }}>₹{Number(w.tdsAmount || 0).toLocaleString('en-IN')}</Td>
                 <Td>{w.retentionPct || 5}%</Td>
-                <Td><Badge label={w.status} color={STATUS_COLORS[w.status] || '#4B5675'} /></Td>
+                <Td><Badge label={w.status} color={STATUS_COLORS[w.status] || 'var(--t-secondary)'} /></Td>
               </tr>
             ))}
           </tbody>
         </table>
-        {workOrders.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No work orders yet.</div>}
+        {workOrders.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No work orders yet.</div>}
       </div>
 
       {modal && (
@@ -755,11 +755,11 @@ function WorkOrdersTab({ viewOnly }) {
             <FormField label="TDS Section" value={form.tdsSection} onChange={v => setForm(f => ({ ...f, tdsSection: v }))} options={['194C', '194J']} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>Work Description *</label>
-            <textarea value={form.workDescription} onChange={e => setForm(f => ({ ...f, workDescription: e.target.value }))} rows={3} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
+            <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t-primary)', display: 'block', marginBottom: 4 }}>Work Description *</label>
+            <textarea value={form.workDescription} onChange={e => setForm(f => ({ ...f, workDescription: e.target.value }))} rows={3} style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveWO} small>Create Work Order</Btn>
           </div>
         </ModalOverlay>
@@ -783,10 +783,10 @@ function LabourTab({ viewOnly }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Labour Report</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Labour Report</div>
         {!viewOnly && <Btn onClick={() => { setForm({ date: new Date().toISOString().split('T')[0], projectId: '', supervisor: '', skilled: 0, semiskilled: 0, unskilled: 0, wages: '', category: 'Civil', remarks: '' }); setModal(true); }} small><Plus size={12} /> Add Report</Btn>}
       </div>
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Date</Th><Th>Project</Th><Th>Supervisor</Th><Th>Skilled</Th><Th>Semi-Skilled</Th><Th>Unskilled</Th><Th>Total</Th><Th>Wages (₹)</Th></tr></thead>
           <tbody>
@@ -797,17 +797,17 @@ function LabourTab({ viewOnly }) {
                   <Td>{r.date}</Td>
                   <Td style={{ fontWeight: 500 }}>{proj?.name || '—'}</Td>
                   <Td>{r.supervisor}</Td>
-                  <Td style={{ fontWeight: 600, color: '#1B84FF' }}>{r.skilled}</Td>
+                  <Td style={{ fontWeight: 600, color: 'var(--c-primary)' }}>{r.skilled}</Td>
                   <Td>{r.semiskilled}</Td>
                   <Td>{r.unskilled}</Td>
                   <Td style={{ fontWeight: 700 }}>{r.total || (Number(r.skilled) + Number(r.semiskilled) + Number(r.unskilled))}</Td>
-                  <Td style={{ fontWeight: 600, color: '#17C653' }}>₹{Number(r.wages || 0).toLocaleString('en-IN')}</Td>
+                  <Td style={{ fontWeight: 600, color: 'var(--c-success)' }}>₹{Number(r.wages || 0).toLocaleString('en-IN')}</Td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-        {labourReports.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No labour reports yet.</div>}
+        {labourReports.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No labour reports yet.</div>}
       </div>
       {modal && (
         <ModalOverlay onClose={() => setModal(false)} title="Add Labour Report">
@@ -822,7 +822,7 @@ function LabourTab({ viewOnly }) {
             <FormField label="Wages Paid (₹)" value={form.wages} onChange={v => setForm(f => ({ ...f, wages: v }))} type="number" />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveReport} small>Save Report</Btn>
           </div>
         </ModalOverlay>
@@ -861,12 +861,12 @@ function SitePhotosTab({ viewOnly }) {
   }
 
   const CATEGORIES = ['Progress', 'Defect', 'Safety', 'Material', 'Quality', 'Event'];
-  const CATEGORY_COLORS = { Progress: '#17C653', Defect: '#F8285A', Safety: '#F6C000', Material: '#1B84FF', Quality: '#7239EA', Event: '#0E9F8A' };
+  const CATEGORY_COLORS = { Progress: 'var(--c-success)', Defect: 'var(--c-danger)', Safety: 'var(--c-warning)', Material: 'var(--c-primary)', Quality: 'var(--c-info)', Event: 'var(--c-teal)' };
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Site Photos Log</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Site Photos Log</div>
         {!viewOnly && (
           <div style={{ display: 'flex', gap: 8 }}>
             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadPhoto} />
@@ -876,7 +876,7 @@ function SitePhotosTab({ viewOnly }) {
       </div>
 
       {!viewOnly && (
-        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', padding: '12px 16px', marginBottom: 16 }}>
+        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid var(--border)', padding: '12px 16px', marginBottom: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 2fr', gap: 10 }}>
             <FormField label="Project" value={form.projectId} onChange={v => setForm(f => ({ ...f, projectId: v }))} options={[{ value: '', label: 'All' }, ...projects.map(p => ({ value: p.id, label: p.name }))]} />
             <FormField label="Date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} type="date" />
@@ -890,21 +890,21 @@ function SitePhotosTab({ viewOnly }) {
         {sitePhotos.map(p => {
           const proj = projects.find(pr => String(pr.id) === String(p.projectId));
           return (
-            <div key={p.id} style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
-              <div style={{ height: 140, background: p.base64Preview ? `url(${p.base64Preview}) center/cover no-repeat` : '#FCFCFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {!p.base64Preview && <Camera size={32} style={{ color: '#DBDFE9' }} />}
+            <div key={p.id} style={{ background: '#fff', borderRadius: 10, border: '1px solid var(--border)', overflow: 'hidden' }}>
+              <div style={{ height: 140, background: p.base64Preview ? `url(${p.base64Preview}) center/cover no-repeat` : 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {!p.base64Preview && <Camera size={32} style={{ color: 'var(--border-md)' }} />}
               </div>
               <div style={{ padding: '8px 10px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#071437', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.caption || 'No caption'}</div>
-                <div style={{ fontSize: 10, color: '#78829D', marginTop: 2 }}>{proj?.name || '—'} · {p.date}</div>
-                {p.category && <Badge label={p.category} color={CATEGORY_COLORS[p.category] || '#4B5675'} />}
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-dark)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.caption || 'No caption'}</div>
+                <div style={{ fontSize: 10, color: 'var(--t-muted)', marginTop: 2 }}>{proj?.name || '—'} · {p.date}</div>
+                {p.category && <Badge label={p.category} color={CATEGORY_COLORS[p.category] || 'var(--t-secondary)'} />}
               </div>
             </div>
           );
         })}
         {sitePhotos.length === 0 && (
-          <div style={{ gridColumn: '1/-1', padding: 48, textAlign: 'center', color: '#78829D', fontSize: 13, background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4' }}>
-            <Camera size={40} style={{ color: '#DBDFE9', marginBottom: 12 }} />
+          <div style={{ gridColumn: '1/-1', padding: 48, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13, background: '#fff', borderRadius: 12, border: '1px solid var(--border)' }}>
+            <Camera size={40} style={{ color: 'var(--border-md)', marginBottom: 12 }} />
             <div>No site photos yet. Click Upload Photo to add.</div>
           </div>
         )}

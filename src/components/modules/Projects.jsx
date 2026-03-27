@@ -6,16 +6,16 @@ import Modal from '../ui/Modal';
 import { inr, fmtDate } from '../../utils';
 import { Plus, Edit2, AlertTriangle, Lock, ChevronRight, ChevronLeft, CheckCircle2 } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
-const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
+const inp  = { width:'100%', border:'1px solid var(--border-md)', borderRadius:8, padding:'7px 10px', fontSize:13, color:'var(--t-primary)', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inpE = { ...inp, border:'1px solid var(--c-danger)', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
   <div style={{ gridColumn:span?`span ${span}`:undefined }}>
-    <label style={{ display:'block', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>
-      {label}{required&&<span style={{ color:'#F8285A', marginLeft:2 }}>*</span>}
+    <label style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:5 }}>
+      {label}{required&&<span style={{ color:'var(--c-danger)', marginLeft:2 }}>*</span>}
     </label>
     {children}
-    {error&&<div style={{ fontSize:11, color:'#F8285A', marginTop:3 }}>{error}</div>}
+    {error&&<div style={{ fontSize:11, color:'var(--c-danger)', marginTop:3 }}>{error}</div>}
   </div>
 );
 
@@ -250,12 +250,12 @@ export default function Projects() {
     <div>
       {/* Header */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-        <div style={{ fontSize:13, color:'#4B5675' }}>
+        <div style={{ fontSize:13, color:'var(--t-secondary)' }}>
           {entityProjects.length} project{entityProjects.length!==1?'s':''} · {activeEntity?.name}
         </div>
         {canEdit
           ? <button onClick={openNew} className="btn-primary" style={{ fontSize:12.5 }}><Plus size={13}/> Register Project</button>
-          : <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#4B5675', background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:8, padding:'6px 12px' }}>
+          : <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'var(--t-secondary)', background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:8, padding:'6px 12px' }}>
               <Lock size={12}/> Director / Admin can register projects
             </div>
         }
@@ -263,30 +263,30 @@ export default function Projects() {
 
       {/* Project cards */}
       {entityProjects.length===0 ? (
-        <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:60, textAlign:'center' }}>
+        <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:14, padding:60, textAlign:'center' }}>
           <div style={{ fontSize:36, marginBottom:12 }}>🏗️</div>
-          <div style={{ fontSize:14, fontWeight:600, color:'#4B5675' }}>No projects registered yet</div>
-          {canEdit && <div style={{ fontSize:12, color:'#78829D', marginTop:4 }}>Click "Register Project" to add your first project</div>}
+          <div style={{ fontSize:14, fontWeight:600, color:'var(--t-secondary)' }}>No projects registered yet</div>
+          {canEdit && <div style={{ fontSize:12, color:'var(--t-muted)', marginTop:4 }}>Click "Register Project" to add your first project</div>}
         </div>
       ) : entityProjects.map(p=>{
         const reradays = p.rera_expiry_date ? Math.ceil((new Date(p.rera_expiry_date)-new Date())/86400000) : null;
         const reraWarn = p.rera_applicable==='Yes' && reradays!==null && reradays<=90;
         return (
-          <div key={p.id} style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:20, marginBottom:12, boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div key={p.id} style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:14, padding:20, marginBottom:12, boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
               <div>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
-                  <span style={{ background:'#071437', color:'#F6C000', fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:5, fontFamily:'monospace' }}>{p.code}</span>
-                  <span style={{ fontSize:17, fontWeight:800, color:'#071437' }}>{p.name}</span>
-                  {p.is_jv && <span style={{ background:'#F1E8FF', color:'#7239EA', fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>Joint Venture</span>}
+                  <span style={{ background:'var(--c-dark)', color:'var(--c-warning)', fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:5, fontFamily:'monospace' }}>{p.code}</span>
+                  <span style={{ fontSize:17, fontWeight:800, color:'var(--c-dark)' }}>{p.name}</span>
+                  {p.is_jv && <span style={{ background:'#F1E8FF', color:'var(--c-info)', fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>Joint Venture</span>}
                 </div>
-                <div style={{ fontSize:12.5, color:'#4B5675' }}>
+                <div style={{ fontSize:12.5, color:'var(--t-secondary)' }}>
                   {[p.survey_no,p.village,p.taluka,p.district,p.pin].filter(Boolean).join(' · ')}
                 </div>
               </div>
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                 <Badge value={p.status}/>
-                {canEdit && <button onClick={()=>openEdit(p)} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:5 }}><Edit2 size={11}/> Edit</button>}
+                {canEdit && <button onClick={()=>openEdit(p)} style={{ background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--t-primary)', display:'flex', alignItems:'center', gap:5 }}><Edit2 size={11}/> Edit</button>}
               </div>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:8, marginBottom:10 }}>
@@ -298,22 +298,22 @@ export default function Projects() {
                 ['Contract Value', p.turnkey_contract_value?inr(p.turnkey_contract_value):'—'],
                 ['Milestones',     (p.milestone_schedule||[]).length+' stages'],
               ].map(([l,v])=>(
-                <div key={l} style={{ background:'#FCFCFC', borderRadius:8, padding:'8px 10px' }}>
-                  <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
-                  <div style={{ fontSize:12.5, fontWeight:700, color:'#071437' }}>{v}</div>
+                <div key={l} style={{ background:'var(--bg-subtle)', borderRadius:8, padding:'8px 10px' }}>
+                  <div style={{ fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
+                  <div style={{ fontSize:12.5, fontWeight:700, color:'var(--c-dark)' }}>{v}</div>
                 </div>
               ))}
             </div>
             <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
-              <span style={{ fontSize:11, fontWeight:700, color:'#4B5675' }}>RERA:</span>
+              <span style={{ fontSize:11, fontWeight:700, color:'var(--t-secondary)' }}>RERA:</span>
               <Badge value={p.rera_applicable}/>
-              {p.rera_reg_no && <span style={{ fontSize:11.5, fontWeight:600, color:'#071437', fontFamily:'monospace' }}>{p.rera_reg_no}</span>}
-              {reradays!==null && <span style={{ fontSize:11, color:'#4B5675' }}>Expires in {reradays}d</span>}
+              {p.rera_reg_no && <span style={{ fontSize:11.5, fontWeight:600, color:'var(--c-dark)', fontFamily:'monospace' }}>{p.rera_reg_no}</span>}
+              {reradays!==null && <span style={{ fontSize:11, color:'var(--t-secondary)' }}>Expires in {reradays}d</span>}
             </div>
             {reraWarn && (
-              <div style={{ marginTop:8, display:'flex', alignItems:'center', gap:8, padding:'7px 12px', background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:8 }}>
-                <AlertTriangle size={13} style={{ color:'#7A4E00' }}/>
-                <span style={{ fontSize:12, fontWeight:600, color:'#7A4E00' }}>RERA expires in {reradays} days</span>
+              <div style={{ marginTop:8, display:'flex', alignItems:'center', gap:8, padding:'7px 12px', background:'var(--c-warning-light)', border:'1px solid var(--c-warning)', borderRadius:8 }}>
+                <AlertTriangle size={13} style={{ color:'var(--t-secondary)' }}/>
+                <span style={{ fontSize:12, fontWeight:600, color:'var(--t-secondary)' }}>RERA expires in {reradays} days</span>
               </div>
             )}
           </div>
@@ -341,11 +341,11 @@ export default function Projects() {
         <div style={{ display:'flex', marginBottom:22 }}>
           {STEPS.map((s,i)=>(
             <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:5, position:'relative' }}>
-              {i>0&&<div style={{ position:'absolute', top:13, right:'50%', width:'100%', height:2, background:i<=step?'#071437':'#F1F1F4', zIndex:0 }}/>}
-              <div style={{ position:'relative', zIndex:1, width:26, height:26, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, background:i<step?'#17C653':i===step?'#071437':'#F1F1F4', color:i<=step?'#fff':'#4B5675' }}>
+              {i>0&&<div style={{ position:'absolute', top:13, right:'50%', width:'100%', height:2, background:i<=step?'var(--c-dark)':'var(--border)', zIndex:0 }}/>}
+              <div style={{ position:'relative', zIndex:1, width:26, height:26, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, background:i<step?'var(--c-success)':i===step?'var(--c-dark)':'var(--border)', color:i<=step?'#fff':'var(--t-secondary)' }}>
                 {i<step?'✓':i+1}
               </div>
-              <div style={{ fontSize:10.5, fontWeight:i===step?700:500, color:i===step?'#071437':'#78829D', textAlign:'center' }}>{s}</div>
+              <div style={{ fontSize:10.5, fontWeight:i===step?700:500, color:i===step?'var(--c-dark)':'var(--t-muted)', textAlign:'center' }}>{s}</div>
             </div>
           ))}
         </div>
@@ -367,9 +367,9 @@ export default function Projects() {
             <F label="Joint Venture?">
               <div style={{ display:'flex', gap:10, height:36, alignItems:'center' }}>
                 {[false,true].map(v=>(
-                  <label key={String(v)} style={{ display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'7px 16px', borderRadius:8, border:`2px solid ${form.is_jv===v?'#7239EA':'#F1F1F4'}`, background:form.is_jv===v?'#F1E8FF':'#fff' }}>
+                  <label key={String(v)} style={{ display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'7px 16px', borderRadius:8, border:`2px solid ${form.is_jv===v?'var(--c-info)':'var(--border)'}`, background:form.is_jv===v?'#F1E8FF':'#fff' }}>
                     <input type="radio" checked={form.is_jv===v} onChange={()=>setForm(f=>({...f,is_jv:v}))} style={{ width:13,height:13 }}/>
-                    <span style={{ fontSize:13, fontWeight:700, color:form.is_jv===v?'#7239EA':'#4B5675' }}>{v?'Yes — Joint Venture':'No'}</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:form.is_jv===v?'var(--c-info)':'var(--t-secondary)' }}>{v?'Yes — Joint Venture':'No'}</span>
                   </label>
                 ))}
               </div>
@@ -393,13 +393,13 @@ export default function Projects() {
         {step===1 && (
           <div>
             {/* Wings */}
-            <div style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:12, padding:'14px 16px', marginBottom:16 }}>
-              <div style={{ fontSize:12, fontWeight:700, color:'#071437', marginBottom:10 }}>Wing / Block Configuration</div>
+            <div style={{ background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:12, padding:'14px 16px', marginBottom:16 }}>
+              <div style={{ fontSize:12, fontWeight:700, color:'var(--c-dark)', marginBottom:10 }}>Wing / Block Configuration</div>
               <div style={{ display:'flex', gap:12, marginBottom:12 }}>
                 {[false,true].map(v=>(
-                  <label key={String(v)} style={{ flex:1, display:'flex', alignItems:'center', gap:8, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.uses_wings===v?'#071437':'#F1F1F4'}`, background:form.uses_wings===v?'#EAF0F8':'#fff', justifyContent:'center' }}>
+                  <label key={String(v)} style={{ flex:1, display:'flex', alignItems:'center', gap:8, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.uses_wings===v?'var(--c-dark)':'var(--border)'}`, background:form.uses_wings===v?'#EAF0F8':'#fff', justifyContent:'center' }}>
                     <input type="radio" checked={form.uses_wings===v} onChange={()=>onUsesWingsChange(v)} style={{ width:14,height:14 }}/>
-                    <span style={{ fontSize:13, fontWeight:700, color:form.uses_wings===v?'#071437':'#4B5675' }}>{v?'Has Wings (A, B, C…)':'No Wings — Single Block'}</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:form.uses_wings===v?'var(--c-dark)':'var(--t-secondary)' }}>{v?'Has Wings (A, B, C…)':'No Wings — Single Block'}</span>
                   </label>
                 ))}
               </div>
@@ -411,38 +411,38 @@ export default function Projects() {
             </div>
 
             {/* Number of upper floors */}
-            <div style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:12, padding:'14px 16px', marginBottom:16 }}>
-              <div style={{ fontSize:12, fontWeight:700, color:'#071437', marginBottom:10 }}>Floor Count</div>
+            <div style={{ background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:12, padding:'14px 16px', marginBottom:16 }}>
+              <div style={{ fontSize:12, fontWeight:700, color:'var(--c-dark)', marginBottom:10 }}>Floor Count</div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr', gap:13, alignItems:'start' }}>
                 <F label="Number of Upper Floors (excluding Ground)" required error={errors.num_upper_floors}>
                   <input style={errors.num_upper_floors?inpE:inp} type="number" min="0" value={form.num_upper_floors}
                     onChange={e=>onUpperFloorsChange(e.target.value)} placeholder="e.g. 7"/>
                 </F>
-                <div style={{ paddingTop:28, fontSize:12.5, color:'#4B5675', lineHeight:1.7 }}>
+                <div style={{ paddingTop:28, fontSize:12.5, color:'var(--t-secondary)', lineHeight:1.7 }}>
                   Ground Floor is always included. Enter how many additional floors exist above it.<br/>
-                  <span style={{ color:'#4B5675', fontSize:12 }}>Example: G + 7 upper floors → enter 7</span>
+                  <span style={{ color:'var(--t-secondary)', fontSize:12 }}>Example: G + 7 upper floors → enter 7</span>
                 </div>
               </div>
             </div>
 
             {/* Per-floor unit count config */}
             {form.floor_configs.length > 0 && (
-              <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
-                <div style={{ padding:'10px 16px', background:'#FCFCFC', borderBottom:'1px solid #F1F1F4', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:'#071437' }}>Units Per Floor — configure each floor individually</div>
-                  <div style={{ fontSize:12, color:'#4B5675' }}>Total so far: <strong>{totalUnits}</strong> units</div>
+              <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
+                <div style={{ padding:'10px 16px', background:'var(--bg-subtle)', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:'var(--c-dark)' }}>Units Per Floor — configure each floor individually</div>
+                  <div style={{ fontSize:12, color:'var(--t-secondary)' }}>Total so far: <strong>{totalUnits}</strong> units</div>
                 </div>
                 <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                  <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
+                  <thead><tr style={{ background:'var(--bg-subtle)', borderBottom:'2px solid var(--border)' }}>
                     {['Floor','Floor Label','No. of Units on this floor',''].map(h=>(
-                      <th key={h} style={{ padding:'8px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px' }}>{h}</th>
+                      <th key={h} style={{ padding:'8px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px' }}>{h}</th>
                     ))}
                   </tr></thead>
                   <tbody>
                     {form.floor_configs.map((fc,i)=>(
-                      <tr key={fc.floor_no} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
+                      <tr key={fc.floor_no} style={{ borderBottom:'1px solid var(--bg-subtle)', background:i%2===0?'#fff':'#FAFAFA' }}>
                         <td style={{ padding:'9px 14px' }}>
-                          <span style={{ background:fc.floor_no===0?'#FFF8DD':'#EAF0F8', color:fc.floor_no===0?'#7A4E00':'#071437', fontSize:12, fontWeight:700, padding:'3px 10px', borderRadius:8 }}>
+                          <span style={{ background:fc.floor_no===0?'var(--c-warning-light)':'#EAF0F8', color:fc.floor_no===0?'var(--t-secondary)':'var(--c-dark)', fontSize:12, fontWeight:700, padding:'3px 10px', borderRadius:8 }}>
                             {fc.floor_no===0?'G':fc.floor_no}
                           </span>
                         </td>
@@ -456,28 +456,28 @@ export default function Projects() {
                             <input style={{ ...inp, padding:'5px 9px', fontSize:12.5, width:90 }} type="number" min="0"
                               value={fc.unit_count} onChange={e=>onFloorUnitCountChange(fc.floor_no,e.target.value)}
                               placeholder="0"/>
-                            <span style={{ fontSize:12, color:'#4B5675' }}>
+                            <span style={{ fontSize:12, color:'var(--t-secondary)' }}>
                               {Number(fc.unit_count)>0 ? `→ ${fc.unit_count} unit${Number(fc.unit_count)>1?'s':''}` : ''}
                             </span>
                           </div>
                         </td>
-                        <td style={{ padding:'9px 14px', fontSize:11.5, color:'#78829D' }}>
+                        <td style={{ padding:'9px 14px', fontSize:11.5, color:'var(--t-muted)' }}>
                           {fc.floor_no===0 ? '(Shops / Stilt / Parking typical)' : ''}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr style={{ background:'#071437' }}>
+                    <tr style={{ background:'var(--c-dark)' }}>
                       <td colSpan={2} style={{ padding:'9px 14px', fontSize:12, fontWeight:700, color:'#fff' }}>TOTAL</td>
-                      <td style={{ padding:'9px 14px', fontSize:14, fontWeight:800, color:'#F6C000' }}>
+                      <td style={{ padding:'9px 14px', fontSize:14, fontWeight:800, color:'var(--c-warning)' }}>
                         {form.floor_configs.reduce((s,fc)=>s+Number(fc.unit_count||0),0)} units
                       </td>
                       <td/>
                     </tr>
                   </tfoot>
                 </table>
-                {errors.floor_configs && <div style={{ background:'#FFE2E5', padding:'8px 14px', fontSize:12, color:'#7F1D1D' }}>{errors.floor_configs}</div>}
+                {errors.floor_configs && <div style={{ background:'var(--c-danger-light)', padding:'8px 14px', fontSize:12, color:'#7F1D1D' }}>{errors.floor_configs}</div>}
               </div>
             )}
 
@@ -486,29 +486,29 @@ export default function Projects() {
               <div>
                 {/* JV landowner note */}
                 {form.is_jv && (
-                  <div style={{ background:'#F1E8FF', border:'1px solid #D4B9FF', borderRadius:10, padding:'10px 14px', marginBottom:12, fontSize:12.5, color:'#7239EA', fontWeight:600 }}>
+                  <div style={{ background:'#F1E8FF', border:'1px solid #D4B9FF', borderRadius:10, padding:'10px 14px', marginBottom:12, fontSize:12.5, color:'var(--c-info)', fontWeight:600 }}>
                     🏠 This is a Joint Venture project. Mark landowner units with the "LO" toggle — they will be locked from sales inventory.
                   </div>
                 )}
 
-                <div style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'9px 14px', marginBottom:12, fontSize:12.5, color:'#071437' }}>
-                  <strong>{totalUnits} total units</strong> · <span style={{ color:'#17C653' }}>{salableCount} salable</span>
-                  {form.is_jv && landownerCount>0 && <> · <span style={{ color:'#7239EA' }}>{landownerCount} landowner (locked)</span></>}
+                <div style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'9px 14px', marginBottom:12, fontSize:12.5, color:'var(--c-dark)' }}>
+                  <strong>{totalUnits} total units</strong> · <span style={{ color:'var(--c-success)' }}>{salableCount} salable</span>
+                  {form.is_jv && landownerCount>0 && <> · <span style={{ color:'var(--c-info)' }}>{landownerCount} landowner (locked)</span></>}
                 </div>
 
                 {Object.entries(unitsByWingFloor).map(([wing, floorMap])=>(
                   <div key={wing} style={{ marginBottom:16 }}>
                     {form.uses_wings && (
-                      <div style={{ background:'#071437', color:'#F6C000', padding:'5px 14px', borderRadius:'8px 8px 0 0', fontSize:12, fontWeight:700, display:'inline-block' }}>
+                      <div style={{ background:'var(--c-dark)', color:'var(--c-warning)', padding:'5px 14px', borderRadius:'8px 8px 0 0', fontSize:12, fontWeight:700, display:'inline-block' }}>
                         Wing {wing}
                       </div>
                     )}
-                    <div style={{ border:'1px solid #F1F1F4', borderRadius:form.uses_wings?'0 8px 8px 8px':8, overflowX:'auto' }}>
+                    <div style={{ border:'1px solid var(--border)', borderRadius:form.uses_wings?'0 8px 8px 8px':8, overflowX:'auto' }}>
                       <table style={{ width:'100%', borderCollapse:'collapse', minWidth:720 }}>
                         <thead>
-                          <tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
+                          <tr style={{ background:'var(--bg-subtle)', borderBottom:'2px solid var(--border)' }}>
                             {['Floor','Unit No.','Type','Carpet (sqft)','Balcony (sqft)','Built-up (sqft)','Rate (₹/sqft)', form.is_jv?'Landowner?':''].filter(Boolean).map(h=>(
-                              <th key={h} style={{ padding:'7px 9px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
+                              <th key={h} style={{ padding:'7px 9px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
@@ -519,9 +519,9 @@ export default function Projects() {
                               units.map((u,ui)=>{
                                 const isLO = u.is_landowner;
                                 return (
-                                  <tr key={u._key} style={{ borderBottom:'1px solid #FCFCFC', background:isLO?'#F5F0FF':ui%2===0?'#fff':'#FAFAFA' }}>
+                                  <tr key={u._key} style={{ borderBottom:'1px solid var(--bg-subtle)', background:isLO?'var(--c-info-light)':ui%2===0?'#fff':'#FAFAFA' }}>
                                     {ui===0 && (
-                                      <td rowSpan={units.length} style={{ padding:'8px 10px', fontSize:11.5, fontWeight:700, color:'#071437', background:'#EAF0F8', borderRight:'1px solid #F1F1F4', textAlign:'center', verticalAlign:'middle', whiteSpace:'nowrap' }}>
+                                      <td rowSpan={units.length} style={{ padding:'8px 10px', fontSize:11.5, fontWeight:700, color:'var(--c-dark)', background:'#EAF0F8', borderRight:'1px solid var(--border)', textAlign:'center', verticalAlign:'middle', whiteSpace:'nowrap' }}>
                                         {u.floor_label || (Number(floorNo)===0?'Ground':floorNo)}
                                       </td>
                                     )}
@@ -546,7 +546,7 @@ export default function Projects() {
                                         onChange={e=>updateUnitRow(u._key,'balcony_area',e.target.value)}/>
                                     </td>
                                     <td style={{ padding:'5px 7px' }}>
-                                      <input style={{ ...inp, padding:'4px 7px', fontSize:12, background:'#FCFCFC' }} type="number"
+                                      <input style={{ ...inp, padding:'4px 7px', fontSize:12, background:'var(--bg-subtle)' }} type="number"
                                         value={u.carpet_area&&u.balcony_area?String(Number(u.carpet_area)+Number(u.balcony_area)):u.buildup_area}
                                         placeholder="auto"
                                         onChange={e=>updateUnitRow(u._key,'buildup_area',e.target.value)}/>
@@ -560,7 +560,7 @@ export default function Projects() {
                                       <td style={{ padding:'5px 10px', textAlign:'center' }}>
                                         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
                                           <button onClick={()=>toggleLandowner(u._key)}
-                                            style={{ background:isLO?'#7239EA':'#FCFCFC', color:isLO?'#fff':'#4B5675', border:`1px solid ${isLO?'#7239EA':'#F1F1F4'}`, borderRadius:6, padding:'3px 10px', cursor:'pointer', fontSize:11, fontWeight:700 }}>
+                                            style={{ background:isLO?'var(--c-info)':'var(--bg-subtle)', color:isLO?'#fff':'var(--t-secondary)', border:`1px solid ${isLO?'var(--c-info)':'var(--border)'}`, borderRadius:6, padding:'3px 10px', cursor:'pointer', fontSize:11, fontWeight:700 }}>
                                             {isLO?'🔒 LO':'Mark LO'}
                                           </button>
                                           {isLO && (
@@ -581,7 +581,7 @@ export default function Projects() {
                     </div>
                   </div>
                 ))}
-                <div style={{ fontSize:11.5, color:'#4B5675' }}>Built-up area = Carpet + Balcony (auto). You can override it.</div>
+                <div style={{ fontSize:11.5, color:'var(--t-secondary)' }}>Built-up area = Carpet + Balcony (auto). You can override it.</div>
               </div>
             )}
           </div>
@@ -592,36 +592,36 @@ export default function Projects() {
           <div>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
               <div>
-                <div style={{ fontSize:13, fontWeight:700, color:'#071437' }}>Payment Milestone Schedule</div>
-                <div style={{ fontSize:12, color:'#4B5675', marginTop:2 }}>All bookings in this project will follow this schedule. Must total 100%.</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--c-dark)' }}>Payment Milestone Schedule</div>
+                <div style={{ fontSize:12, color:'var(--t-secondary)', marginTop:2 }}>All bookings in this project will follow this schedule. Must total 100%.</div>
               </div>
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                <div style={{ fontSize:13, fontWeight:700, padding:'4px 12px', borderRadius:8, background:pctTotal===100?'#E8FFF3':'#FFE2E5', color:pctTotal===100?'#17C653':'#7F1D1D', fontFamily:'monospace' }}>
+                <div style={{ fontSize:13, fontWeight:700, padding:'4px 12px', borderRadius:8, background:pctTotal===100?'var(--c-success-light)':'var(--c-danger-light)', color:pctTotal===100?'var(--c-success)':'#7F1D1D', fontFamily:'monospace' }}>
                   {pctTotal}%
                 </div>
                 <button onClick={addMilestone} className="btn-secondary" style={{ fontSize:12 }}><Plus size={12}/> Add Stage</button>
               </div>
             </div>
-            {errors.milestones && <div style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:9, padding:'8px 12px', marginBottom:12, fontSize:12, color:'#7F1D1D' }}>{errors.milestones}</div>}
+            {errors.milestones && <div style={{ background:'var(--c-danger-light)', border:'1px solid var(--c-danger)', borderRadius:9, padding:'8px 12px', marginBottom:12, fontSize:12, color:'#7F1D1D' }}>{errors.milestones}</div>}
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
-              <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
-                {['#','Stage Name','%',''].map(h=><th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px' }}>{h}</th>)}
+              <thead><tr style={{ background:'var(--bg-subtle)', borderBottom:'2px solid var(--border)' }}>
+                {['#','Stage Name','%',''].map(h=><th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px' }}>{h}</th>)}
               </tr></thead>
               <tbody>
                 {form.milestone_schedule.map((m,i)=>(
-                  <tr key={m.id} style={{ borderBottom:'1px solid #FCFCFC' }}>
-                    <td style={{ padding:'8px 12px', fontSize:12, color:'#4B5675', width:32 }}>{i+1}</td>
+                  <tr key={m.id} style={{ borderBottom:'1px solid var(--bg-subtle)' }}>
+                    <td style={{ padding:'8px 12px', fontSize:12, color:'var(--t-secondary)', width:32 }}>{i+1}</td>
                     <td style={{ padding:'8px 12px' }}>
                       <input style={{ ...inp, padding:'5px 8px' }} value={m.name} onChange={e=>updateMilestone(i,'name',e.target.value)} placeholder="Stage name"/>
                     </td>
                     <td style={{ padding:'8px 12px', width:150 }}>
                       <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                         <input style={{ ...inp, padding:'5px 8px', width:70 }} type="number" min="0" max="100" value={m.pct} onChange={e=>updateMilestone(i,'pct',e.target.value)}/>
-                        <span style={{ fontSize:13, color:'#252F4A' }}>%</span>
+                        <span style={{ fontSize:13, color:'var(--t-primary)' }}>%</span>
                       </div>
                     </td>
                     <td style={{ padding:'8px 12px' }}>
-                      <button onClick={()=>removeMilestone(i)} style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:6, padding:'3px 8px', cursor:'pointer', fontSize:11, fontWeight:600, color:'#7F1D1D' }}>Remove</button>
+                      <button onClick={()=>removeMilestone(i)} style={{ background:'var(--c-danger-light)', border:'1px solid var(--c-danger)', borderRadius:6, padding:'3px 8px', cursor:'pointer', fontSize:11, fontWeight:600, color:'#7F1D1D' }}>Remove</button>
                     </td>
                   </tr>
                 ))}
@@ -636,9 +636,9 @@ export default function Projects() {
             <F label="RERA Applicable" span={2}>
               <div style={{ display:'flex', gap:10 }}>
                 {['Yes','No','Exempt'].map(v=>(
-                  <label key={v} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.rera_applicable===v?'#071437':'#F1F1F4'}`, background:form.rera_applicable===v?'#EAF0F8':'#fff', justifyContent:'center' }}>
+                  <label key={v} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.rera_applicable===v?'var(--c-dark)':'var(--border)'}`, background:form.rera_applicable===v?'#EAF0F8':'#fff', justifyContent:'center' }}>
                     <input type="radio" value={v} checked={form.rera_applicable===v} onChange={set('rera_applicable')} style={{ width:14,height:14 }}/>
-                    <span style={{ fontSize:13, fontWeight:700, color:form.rera_applicable===v?'#071437':'#4B5675' }}>{v}</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:form.rera_applicable===v?'var(--c-dark)':'var(--t-secondary)' }}>{v}</span>
                   </label>
                 ))}
               </div>
@@ -660,20 +660,20 @@ export default function Projects() {
               <F label="Next Quarterly Update"><input style={inp} type="date" value={form.rera_next_update} onChange={set('rera_next_update')}/></F>
             </>)}
             {editingId && (
-              <div style={{ gridColumn:'1/-1', borderTop:'1px solid #FCFCFC', paddingTop:14, marginTop:4 }}>
+              <div style={{ gridColumn:'1/-1', borderTop:'1px solid var(--bg-subtle)', paddingTop:14, marginTop:4 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:'#071437' }}>Approvals Tracker</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:'var(--c-dark)' }}>Approvals Tracker</div>
                   <button onClick={()=>{ setApprovalForm({type:'NA Order',authority:'',date_applied:'',date_received:'',expiry_date:'',status:'Pending'}); setEditApprovalId(null); setApprovalModal(true); }} className="btn-secondary" style={{ fontSize:11.5 }}><Plus size={11}/> Add</button>
                 </div>
                 {(form.approvals||[]).length===0
-                  ? <div style={{ fontSize:12, color:'#78829D', textAlign:'center', padding:16 }}>No approvals recorded.</div>
+                  ? <div style={{ fontSize:12, color:'var(--t-muted)', textAlign:'center', padding:16 }}>No approvals recorded.</div>
                   : <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                    <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
-                      {['Type','Authority','Applied','Received','Expiry','Status',''].map(h=><th key={h} style={{ padding:'7px 10px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>)}
+                    <thead><tr style={{ background:'var(--bg-subtle)', borderBottom:'2px solid var(--border)' }}>
+                      {['Type','Authority','Applied','Received','Expiry','Status',''].map(h=><th key={h} style={{ padding:'7px 10px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {(form.approvals||[]).map((a,i)=>(
-                        <tr key={a.id} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
+                        <tr key={a.id} style={{ borderBottom:'1px solid var(--bg-subtle)', background:i%2===0?'#fff':'#FAFAFA' }}>
                           <td style={{ padding:'7px 10px', fontSize:12.5, fontWeight:600 }}>{a.type}</td>
                           <td style={{ padding:'7px 10px', fontSize:12 }}>{a.authority||'—'}</td>
                           <td style={{ padding:'7px 10px', fontSize:12 }}>{fmtDate(a.date_applied)||'—'}</td>
@@ -681,7 +681,7 @@ export default function Projects() {
                           <td style={{ padding:'7px 10px', fontSize:12 }}>{fmtDate(a.expiry_date)||'—'}</td>
                           <td style={{ padding:'7px 10px' }}><Badge value={a.status}/></td>
                           <td style={{ padding:'7px 10px' }}>
-                            <button onClick={()=>{ setApprovalForm({...a}); setEditApprovalId(a.id); setApprovalModal(true); }} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:6, padding:'2px 8px', cursor:'pointer', fontSize:11, fontWeight:600 }}>Edit</button>
+                            <button onClick={()=>{ setApprovalForm({...a}); setEditApprovalId(a.id); setApprovalModal(true); }} style={{ background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:6, padding:'2px 8px', cursor:'pointer', fontSize:11, fontWeight:600 }}>Edit</button>
                           </td>
                         </tr>
                       ))}
@@ -699,8 +699,8 @@ export default function Projects() {
             <F label="Turnkey Contract Value (₹)" span={2}>
               <input style={inp} type="number" value={form.turnkey_contract_value} onChange={set('turnkey_contract_value')} placeholder="Total construction contract value"/>
             </F>
-            <div style={{ gridColumn:'1/-1', background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:12, padding:'16px 18px' }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:12 }}>Project Summary</div>
+            <div style={{ gridColumn:'1/-1', background:'var(--bg-subtle)', border:'1px solid var(--border)', borderRadius:12, padding:'16px 18px' }}>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:12 }}>Project Summary</div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
                 {[
                   ['Project', `${form.code} — ${form.name}`],
@@ -716,19 +716,19 @@ export default function Projects() {
                   ['Status', form.status],
                   ['Contract Value', form.turnkey_contract_value?inr(Number(form.turnkey_contract_value)):'Not entered'],
                 ].map(([l,v])=>(
-                  <div key={l} style={{ background:'#fff', borderRadius:8, padding:'8px 11px', border:'1px solid #F1F1F4' }}>
-                    <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
-                    <div style={{ fontSize:12.5, fontWeight:600, color:'#071437' }}>{v}</div>
+                  <div key={l} style={{ background:'#fff', borderRadius:8, padding:'8px 11px', border:'1px solid var(--border)' }}>
+                    <div style={{ fontSize:9.5, fontWeight:700, color:'var(--t-secondary)', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
+                    <div style={{ fontSize:12.5, fontWeight:600, color:'var(--c-dark)' }}>{v}</div>
                   </div>
                 ))}
               </div>
             </div>
             {pctTotal!==100 && (
-              <div style={{ gridColumn:'1/-1', background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:10, padding:'10px 14px', fontSize:12.5, color:'#7F1D1D', fontWeight:600 }}>
+              <div style={{ gridColumn:'1/-1', background:'var(--c-danger-light)', border:'1px solid var(--c-danger)', borderRadius:10, padding:'10px 14px', fontSize:12.5, color:'#7F1D1D', fontWeight:600 }}>
                 ⚠ Milestones total {pctTotal}% — must be 100%. Click Back to fix.
               </div>
             )}
-            <div style={{ gridColumn:'1/-1', background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:10, padding:'10px 14px', fontSize:12.5, color:'#17C653' }}>
+            <div style={{ gridColumn:'1/-1', background:'var(--c-success-light)', border:'1px solid var(--c-success)', borderRadius:10, padding:'10px 14px', fontSize:12.5, color:'var(--c-success)' }}>
               Review all details above. Click "Register Project" to save.
             </div>
           </div>

@@ -1,6 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { Plus, Search, Download, X, ChevronDown, User } from 'lucide-react';
+import {
+  moduleBtnStyle,
+  ModuleModalOverlay as ThemeModalOverlay,
+  ModuleTableTh as ThemeTh,
+  ModuleTableTd as ThemeTd,
+  formLabelStyle,
+  fieldStyle,
+  onFieldFocus,
+  onFieldBlur,
+  PAGE_HEADER_STYLE,
+  PAGE_TITLE_STYLE,
+  PAGE_SUBTITLE_STYLE,
+} from '../theme/moduleUi';
 
 export default function HRModule({ viewOnly }) {
   const { activeSubTab } = useAppStore();
@@ -18,41 +31,31 @@ export default function HRModule({ viewOnly }) {
 }
 
 // ── SHARED ─────────────────────────────────────────────────────────────────
-const Btn = ({ children, onClick, color = '#0E9F8A', small, disabled, style = {} }) => (
-  <button onClick={onClick} disabled={disabled} style={{ background: disabled ? '#F1F1F4' : color, color: disabled ? '#78829D' : '#fff', border: 'none', borderRadius: 8, padding: small ? '5px 12px' : '7px 16px', fontSize: small ? 11 : 12, fontWeight: 700, cursor: disabled ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 5, ...style }}>{children}</button>
+const Btn = ({ children, onClick, color = 'var(--c-teal)', small, disabled, style = {} }) => (
+  <button onClick={onClick} disabled={disabled} style={moduleBtnStyle(color, small, disabled, style)}>{children}</button>
 );
-const Badge = ({ label, color = '#0E9F8A' }) => <span style={{ background: color + '18', color, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>{label}</span>;
+const Badge = ({ label, color = 'var(--c-teal)' }) => <span style={{ background: color + '18', color, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>{label}</span>;
 function ModalOverlay({ children, onClose, title, wide }) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
-      <div style={{ background: '#fff', borderRadius: 14, width: wide ? 820 : 520, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #FCFCFC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
-          <span style={{ fontWeight: 800, fontSize: 14, color: '#071437' }}>{title}</span>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78829D' }}><X size={16} /></button>
-        </div>
-        <div style={{ padding: '16px 20px' }}>{children}</div>
-      </div>
-    </div>
-  );
+  return <ThemeModalOverlay onClose={onClose} title={title} wide={wide}>{children}</ThemeModalOverlay>;
 }
 function FormField({ label, value, onChange, type = 'text', options, required }) {
   return (
     <div>
-      <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>{label}{required && ' *'}</label>
+      <label style={formLabelStyle()}>{label}{required && <span style={{ color: 'var(--c-danger)' }}> *</span>}</label>
       {options ? (
-        <select value={value || ''} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, boxSizing: 'border-box' }}>
+        <select value={value || ''} onChange={e => onChange(e.target.value)} style={fieldStyle(false)} onFocus={onFieldFocus} onBlur={e => onFieldBlur(e, false)}>
           {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
         </select>
       ) : (
         <input type={type} value={value ?? ''} onChange={e => onChange(e.target.value)}
-          style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
-          onFocus={e => e.target.style.borderColor = '#0E9F8A'} onBlur={e => e.target.style.borderColor = '#F1F1F4'} />
+          style={fieldStyle(false)}
+          onFocus={onFieldFocus} onBlur={e => onFieldBlur(e, false)} />
       )}
     </div>
   );
 }
-function Th({ children }) { return <th style={{ padding: '9px 14px', fontSize: 11, fontWeight: 700, color: '#4B5675', textAlign: 'left', borderBottom: '1px solid #FCFCFC', background: '#FCFCFC' }}>{children}</th>; }
-function Td({ children, style = {} }) { return <td style={{ padding: '8px 14px', fontSize: 12, color: '#252F4A', borderBottom: '1px solid #FCFCFC', ...style }}>{children}</td>; }
+function Th({ children }) { return <ThemeTh>{children}</ThemeTh>; }
+function Td({ children, style = {} }) { return <ThemeTd style={style}>{children}</ThemeTd>; }
 
 const DEPARTMENTS = ['Management', 'Accounts', 'Sales', 'Construction', 'HR', 'Admin', 'Site'];
 const DESIGNATIONS = ['Director', 'Manager', 'Executive', 'Supervisor', 'Engineer', 'Accountant', 'Clerk', 'Worker'];
@@ -85,48 +88,48 @@ function EmployeesTab({ viewOnly }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Employees</div>
-          <div style={{ fontSize: 11, color: '#78829D' }}>{active} active · {employees.length} total</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Employees</div>
+          <div style={{ fontSize: 11, color: 'var(--t-muted)' }}>{active} active · {employees.length} total</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <div style={{ position: 'relative' }}>
-            <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#78829D' }} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…" style={{ paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', width: 180 }} />
+            <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--t-muted)' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…" style={{ paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, outline: 'none', width: 180 }} />
           </div>
           {!viewOnly && <Btn onClick={() => { setSelected(null); setForm({ name: '', phone: '', email: '', pan: '', aadhaar: '', department: 'Accounts', designation: 'Executive', employeeCode: '', joinDate: '', salary: '', salaryType: 'monthly', bankAccount: '', ifsc: '', bankName: '', pf: false, esi: false, status: 'active' }); setModal('form'); }} small><Plus size={12} /> Add Employee</Btn>}
         </div>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Code</Th><Th>Name</Th><Th>Department</Th><Th>Designation</Th><Th>Salary</Th><Th>PF</Th><Th>ESI</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
           <tbody>
             {filtered.map(e => (
               <tr key={e.id}>
                 <Td style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: 11 }}>{e.employeeCode}</Td>
-                <Td style={{ fontWeight: 600, color: '#071437' }}>{e.name}</Td>
+                <Td style={{ fontWeight: 600, color: 'var(--c-dark)' }}>{e.name}</Td>
                 <Td>{e.department}</Td>
                 <Td>{e.designation}</Td>
-                <Td style={{ fontWeight: 600 }}>₹{Number(e.salary || 0).toLocaleString('en-IN')}<span style={{ fontSize: 9, color: '#78829D' }}>/{e.salaryType === 'monthly' ? 'mo' : 'day'}</span></Td>
-                <Td>{e.pf ? <Badge label="PF" color="#0E9F8A" /> : '—'}</Td>
-                <Td>{e.esi ? <Badge label="ESI" color="#1B84FF" /> : '—'}</Td>
-                <Td><Badge label={e.status} color={e.status === 'active' ? '#17C653' : '#F8285A'} /></Td>
+                <Td style={{ fontWeight: 600 }}>₹{Number(e.salary || 0).toLocaleString('en-IN')}<span style={{ fontSize: 9, color: 'var(--t-muted)' }}>/{e.salaryType === 'monthly' ? 'mo' : 'day'}</span></Td>
+                <Td>{e.pf ? <Badge label="PF" color="var(--c-teal)" /> : '—'}</Td>
+                <Td>{e.esi ? <Badge label="ESI" color="var(--c-primary)" /> : '—'}</Td>
+                <Td><Badge label={e.status} color={e.status === 'active' ? 'var(--c-success)' : 'var(--c-danger)'} /></Td>
                 <Td>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button onClick={() => { setSelected(e); setModal('view'); }} style={{ background: '#E8FFF3', color: '#0E9F8A', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>View</button>
-                    {!viewOnly && <button onClick={() => { setSelected(e); setForm({ ...e }); setModal('form'); }} style={{ background: '#EEF6FF', color: '#1B84FF', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Edit</button>}
+                    <button onClick={() => { setSelected(e); setModal('view'); }} style={{ background: 'var(--c-success-light)', color: 'var(--c-teal)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>View</button>
+                    {!viewOnly && <button onClick={() => { setSelected(e); setForm({ ...e }); setModal('form'); }} style={{ background: 'var(--c-primary-light)', color: 'var(--c-primary)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Edit</button>}
                   </div>
                 </Td>
               </tr>
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No employees yet. Add your team.</div>}
+        {filtered.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No employees yet. Add your team.</div>}
       </div>
 
       {modal === 'form' && (
         <ModalOverlay onClose={() => setModal(null)} title={selected ? `Edit — ${selected.name}` : 'Add Employee'} wide>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#071437', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Basic Info</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-dark)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Basic Info</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
             <FormField label="Full Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
             <FormField label="Employee Code" value={form.employeeCode} onChange={v => setForm(f => ({ ...f, employeeCode: v }))} />
@@ -138,7 +141,7 @@ function EmployeesTab({ viewOnly }) {
             <FormField label="PAN" value={form.pan} onChange={v => setForm(f => ({ ...f, pan: v.toUpperCase() }))} />
             <FormField label="Aadhaar No" value={form.aadhaar} onChange={v => setForm(f => ({ ...f, aadhaar: v }))} />
           </div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#071437', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Salary & Compliance</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-dark)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Salary & Compliance</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
             <FormField label="Salary (₹)" value={form.salary} onChange={v => setForm(f => ({ ...f, salary: v }))} type="number" />
             <FormField label="Salary Type" value={form.salaryType} onChange={v => setForm(f => ({ ...f, salaryType: v }))} options={[{ value: 'monthly', label: 'Monthly' }, { value: 'daily', label: 'Daily Wage' }]} />
@@ -154,14 +157,14 @@ function EmployeesTab({ viewOnly }) {
               ESI Applicable
             </label>
           </div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#071437', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Bank Details</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-dark)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Bank Details</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
             <FormField label="Bank Name" value={form.bankName} onChange={v => setForm(f => ({ ...f, bankName: v }))} />
             <FormField label="Account No" value={form.bankAccount} onChange={v => setForm(f => ({ ...f, bankAccount: v }))} />
             <FormField label="IFSC Code" value={form.ifsc} onChange={v => setForm(f => ({ ...f, ifsc: v.toUpperCase() }))} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <Btn onClick={() => setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(null)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveEmployee} small>Save Employee</Btn>
           </div>
         </ModalOverlay>
@@ -171,7 +174,7 @@ function EmployeesTab({ viewOnly }) {
         <ModalOverlay onClose={() => setModal(null)} title={selected.name} wide>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
             {[['Code', selected.employeeCode], ['Department', selected.department], ['Designation', selected.designation], ['Phone', selected.phone || '—'], ['Email', selected.email || '—'], ['PAN', selected.pan || '—'], ['Aadhaar', selected.aadhaar || '—'], ['Join Date', selected.joinDate || '—'], ['Salary', `₹${Number(selected.salary || 0).toLocaleString('en-IN')}/${selected.salaryType === 'monthly' ? 'month' : 'day'}`], ['PF', selected.pf ? 'Yes' : 'No'], ['ESI', selected.esi ? 'Yes' : 'No'], ['Status', selected.status]].map(([k, v]) => (
-              <div key={k}><div style={{ fontSize: 10, color: '#78829D' }}>{k}</div><div style={{ fontSize: 13, fontWeight: 600, color: '#071437' }}>{v}</div></div>
+              <div key={k}><div style={{ fontSize: 10, color: 'var(--t-muted)' }}>{k}</div><div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-dark)' }}>{v}</div></div>
             ))}
           </div>
         </ModalOverlay>
@@ -220,33 +223,33 @@ function AttendanceTab({ viewOnly }) {
   }, [attendance, employees, selMonth]);
 
   const STATUS_OPTIONS = [
-    { val: 'P', label: 'Present', color: '#17C653' },
-    { val: 'A', label: 'Absent', color: '#F8285A' },
-    { val: 'HD', label: 'Half Day', color: '#F6C000' },
-    { val: 'L', label: 'Leave', color: '#1B84FF' },
-    { val: 'LOP', label: 'LOP', color: '#7239EA' },
+    { val: 'P', label: 'Present', color: 'var(--c-success)' },
+    { val: 'A', label: 'Absent', color: 'var(--c-danger)' },
+    { val: 'HD', label: 'Half Day', color: 'var(--c-warning)' },
+    { val: 'L', label: 'Leave', color: 'var(--c-primary)' },
+    { val: 'LOP', label: 'LOP', color: 'var(--c-info)' },
   ];
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Attendance</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Attendance</div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ display: 'flex', background: '#FCFCFC', borderRadius: 8, padding: 2 }}>
+          <div style={{ display: 'flex', background: 'var(--bg-subtle)', borderRadius: 8, padding: 2 }}>
             {[['daily', 'Daily'], ['monthly', 'Monthly Summary']].map(([v, l]) => (
-              <button key={v} onClick={() => setMode(v)} style={{ padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: mode === v ? 700 : 400, color: mode === v ? '#071437' : '#4B5675', background: mode === v ? '#fff' : 'transparent', border: '1px solid ' + (mode === v ? '#F1F1F4' : 'transparent'), cursor: 'pointer' }}>{l}</button>
+              <button key={v} onClick={() => setMode(v)} style={{ padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: mode === v ? 700 : 400, color: mode === v ? 'var(--c-dark)' : 'var(--t-secondary)', background: mode === v ? '#fff' : 'transparent', border: '1px solid ' + (mode === v ? 'var(--border)' : 'transparent'), cursor: 'pointer' }}>{l}</button>
             ))}
           </div>
           {mode === 'daily' ? (
-            <input type="date" value={selDate} onChange={e => setSelDate(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
+            <input type="date" value={selDate} onChange={e => setSelDate(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
           ) : (
-            <input type="month" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
+            <input type="month" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
           )}
         </div>
       </div>
 
       {mode === 'daily' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Employee</Th><Th>Dept.</Th><Th>Designation</Th><Th>Status</Th></tr></thead>
             <tbody>
@@ -265,7 +268,7 @@ function AttendanceTab({ viewOnly }) {
                           ))}
                         </div>
                       ) : (
-                        status ? <Badge label={status} color={STATUS_OPTIONS.find(o => o.val === status)?.color || '#4B5675'} /> : '—'
+                        status ? <Badge label={status} color={STATUS_OPTIONS.find(o => o.val === status)?.color || 'var(--t-secondary)'} /> : '—'
                       )}
                     </Td>
                   </tr>
@@ -273,12 +276,12 @@ function AttendanceTab({ viewOnly }) {
               })}
             </tbody>
           </table>
-          {employees.filter(e => e.status === 'active').length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No active employees.</div>}
+          {employees.filter(e => e.status === 'active').length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No active employees.</div>}
         </div>
       )}
 
       {mode === 'monthly' && (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><Th>Employee</Th><Th>Present</Th><Th>Absent</Th><Th>Half Day</Th><Th>Leave</Th><Th>LOP</Th><Th>Payable Days</Th></tr></thead>
             <tbody>
@@ -287,11 +290,11 @@ function AttendanceTab({ viewOnly }) {
                 return (
                   <tr key={e.id}>
                     <Td style={{ fontWeight: 600 }}>{e.name}</Td>
-                    <Td style={{ color: '#17C653', fontWeight: 600 }}>{e.present}</Td>
-                    <Td style={{ color: '#F8285A', fontWeight: 600 }}>{e.absent}</Td>
-                    <Td style={{ color: '#F6C000' }}>{e.halfday}</Td>
-                    <Td style={{ color: '#1B84FF' }}>{e.leave}</Td>
-                    <Td style={{ color: '#7239EA' }}>{e.lop}</Td>
+                    <Td style={{ color: 'var(--c-success)', fontWeight: 600 }}>{e.present}</Td>
+                    <Td style={{ color: 'var(--c-danger)', fontWeight: 600 }}>{e.absent}</Td>
+                    <Td style={{ color: 'var(--c-warning)' }}>{e.halfday}</Td>
+                    <Td style={{ color: 'var(--c-primary)' }}>{e.leave}</Td>
+                    <Td style={{ color: 'var(--c-info)' }}>{e.lop}</Td>
                     <Td style={{ fontWeight: 700 }}>{payableDays}</Td>
                   </tr>
                 );
@@ -307,7 +310,7 @@ function AttendanceTab({ viewOnly }) {
 // ── LEAVE ─────────────────────────────────────────────────────────────────
 const LEAVE_TYPES = ['CL', 'SL', 'PL', 'LOP'];
 const LEAVE_LABELS = { CL: 'Casual Leave', SL: 'Sick Leave', PL: 'Privilege Leave', LOP: 'Loss of Pay' };
-const LEAVE_COLORS = { CL: '#1B84FF', SL: '#7239EA', PL: '#0E9F8A', LOP: '#F8285A' };
+const LEAVE_COLORS = { CL: 'var(--c-primary)', SL: 'var(--c-info)', PL: 'var(--c-teal)', LOP: 'var(--c-danger)' };
 
 function LeaveTab({ viewOnly }) {
   const { employees, leaveApplications, setLeaveApplications, addToast, user } = useAppStore();
@@ -332,13 +335,13 @@ function LeaveTab({ viewOnly }) {
     addToast('Leave rejected');
   }
 
-  const STATUS_COLORS = { pending: '#F6C000', approved: '#17C653', rejected: '#F8285A' };
+  const STATUS_COLORS = { pending: 'var(--c-warning)', approved: 'var(--c-success)', rejected: 'var(--c-danger)' };
   const canApprove = user?.role === 'super_admin' || user?.role === 'director' || user?.role === 'hr_manager';
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Leave Management</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Leave Management</div>
         {!viewOnly && <Btn onClick={() => { setForm({ empId: '', leaveType: 'CL', fromDate: '', toDate: '', reason: '', status: 'pending' }); setModal(true); }} small><Plus size={12} /> Apply Leave</Btn>}
       </div>
 
@@ -347,15 +350,15 @@ function LeaveTab({ viewOnly }) {
         {LEAVE_TYPES.map(lt => {
           const cnt = leaveApplications.filter(l => l.leaveType === lt && l.status === 'approved').length;
           return (
-            <div key={lt} style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', padding: '10px 16px', minWidth: 90 }}>
+            <div key={lt} style={{ background: '#fff', borderRadius: 10, border: '1px solid var(--border)', padding: '10px 16px', minWidth: 90 }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: LEAVE_COLORS[lt] }}>{cnt}</div>
-              <div style={{ fontSize: 10, color: '#78829D' }}>{LEAVE_LABELS[lt]}</div>
+              <div style={{ fontSize: 10, color: 'var(--t-muted)' }}>{LEAVE_LABELS[lt]}</div>
             </div>
           );
         })}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Employee</Th><Th>Type</Th><Th>From</Th><Th>To</Th><Th>Days</Th><Th>Reason</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
           <tbody>
@@ -364,17 +367,17 @@ function LeaveTab({ viewOnly }) {
               return (
                 <tr key={l.id}>
                   <Td style={{ fontWeight: 500 }}>{emp?.name || '—'}</Td>
-                  <Td><Badge label={l.leaveType} color={LEAVE_COLORS[l.leaveType] || '#4B5675'} /></Td>
+                  <Td><Badge label={l.leaveType} color={LEAVE_COLORS[l.leaveType] || 'var(--t-secondary)'} /></Td>
                   <Td>{l.fromDate}</Td>
                   <Td>{l.toDate}</Td>
                   <Td style={{ fontWeight: 700 }}>{l.days || 1}</Td>
                   <Td style={{ maxWidth: 160 }}><div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.reason}</div></Td>
-                  <Td><Badge label={l.status} color={STATUS_COLORS[l.status] || '#4B5675'} /></Td>
+                  <Td><Badge label={l.status} color={STATUS_COLORS[l.status] || 'var(--t-secondary)'} /></Td>
                   <Td>
                     {!viewOnly && canApprove && l.status === 'pending' && (
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <button onClick={() => approveLeave(l.id)} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
-                        <button onClick={() => rejectLeave(l.id)} style={{ background: '#FFE2E5', color: '#F8285A', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Reject</button>
+                        <button onClick={() => approveLeave(l.id)} style={{ background: 'var(--c-success-light)', color: 'var(--c-success)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
+                        <button onClick={() => rejectLeave(l.id)} style={{ background: 'var(--c-danger-light)', color: 'var(--c-danger)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Reject</button>
                       </div>
                     )}
                   </Td>
@@ -383,7 +386,7 @@ function LeaveTab({ viewOnly }) {
             })}
           </tbody>
         </table>
-        {leaveApplications.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No leave applications.</div>}
+        {leaveApplications.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No leave applications.</div>}
       </div>
 
       {modal && (
@@ -394,13 +397,13 @@ function LeaveTab({ viewOnly }) {
             <FormField label="From Date *" value={form.fromDate} onChange={v => setForm(f => ({ ...f, fromDate: v }))} type="date" />
             <FormField label="To Date *" value={form.toDate} onChange={v => setForm(f => ({ ...f, toDate: v }))} type="date" />
           </div>
-          {days > 0 && <div style={{ background: '#E8FFF3', borderRadius: 8, padding: '8px 12px', marginTop: 10, fontSize: 12, color: '#17C653', fontWeight: 600 }}>{days} day(s) of {LEAVE_LABELS[form.leaveType]}</div>}
+          {days > 0 && <div style={{ background: 'var(--c-success-light)', borderRadius: 8, padding: '8px 12px', marginTop: 10, fontSize: 12, color: 'var(--c-success)', fontWeight: 600 }}>{days} day(s) of {LEAVE_LABELS[form.leaveType]}</div>}
           <div style={{ marginTop: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>Reason</label>
-            <textarea value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
+            <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--t-primary)', display: 'block', marginBottom: 4 }}>Reason</label>
+            <textarea value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={applyLeave} small>Submit Application</Btn>
           </div>
         </ModalOverlay>
@@ -448,26 +451,26 @@ function PayrollTab({ viewOnly }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Payroll</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Payroll</div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input type="month" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
+          <input type="month" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
           {!viewOnly && !run && <Btn onClick={generatePayroll} small>Generate Payroll</Btn>}
-          {!viewOnly && run && run.status === 'draft' && <Btn onClick={finalizePayroll} color="#17C653" small>Finalize Payroll</Btn>}
+          {!viewOnly && run && run.status === 'draft' && <Btn onClick={finalizePayroll} color="var(--c-success)" small>Finalize Payroll</Btn>}
         </div>
       </div>
 
       {run ? (
         <>
           <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-            {[['Employees', run.slips?.length, '#1B84FF'], ['Total Gross', `₹${(run.totalGross || 0).toLocaleString('en-IN')}`, '#17C653'], ['Total Net', `₹${(run.totalNet || 0).toLocaleString('en-IN')}`, '#0E9F8A'], ['Status', run.status, run.status === 'finalized' ? '#17C653' : '#F6C000']].map(([l, v, c]) => (
-              <div key={l} style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', padding: '12px 20px' }}>
-                <div style={{ fontSize: 11, color: '#78829D' }}>{l}</div>
+            {[['Employees', run.slips?.length, 'var(--c-primary)'], ['Total Gross', `₹${(run.totalGross || 0).toLocaleString('en-IN')}`, 'var(--c-success)'], ['Total Net', `₹${(run.totalNet || 0).toLocaleString('en-IN')}`, 'var(--c-teal)'], ['Status', run.status, run.status === 'finalized' ? 'var(--c-success)' : 'var(--c-warning)']].map(([l, v, c]) => (
+              <div key={l} style={{ background: '#fff', borderRadius: 10, border: '1px solid var(--border)', padding: '12px 20px' }}>
+                <div style={{ fontSize: 11, color: 'var(--t-muted)' }}>{l}</div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: c, marginTop: 4 }}>{v}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr><Th>Code</Th><Th>Name</Th><Th>Dept.</Th><Th>Present</Th><Th>LOP</Th><Th>Gross</Th><Th>PF</Th><Th>ESI</Th><Th>TDS</Th><Th>Net Pay</Th></tr></thead>
               <tbody>
@@ -476,31 +479,31 @@ function PayrollTab({ viewOnly }) {
                     <Td style={{ fontFamily: 'monospace', fontSize: 11 }}>{sl.empCode}</Td>
                     <Td style={{ fontWeight: 600 }}>{sl.empName}</Td>
                     <Td>{sl.department}</Td>
-                    <Td style={{ color: '#17C653', fontWeight: 600 }}>{sl.presentDays}</Td>
-                    <Td style={{ color: '#F8285A' }}>{sl.lopDays}</Td>
+                    <Td style={{ color: 'var(--c-success)', fontWeight: 600 }}>{sl.presentDays}</Td>
+                    <Td style={{ color: 'var(--c-danger)' }}>{sl.lopDays}</Td>
                     <Td>₹{(sl.gross || 0).toLocaleString('en-IN')}</Td>
-                    <Td style={{ color: '#4B5675' }}>₹{(sl.pf || 0).toLocaleString('en-IN')}</Td>
-                    <Td style={{ color: '#4B5675' }}>₹{(sl.esi || 0).toLocaleString('en-IN')}</Td>
-                    <Td style={{ color: '#4B5675' }}>₹{(sl.tds || 0).toLocaleString('en-IN')}</Td>
-                    <Td style={{ fontWeight: 800, color: '#0E9F8A' }}>₹{(sl.net || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ color: 'var(--t-secondary)' }}>₹{(sl.pf || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ color: 'var(--t-secondary)' }}>₹{(sl.esi || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ color: 'var(--t-secondary)' }}>₹{(sl.tds || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ fontWeight: 800, color: 'var(--c-teal)' }}>₹{(sl.net || 0).toLocaleString('en-IN')}</Td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr style={{ background: '#FCFCFC' }}>
+                <tr style={{ background: 'var(--bg-subtle)' }}>
                   <td colSpan={5} style={{ padding: '9px 14px', fontWeight: 700, textAlign: 'right', fontSize: 12 }}>Total</td>
                   <td style={{ padding: '9px 14px', fontWeight: 800 }}>₹{(run.totalGross || 0).toLocaleString('en-IN')}</td>
                   <td style={{ padding: '9px 14px', fontWeight: 700 }}>₹{(run.slips || []).reduce((s, sl) => s + sl.pf, 0).toLocaleString('en-IN')}</td>
                   <td style={{ padding: '9px 14px', fontWeight: 700 }}>₹{(run.slips || []).reduce((s, sl) => s + sl.esi, 0).toLocaleString('en-IN')}</td>
                   <td style={{ padding: '9px 14px', fontWeight: 700 }}>₹{(run.slips || []).reduce((s, sl) => s + sl.tds, 0).toLocaleString('en-IN')}</td>
-                  <td style={{ padding: '9px 14px', fontWeight: 800, color: '#0E9F8A' }}>₹{(run.totalNet || 0).toLocaleString('en-IN')}</td>
+                  <td style={{ padding: '9px 14px', fontWeight: 800, color: 'var(--c-teal)' }}>₹{(run.totalNet || 0).toLocaleString('en-IN')}</td>
                 </tr>
               </tfoot>
             </table>
           </div>
         </>
       ) : (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 48, textAlign: 'center', color: '#78829D', fontSize: 13 }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 48, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>
           No payroll generated for {selMonth}. Click Generate Payroll to compute salary slips.
         </div>
       )}
@@ -526,13 +529,13 @@ function SalarySlipsTab({ viewOnly }) {
 
   return (
     <div>
-      <div style={{ fontSize: 15, fontWeight: 800, color: '#071437', marginBottom: 16 }}>Salary Slips</div>
+      <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)', marginBottom: 16 }}>Salary Slips</div>
       <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-        <select value={selRun} onChange={e => setSelRun(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 200 }}>
+        <select value={selRun} onChange={e => setSelRun(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 200 }}>
           <option value="">— Select Payroll Month —</option>
           {payrollRuns.map(r => <option key={r.id} value={r.id}>{r.month} ({r.status})</option>)}
         </select>
-        <select value={selEmp} onChange={e => setSelEmp(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 200 }}>
+        <select value={selEmp} onChange={e => setSelEmp(e.target.value)} style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 200 }}>
           <option value="">All Employees</option>
           {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
         </select>
@@ -542,17 +545,17 @@ function SalarySlipsTab({ viewOnly }) {
       {filteredSlips.length > 0 ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           {filteredSlips.map(sl => (
-            <div key={sl.empId} style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 16 }}>
+            <div key={sl.empId} style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 16 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#071437' }}>{sl.empName}</div>
-                  <div style={{ fontSize: 10, color: '#78829D' }}>{sl.empCode} · {sl.department}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--c-dark)' }}>{sl.empName}</div>
+                  <div style={{ fontSize: 10, color: 'var(--t-muted)' }}>{sl.empCode} · {sl.department}</div>
                 </div>
-                <button onClick={() => downloadSlip(sl)} style={{ background: '#E8FFF3', color: '#0E9F8A', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}><Download size={11} /></button>
+                <button onClick={() => downloadSlip(sl)} style={{ background: 'var(--c-success-light)', color: 'var(--c-teal)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}><Download size={11} /></button>
               </div>
-              {[['Gross', sl.gross, '#17C653'], ['PF Dedn.', sl.pf, '#4B5675'], ['ESI Dedn.', sl.esi, '#4B5675'], ['Net Pay', sl.net, '#0E9F8A']].map(([l, v, c]) => (
+              {[['Gross', sl.gross, 'var(--c-success)'], ['PF Dedn.', sl.pf, 'var(--t-secondary)'], ['ESI Dedn.', sl.esi, 'var(--t-secondary)'], ['Net Pay', sl.net, 'var(--c-teal)']].map(([l, v, c]) => (
                 <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 12 }}>
-                  <span style={{ color: '#4B5675' }}>{l}</span>
+                  <span style={{ color: 'var(--t-secondary)' }}>{l}</span>
                   <span style={{ fontWeight: 700, color: c }}>₹{(v || 0).toLocaleString('en-IN')}</span>
                 </div>
               ))}
@@ -560,7 +563,7 @@ function SalarySlipsTab({ viewOnly }) {
           ))}
         </div>
       ) : (
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 48, textAlign: 'center', color: '#78829D', fontSize: 13 }}>Select a payroll month to view salary slips.</div>
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 48, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>Select a payroll month to view salary slips.</div>
       )}
     </div>
   );
@@ -590,11 +593,11 @@ function LoansTab({ viewOnly }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Employee Loans & Advances</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--c-dark)' }}>Employee Loans & Advances</div>
         {!viewOnly && <Btn onClick={() => { setForm({ empId: '', amount: '', emi: '', tenure: '', disbursedDate: new Date().toISOString().split('T')[0], purpose: '', status: 'active' }); setModal(true); }} small><Plus size={12} /> Add Loan</Btn>}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr><Th>Employee</Th><Th>Loan Amount</Th><Th>EMI</Th><Th>Recovered</Th><Th>Balance</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
           <tbody>
@@ -605,12 +608,12 @@ function LoansTab({ viewOnly }) {
                   <Td style={{ fontWeight: 600 }}>{emp?.name || '—'}</Td>
                   <Td style={{ fontWeight: 600 }}>₹{(l.amount || 0).toLocaleString('en-IN')}</Td>
                   <Td>₹{(l.emi || 0).toLocaleString('en-IN')}/mo</Td>
-                  <Td style={{ color: '#17C653', fontWeight: 600 }}>₹{(l.recovered || 0).toLocaleString('en-IN')}</Td>
-                  <Td style={{ fontWeight: 700, color: l.balance > 0 ? '#F8285A' : '#17C653' }}>₹{(l.balance || 0).toLocaleString('en-IN')}</Td>
-                  <Td><Badge label={l.status} color={l.status === 'closed' ? '#17C653' : '#F6C000'} /></Td>
+                  <Td style={{ color: 'var(--c-success)', fontWeight: 600 }}>₹{(l.recovered || 0).toLocaleString('en-IN')}</Td>
+                  <Td style={{ fontWeight: 700, color: l.balance > 0 ? 'var(--c-danger)' : 'var(--c-success)' }}>₹{(l.balance || 0).toLocaleString('en-IN')}</Td>
+                  <Td><Badge label={l.status} color={l.status === 'closed' ? 'var(--c-success)' : 'var(--c-warning)'} /></Td>
                   <Td>
                     {!viewOnly && l.status === 'active' && (
-                      <button onClick={() => recoverEMI(l.id)} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Recover EMI</button>
+                      <button onClick={() => recoverEMI(l.id)} style={{ background: 'var(--c-success-light)', color: 'var(--c-success)', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Recover EMI</button>
                     )}
                   </Td>
                 </tr>
@@ -618,7 +621,7 @@ function LoansTab({ viewOnly }) {
             })}
           </tbody>
         </table>
-        {employeeLoans.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No employee loans recorded.</div>}
+        {employeeLoans.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: 'var(--t-muted)', fontSize: 13 }}>No employee loans recorded.</div>}
       </div>
 
       {modal && (
@@ -632,7 +635,7 @@ function LoansTab({ viewOnly }) {
             <FormField label="Purpose" value={form.purpose} onChange={v => setForm(f => ({ ...f, purpose: v }))} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={() => setModal(false)} color="var(--t-secondary)" small>Cancel</Btn>
             <Btn onClick={saveLoan} small>Save Loan</Btn>
           </div>
         </ModalOverlay>
