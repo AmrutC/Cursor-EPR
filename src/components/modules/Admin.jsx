@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { Plus, Search, Download, Upload, RefreshCw, X, Shield, Database, Bell, AlertCircle } from 'lucide-react';
+import ConfirmDialog from '../ui/ConfirmDialog';
+import PromptDialog from '../ui/PromptDialog';
 
 export default function AdminModule({ viewOnly }) {
   const { activeSubTab, user } = useAppStore();
@@ -473,6 +475,8 @@ function BackupManagerTab() {
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [restoring, setRestoring] = useState('');
+  const [promptOpen, setPromptOpen] = useState(false);
+  const [restoreTarget, setRestoreTarget] = useState(null);
 
   async function loadBackups() {
     if (!window.vgERP) { addToast('Backup only in Electron', 'error'); return; }
@@ -483,9 +487,8 @@ function BackupManagerTab() {
     setLoading(false);
   }
 
-  async function createBackup() {
+  async function createBackup(label = '') {
     if (!window.vgERP) { addToast('Backup only in Electron', 'error'); return; }
-    const label = prompt('Backup label (optional):') || '';
     const res = await window.vgERP.backup.create({ label });
     if (res.ok) { addToast(`Backup created — ${res.fileCount} files`); loadBackups(); }
     else addToast('Backup failed: ' + res.error, 'error');
@@ -493,7 +496,6 @@ function BackupManagerTab() {
 
   async function restoreBackup(backup) {
     if (!window.vgERP) return;
-    if (!confirm(`Restore from backup "${backup.name}"? This will overwrite current data.`)) return;
     setRestoring(backup.name);
     const res = await window.vgERP.backup.restore(backup.path);
     setRestoring('');
@@ -510,7 +512,7 @@ function BackupManagerTab() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Btn onClick={loadBackups} color="#4B5675" small disabled={loading}><RefreshCw size={12} /> {loading ? 'Loading…' : 'Refresh'}</Btn>
-          <Btn onClick={createBackup} small><Database size={12} /> Create Backup Now</Btn>
+          <Btn onClick={() => setPromptOpen(true)} small><Database size={12} /> Create Backup Now</Btn>
         </div>
       </div>
 
@@ -537,7 +539,7 @@ function BackupManagerTab() {
                   <Td>{b.fileCount} files</Td>
                   <Td>{(b.size / 1024).toFixed(1)} KB</Td>
                   <Td>
-                    <button onClick={() => restoreBackup(b)} disabled={!!restoring} style={{ background: restoring === b.name ? '#F1F1F4' : '#FFF8DD', color: '#7A4E00', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: restoring ? 'default' : 'pointer', fontWeight: 600 }}>
+                    <button onClick={() => setRestoreTarget(b)} disabled={!!restoring} style={{ background: restoring === b.name ? '#F1F1F4' : '#FFF8DD', color: '#7A4E00', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: restoring ? 'default' : 'pointer', fontWeight: 600 }}>
                       {restoring === b.name ? 'Restoring…' : 'Restore'}
                     </button>
                   </Td>
@@ -547,6 +549,38 @@ function BackupManagerTab() {
           </table>
         )}
       </div>
+
+      <PromptDialog
+        open={promptOpen}
+        title="Create backup"
+        message="Optional label helps identify this backup later."
+        placeholder="e.g. pre-month-end-close"
+        defaultValue=""
+        confirmText="Create Backup"
+        cancelText="Cancel"
+        onCancel={() => setPromptOpen(false)}
+        onSubmit={value => {
+          setPromptOpen(false);
+          createBackup(value || '');
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!restoreTarget}
+        title="Restore backup?"
+        message={`Restore from backup "${restoreTarget?.name || ''}"? This will overwrite current data.`}
+        confirmText="Restore"
+        cancelText="Cancel"
+        tone="danger"
+        onCancel={() => setRestoreTarget(null)}
+        onConfirm={() => {
+          if (!restoreTarget) return;
+          const target = restoreTarget;
+          setRestoreTarget(null);
+          restoreBackup(target);
+        }}
+        loading={!!restoring}
+      />
     </div>
   );
 }

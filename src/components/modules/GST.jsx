@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { inr, fmtDate } from '../../utils';
 import { Download, Plus, Eye, Edit2, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif', boxSizing:'border-box' };
 const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
@@ -169,6 +170,7 @@ export default function GST() {
   const [editId, setEditId]         = useState(null);
   const [viewItem, setViewItem]     = useState(null);
   const [errors, setErrors]         = useState({});
+  const [pendingDelete, setPendingDelete] = useState(null);
   const set = k => e => { setForm(f=>({...f,[k]:e.target.value})); setErrors(er=>({...er,[k]:''})); };
 
   const entityBookings = (bookings||[]).filter(b=>b.entity_id===eid&&b.approval_status==='Approved');
@@ -240,7 +242,16 @@ export default function GST() {
     else upd(section,arr=>[item,...arr]);
     setModal(null); setForm({});
   }
-  function del(section,id) { if(!confirm('Delete?'))return; upd(section,arr=>arr.filter(x=>x.id!==id)); }
+  function del(section, id) {
+    setPendingDelete({ section, id });
+  }
+
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    const { section, id } = pendingDelete;
+    upd(section, arr => arr.filter(x => x.id !== id));
+    setPendingDelete(null);
+  }
 
   const P = { background:'#071437',color:'#fff',border:'none',borderRadius:8,padding:'7px 16px',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6 };
   const S = { background:'#FCFCFC',color:'#252F4A',border:'1px solid #F1F1F4',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12.5,fontWeight:600,display:'flex',alignItems:'center',gap:6 };
@@ -675,6 +686,17 @@ export default function GST() {
           </div>
         </Modal>
       )}
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete GST entry?"
+        message="This entry will be permanently removed from the current GST register section."
+        confirmText="Delete"
+        cancelText="Cancel"
+        tone="danger"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

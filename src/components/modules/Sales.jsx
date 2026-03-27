@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { Plus, Search, Eye, Check, X, Edit3, Phone, Mail, Download, Send, Printer, ChevronRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import { suggestGSTRate } from '../../data.js';
+import { sortRows, filterRowsByDateRange, paginateRows } from '../../utils/table';
+import { SortHeader, DateRangeFilter, PaginationControls } from '../ui/TableUtilities';
 
 // ── SUB-TAB ROUTER ─────────────────────────────────────────────────────────
 export default function SalesModule({ viewOnly }) {
@@ -374,6 +376,11 @@ function BookingsTab({ viewOnly }) {
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [sortState, setSortState] = useState({ key: 'bookingDate', dir: 'desc' });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [form, setForm] = useState({
     customerName:'', customerPhone:'', customerPAN:'',
     coApplicantName:'', coApplicantPAN:'',
@@ -384,11 +391,45 @@ function BookingsTab({ viewOnly }) {
   });
   const [cancelForm, setCancelForm] = useState({ reason:'', chargeType:'flat', chargeValue:'' });
 
-  const filtered = bookings.filter(b => {
-    if (filterStatus !== 'all' && b.status !== filterStatus) return false;
-    if (search && !b.customerName?.toLowerCase().includes(search.toLowerCase()) && !b.bookingNo?.includes(search)) return false;
-    return true;
-  });
+  const baseFiltered = useMemo(() => (
+    bookings.filter(b => {
+      if (filterStatus !== 'all' && b.status !== filterStatus) return false;
+      if (search && !b.customerName?.toLowerCase().includes(search.toLowerCase()) && !b.bookingNo?.includes(search)) return false;
+      return true;
+    })
+  ), [bookings, filterStatus, search]);
+
+  const dateFiltered = useMemo(
+    () => filterRowsByDateRange(baseFiltered, b => b.bookingDate || b.createdAt, { from: dateFrom, to: dateTo }),
+    [baseFiltered, dateFrom, dateTo],
+  );
+
+  const sortedRows = useMemo(() => {
+    const sorters = {
+      bookingNo: b => b.bookingNo || '',
+      customerName: b => b.customerName || '',
+      bookingDate: b => b.bookingDate || '',
+      agreementValue: b => Number(b.agreementValue || 0),
+      collected: b => (b.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0),
+      status: b => b.status || '',
+    };
+    const getter = sortState?.key ? sorters[sortState.key] : null;
+    return sortRows(dateFiltered, getter, sortState?.dir || 'asc');
+  }, [dateFiltered, sortState]);
+
+  const paged = useMemo(() => paginateRows(sortedRows, page, pageSize), [sortedRows, page, pageSize]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filterStatus, search, dateFrom, dateTo, pageSize]);
+
+  function toggleSort(key) {
+    setPage(1);
+    setSortState(prev => {
+      if (prev.key === key) return { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' };
+      return { key, dir: 'asc' };
+    });
+  }
 
   function openAdd() {
     setForm({
@@ -578,6 +619,7 @@ function BookingsTab({ viewOnly }) {
           <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} style={{ border:'1px solid #F1F1F4', borderRadius:8, padding:'6px 10px', fontSize:12 }}>
             {[['all','All Status'],['pending','Pending'],['approved','Approved'],['registered','Registered'],['cancelled','Cancelled']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
           </select>
+          <DateRangeFilter from={dateFrom} to={dateTo} onChangeFrom={setDateFrom} onChangeTo={setDateTo} compact />
           {!viewOnly && <Btn onClick={openAdd} small><Plus size={12}/> New Booking</Btn>}
         </div>
       </div>
@@ -585,14 +627,18 @@ function BookingsTab({ viewOnly }) {
       <div style={{ background:'#fff', borderRadius:12, border:'1px solid #F1F1F4', overflow:'hidden' }}>
         <table style={{ width:'100%', borderCollapse:'collapse' }}>
           <thead>
-            <tr style={{ background:'#FCFCFC' }}>
-              {['Booking No','Customer','Unit','Agreement Value','Collected','Status','Actions'].map(h=>(
-                <th key={h} style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>
-              ))}
+            <tr>
+              <SortHeader label="Booking No" sortKey="bookingNo" sortState={sortState} onToggle={toggleSort} />
+              <SortHeader label="Customer" sortKey="customerName" sortState={sortState} onToggle={toggleSort} />
+              <th style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC', background:'#FCFCFC' }}>Unit</th>
+              <SortHeader label="Agreement Value" sortKey="agreementValue" sortState={sortState} onToggle={toggleSort} align="right" />
+              <SortHeader label="Collected" sortKey="collected" sortState={sortState} onToggle={toggleSort} align="right" />
+              <SortHeader label="Status" sortKey="status" sortState={sortState} onToggle={toggleSort} />
+              <th style={{ padding:'10px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC', background:'#FCFCFC' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(b=>{
+            {paged.data.map(b=>{
               const collected = (b.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
               const balance = (b.agreementValue||0) - collected;
               return (
@@ -629,8 +675,16 @@ function BookingsTab({ viewOnly }) {
             })}
           </tbody>
         </table>
-        {filtered.length===0 && <div style={{ padding:32, textAlign:'center', color:'#78829D', fontSize:13 }}>No bookings found.</div>}
+        {sortedRows.length===0 && <div style={{ padding:32, textAlign:'center', color:'#78829D', fontSize:13 }}>No bookings found.</div>}
       </div>
+      <PaginationControls
+        page={paged.page}
+        totalPages={paged.totalPages}
+        totalCount={paged.total}
+        pageSize={paged.pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+      />
 
       {/* Add Booking */}
       {modal==='add' && (

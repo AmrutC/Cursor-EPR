@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import Modal from '../ui/Modal';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import { inr, fmtDate } from '../../utils';
 import { Plus, Search, Paperclip, TrendingUp, TrendingDown, Download, Link, Edit2, Eye, Trash2 } from 'lucide-react';
 
@@ -53,6 +54,7 @@ export default function Accounts() {
   const [modal,setModal]       = useState(false);
   const [editId,setEditId]     = useState(null);   // id of entry being edited
   const [viewEntry,setViewEntry] = useState(null); // entry for view details panel
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [form,setForm]         = useState(EMPTY);
   const [errors,setErrors]     = useState({});
   const [search,setSearch]     = useState('');
@@ -311,8 +313,6 @@ export default function Accounts() {
   }
 
   function deleteEntry(id) {
-    if (!confirm('Delete this ledger entry? Milestone payments will be reversed automatically.')) return;
-
     const entry = (ledgerEntries||[]).find(e => e.id === id);
     if (!entry) return;
 
@@ -356,6 +356,17 @@ export default function Accounts() {
 
     setLedgerEntries(es => (es||[]).filter(e => e.id !== id));
     addToast('Entry deleted. Payments reversed automatically.', 'success');
+  }
+
+  function requestDeleteEntry(id) {
+    setPendingDeleteId(id);
+  }
+
+  function confirmDeleteEntry() {
+    if (!pendingDeleteId) return;
+    deleteEntry(pendingDeleteId);
+    setViewEntry(v => (v?.id === pendingDeleteId ? null : v));
+    setPendingDeleteId(null);
   }
 
   const filtered = (entityEntries||[]).filter(e=>
@@ -472,7 +483,7 @@ export default function Accounts() {
                           style={{ background:'#FFF8DD', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#7A4E00', display:'flex', alignItems:'center' }}>
                           <Edit2 size={11}/>
                         </button>
-                        <button onClick={()=>deleteEntry(e.id)}
+                        <button onClick={()=>requestDeleteEntry(e.id)}
                           title="Delete Entry"
                           style={{ background:'#FFE2E5', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#7F1D1D', display:'flex', alignItems:'center' }}>
                           <Trash2 size={11}/>
@@ -836,7 +847,7 @@ export default function Accounts() {
               </div>
             </div>
             <div style={{ padding:'12px 20px', borderTop:'1px solid #F1F1F4', display:'flex', gap:8, justifyContent:'space-between', flexShrink:0 }}>
-              <button onClick={()=>{ if(confirm('Delete this entry?')){ deleteEntry(viewEntry.id); setViewEntry(null); } }}
+              <button onClick={()=>requestDeleteEntry(viewEntry.id)}
                 style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:8, padding:'7px 14px', cursor:'pointer', fontSize:12.5, fontWeight:700, color:'#7F1D1D', display:'flex', alignItems:'center', gap:5 }}>
                 <Trash2 size={12}/> Delete
               </button>
@@ -846,6 +857,17 @@ export default function Accounts() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        title="Delete ledger entry?"
+        message="This will remove the ledger entry and reverse linked milestone/vendor bill effects automatically."
+        confirmText="Delete Entry"
+        cancelText="Keep Entry"
+        tone="danger"
+        onCancel={() => setPendingDeleteId(null)}
+        onConfirm={confirmDeleteEntry}
+      />
     </div>
   );
 }

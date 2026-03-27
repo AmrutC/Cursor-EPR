@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { Plus, Search, Upload, Download, RefreshCw, X, ChevronDown, Filter } from 'lucide-react';
+import { sortRows, filterRowsByDateRange, paginateRows } from '../../utils/table';
+import { SortHeader, DateRangeFilter, PaginationControls } from '../ui/TableUtilities';
 
 export default function FinanceModule({ viewOnly }) {
   const { activeSubTab } = useAppStore();
@@ -176,14 +178,56 @@ function LedgerTab({ viewOnly }) {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterAccount, setFilterAccount] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [sortState, setSortState] = useState({ key: 'date', dir: 'desc' });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], voucherType: 'Receipt', narration: '', amount: '', drAccount: '', crAccount: '', ref: '', gstin: '' });
 
-  const filtered = journalEntries.filter(e => {
-    if (filterType !== 'all' && e.voucherType !== filterType) return false;
-    if (filterAccount && e.drAccount !== filterAccount && e.crAccount !== filterAccount) return false;
-    if (search && !e.narration?.toLowerCase().includes(search.toLowerCase()) && !e.ref?.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const baseFiltered = useMemo(() => (
+    journalEntries.filter(e => {
+      if (filterType !== 'all' && e.voucherType !== filterType) return false;
+      if (filterAccount && e.drAccount !== filterAccount && e.crAccount !== filterAccount) return false;
+      if (search && !e.narration?.toLowerCase().includes(search.toLowerCase()) && !e.ref?.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    })
+  ), [journalEntries, filterType, filterAccount, search]);
+
+  const dateFiltered = useMemo(
+    () => filterRowsByDateRange(baseFiltered, e => e.date, { from: dateFrom, to: dateTo }),
+    [baseFiltered, dateFrom, dateTo],
+  );
+
+  const sortedRows = useMemo(() => {
+    const sorters = {
+      date: e => e.date || '',
+      voucherNo: e => e.voucherNo || '',
+      voucherType: e => e.voucherType || '',
+      narration: e => e.narration || '',
+      drAccount: e => e.drAccount || '',
+      crAccount: e => e.crAccount || '',
+      amount: e => Number(e.amount || 0),
+    };
+    const getter = sortState?.key ? sorters[sortState.key] : null;
+    return sortRows(dateFiltered, getter, sortState?.dir || 'asc');
+  }, [dateFiltered, sortState]);
+
+  const paged = useMemo(() => paginateRows(sortedRows, page, pageSize), [sortedRows, page, pageSize]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, filterType, filterAccount, dateFrom, dateTo, pageSize]);
+
+  function toggleSort(key) {
+    setPage(1);
+    setSortState(prev => {
+      if (prev.key === key) {
+        return { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key, dir: 'asc' };
+    });
+  }
 
   function saveEntry() {
     if (!form.narration || !form.amount || !form.drAccount || !form.crAccount) { addToast('Fill all required fields', 'error'); return; }
@@ -202,21 +246,21 @@ function LedgerTab({ viewOnly }) {
     const acct = coa.find(a => a.code === filterAccount);
     if (!acct) return null;
     let balance = acct.openingBalance || 0;
-    filtered.forEach(e => {
+    dateFiltered.forEach(e => {
       if (e.drAccount === filterAccount) balance += e.amount;
       if (e.crAccount === filterAccount) balance -= e.amount;
     });
     return { name: acct.name, balance };
-  }, [filterAccount, filtered, coa]);
+  }, [filterAccount, dateFiltered, coa]);
 
   const coaOptions = [{ value: '', label: '— All Accounts —' }, ...coa.map(a => ({ value: a.code, label: `${a.code} — ${a.name}` }))];
 
-  const totalDr = filtered.reduce((s, e) => s + e.amount, 0);
+  const totalDr = sortedRows.reduce((s, e) => s + e.amount, 0);
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <SectionHeader title="Ledger & Journal" sub={`${filtered.length} entries`} />
+        <SectionHeader title="Ledger & Journal" sub={`${sortedRows.length} entries`} />
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
             <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#78829D' }} />
@@ -229,6 +273,7 @@ function LedgerTab({ viewOnly }) {
           <select value={filterAccount} onChange={e => setFilterAccount(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '6px 10px', fontSize: 11, maxWidth: 200 }}>
             {coaOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
+          <DateRangeFilter from={dateFrom} to={dateTo} onChangeFrom={setDateFrom} onChangeTo={setDateTo} compact />
           {!viewOnly && <Btn onClick={() => setModal(true)} small><Plus size={12} /> New Entry</Btn>}
         </div>
       </div>
@@ -237,15 +282,25 @@ function LedgerTab({ viewOnly }) {
         <div style={{ background: '#EEF6FF', borderRadius: 10, padding: '10px 16px', marginBottom: 14, display: 'flex', gap: 20 }}>
           <div><div style={{ fontSize: 10, color: '#78829D' }}>Account</div><div style={{ fontSize: 13, fontWeight: 700, color: '#071437' }}>{accountBalance.name}</div></div>
           <div><div style={{ fontSize: 10, color: '#78829D' }}>Closing Balance</div><div style={{ fontSize: 13, fontWeight: 700, color: accountBalance.balance >= 0 ? '#17C653' : '#F8285A' }}>₹{Math.abs(accountBalance.balance).toLocaleString('en-IN')} {accountBalance.balance >= 0 ? 'Dr' : 'Cr'}</div></div>
-          <div><div style={{ fontSize: 10, color: '#78829D' }}>Entries Shown</div><div style={{ fontSize: 13, fontWeight: 700, color: '#071437' }}>{filtered.length}</div></div>
+          <div><div style={{ fontSize: 10, color: '#78829D' }}>Entries Shown</div><div style={{ fontSize: 13, fontWeight: 700, color: '#071437' }}>{sortedRows.length}</div></div>
         </div>
       )}
 
       <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead><tr><Th>Date</Th><Th>Voucher No</Th><Th>Type</Th><Th>Narration</Th><Th>Dr Account</Th><Th>Cr Account</Th><Th>Amount</Th></tr></thead>
+          <thead>
+            <tr>
+              <SortHeader label="Date" sortKey="date" sortState={sortState} onToggle={toggleSort} />
+              <SortHeader label="Voucher No" sortKey="voucherNo" sortState={sortState} onToggle={toggleSort} />
+              <SortHeader label="Type" sortKey="voucherType" sortState={sortState} onToggle={toggleSort} />
+              <SortHeader label="Narration" sortKey="narration" sortState={sortState} onToggle={toggleSort} />
+              <SortHeader label="Dr Account" sortKey="drAccount" sortState={sortState} onToggle={toggleSort} />
+              <SortHeader label="Cr Account" sortKey="crAccount" sortState={sortState} onToggle={toggleSort} />
+              <SortHeader label="Amount" sortKey="amount" sortState={sortState} onToggle={toggleSort} align="right" />
+            </tr>
+          </thead>
           <tbody>
-            {filtered.map(e => (
+            {paged.data.map(e => (
               <tr key={e.id} style={{ cursor: 'pointer' }} onClick={() => setViewEntry(e)}
                 onMouseEnter={ev => ev.currentTarget.style.background = '#FCFCFC'}
                 onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}>
@@ -259,7 +314,7 @@ function LedgerTab({ viewOnly }) {
               </tr>
             ))}
           </tbody>
-          {filtered.length > 0 && (
+          {sortedRows.length > 0 && (
             <tfoot>
               <tr style={{ background: '#FCFCFC' }}>
                 <td colSpan={6} style={{ padding: '9px 14px', fontWeight: 700, fontSize: 12, color: '#071437', textAlign: 'right' }}>Total</td>
@@ -268,8 +323,16 @@ function LedgerTab({ viewOnly }) {
             </tfoot>
           )}
         </table>
-        {filtered.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No journal entries found.</div>}
+        {sortedRows.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No journal entries found.</div>}
       </div>
+      <PaginationControls
+        page={paged.page}
+        totalPages={paged.totalPages}
+        totalCount={paged.total}
+        pageSize={paged.pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+      />
 
       {modal && (
         <ModalOverlay onClose={() => setModal(false)} title="New Journal Entry" wide>
