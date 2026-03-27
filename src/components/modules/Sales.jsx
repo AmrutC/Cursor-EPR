@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { Plus, Search, Eye, Check, X, Edit3, Phone, Mail, Download, Send, Printer, ChevronRight, AlertTriangle, RefreshCw } from 'lucide-react';
+import { suggestGSTRate } from '../../data.js';
 
 // ── SUB-TAB ROUTER ─────────────────────────────────────────────────────────
 export default function SalesModule({ viewOnly }) {
@@ -368,12 +369,19 @@ function InventoryTab({ viewOnly }) {
 
 // ── BOOKINGS ───────────────────────────────────────────────────────────────
 function BookingsTab({ viewOnly }) {
-  const { bookings, setBookings, projects, brokers, addToast, addAuditEntry, user, activeEntity } = useAppStore();
+  const { bookings, setBookings, projects, setProjects, brokers, setJournalEntries, addToast, addAuditEntry, user, activeEntity } = useAppStore();
   const [modal, setModal] = useState(null);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [form, setForm] = useState({ customerName:'', customerPhone:'', customerPAN:'', projectId:'', unitId:'', brokerId:'', bookingDate:new Date().toISOString().split('T')[0], agreementValue:'', gstRate:5, milestones:[], status:'pending' });
+  const [form, setForm] = useState({
+    customerName:'', customerPhone:'', customerPAN:'',
+    coApplicantName:'', coApplicantPAN:'',
+    projectId:'', unitId:'', brokerId:'',
+    bookingDate:new Date().toISOString().split('T')[0],
+    agreementValue:'', unitType:'', gstRate:5,
+    milestones:[], status:'pending',
+  });
   const [cancelForm, setCancelForm] = useState({ reason:'', chargeType:'flat', chargeValue:'' });
 
   const filtered = bookings.filter(b => {
@@ -383,22 +391,138 @@ function BookingsTab({ viewOnly }) {
   });
 
   function openAdd() {
-    setForm({ customerName:'', customerPhone:'', customerPAN:'', projectId:'', unitId:'', brokerId:'', bookingDate:new Date().toISOString().split('T')[0], agreementValue:'', gstRate:5, milestones:[], status:'pending' });
+    setForm({
+      customerName:'', customerPhone:'', customerPAN:'',
+      coApplicantName:'', coApplicantPAN:'',
+      projectId:'', unitId:'', brokerId:'',
+      bookingDate:new Date().toISOString().split('T')[0],
+      agreementValue:'', unitType:'', gstRate:5,
+      milestones:[], status:'pending',
+    });
     setModal('add');
   }
 
+  const selectedProject = projects.find(p => String(p.id) === String(form.projectId));
+  const selectedUnit = (selectedProject?.units || []).find(u => String(u.id) === String(form.unitId));
+  const availableUnits = (selectedProject?.units || []).filter(u => {
+    const alreadyBooked = bookings.some(
+      b => String(b.projectId) === String(selectedProject?.id) &&
+           String(b.unitId) === String(u.id) &&
+           b.status !== 'cancelled',
+    );
+    if (form.unitId && String(form.unitId) === String(u.id)) return true;
+    return !alreadyBooked && (u.status === 'Available' || !u.status);
+  });
+
+  useEffect(() => {
+    if (!form.projectId || !form.unitId || !selectedUnit) return;
+    setForm(f => ({
+      ...f,
+      agreementValue: Number(f.agreementValue) > 0 ? f.agreementValue : Number(selectedUnit.agreementValue || 0),
+      unitType: selectedUnit.type || '',
+    }));
+  }, [form.projectId, form.unitId, selectedUnit?.id]);
+
+  useEffect(() => {
+    if (!form.unitType && !form.agreementValue) return;
+    setForm(f => ({
+      ...f,
+      gstRate: suggestGSTRate(f.unitType || 'Flat', Number(f.agreementValue || 0)),
+    }));
+  }, [form.unitType, form.agreementValue]);
+
+  function addMilestoneRow() {
+    setForm(f => ({
+      ...f,
+      milestones: [
+        ...(f.milestones || []),
+        { id: Date.now() + Math.random(), label: '', amount: '', dueDate: '', remarks: '' },
+      ],
+    }));
+  }
+  function updateMilestoneRow(id, key, value) {
+    setForm(f => ({
+      ...f,
+      milestones: (f.milestones || []).map(m => (m.id === id ? { ...m, [key]: value } : m)),
+    }));
+  }
+  function removeMilestoneRow(id) {
+    setForm(f => ({ ...f, milestones: (f.milestones || []).filter(m => m.id !== id) }));
+  }
+
   function saveBooking() {
-    if (!form.customerName || !form.projectId) { addToast('Customer name and project required','error'); return; }
+    if (!form.customerName || !form.projectId || !form.unitId) {
+      addToast('Customer, project, and unit are required','error');
+      return;
+    }
     const id = Date.now();
     const bookingNo = `BKG/${activeEntity?.code||'VEH'}/${new Date().getFullYear()}/${String(bookings.length+1).padStart(3,'0')}`;
-    setBookings(prev=>[...prev, { ...form, id, bookingNo, payments:[], createdAt:new Date().toISOString(), createdBy:user?.full_name }]);
+    const normalizedMilestones = (form.milestones || [])
+      .filter(m => m.label && Number(m.amount) > 0 && m.dueDate)
+      .map((m, idx) => ({
+        id: m.id || (Date.now() + idx),
+        label: m.label,
+        amount: Number(m.amount),
+        dueDate: m.dueDate,
+        remarks: m.remarks || '',
+      }));
+    setBookings(prev=>[...prev, {
+      ...form,
+      projectId: Number(form.projectId),
+      unitId: Number(form.unitId),
+      brokerId: form.brokerId ? Number(form.brokerId) : '',
+      agreementValue: Number(form.agreementValue || 0),
+      unitType: form.unitType || selectedUnit?.type || '',
+      milestones: normalizedMilestones,
+      id,
+      bookingNo,
+      payments:[],
+      createdAt:new Date().toISOString(),
+      createdBy:user?.full_name,
+    }]);
     addAuditEntry({ action:'ADD_BOOKING', module:'Sales', detail:`${form.customerName} - ${bookingNo}` });
     addToast('Booking created');
     setModal(null);
   }
 
   function approveBooking(id) {
-    setBookings(prev=>prev.map(b=>b.id===id ? { ...b, status:'approved', approvedBy:user?.full_name, approvedAt:new Date().toISOString() } : b));
+    let approvedBooking = null;
+    setBookings(prev=>prev.map(b=>{
+      if (b.id !== id) return b;
+      approvedBooking = b;
+      return { ...b, status:'approved', approvedBy:user?.full_name, approvedAt:new Date().toISOString() };
+    }));
+    if (approvedBooking?.projectId && approvedBooking?.unitId) {
+      setProjects(prev => prev.map(p => {
+        if (String(p.id) !== String(approvedBooking.projectId)) return p;
+        return {
+          ...p,
+          units: (p.units || []).map(u => (
+            String(u.id) === String(approvedBooking.unitId) ? { ...u, status: 'Booked' } : u
+          )),
+        };
+      }));
+    }
+    const broker = brokers.find(br => String(br.id) === String(approvedBooking?.brokerId));
+    if (broker) {
+      const commissionPct = Number(broker.brokeragePercent || 2);
+      const commission = Number(approvedBooking?.agreementValue || 0) * (commissionPct / 100);
+      if (commission > 0) {
+        setJournalEntries(prev => [{
+          id: Date.now() + Math.random(),
+          date: new Date().toISOString().split('T')[0],
+          voucherType: 'Journal',
+          voucherNo: `BRK/${activeEntity?.code || 'VEH'}/${String(Date.now()).slice(-6)}`,
+          narration: `Brokerage payable for ${approvedBooking.bookingNo || approvedBooking.id} (${broker.name})`,
+          amount: Number(commission.toFixed(2)),
+          drAccount: 'E012',
+          crAccount: 'L002',
+          ref: approvedBooking.bookingNo || String(approvedBooking.id),
+          createdBy: user?.full_name,
+          createdAt: new Date().toISOString(),
+        }, ...prev]);
+      }
+    }
     addAuditEntry({ action:'APPROVE_BOOKING', module:'Sales', detail:id });
     addToast('Booking approved');
   }
@@ -410,7 +534,15 @@ function BookingsTab({ viewOnly }) {
     setBookings(prev=>prev.map(bk=>bk.id===b.id ? { ...bk, status:'cancelled', cancelledAt:new Date().toISOString(), cancelReason:cancelForm.reason, cancellationCharge:charge } : bk));
     // Revert unit status
     if (b.projectId && b.unitId) {
-      // update project unit status back to Available
+      setProjects(prev => prev.map(p => {
+        if (String(p.id) !== String(b.projectId)) return p;
+        return {
+          ...p,
+          units: (p.units || []).map(u => (
+            String(u.id) === String(b.unitId) ? { ...u, status: 'Available' } : u
+          )),
+        };
+      }));
     }
     addAuditEntry({ action:'CANCEL_BOOKING', module:'Sales', detail:`${b.bookingNo} - ${cancelForm.reason}` });
     addToast('Booking cancelled');
@@ -418,7 +550,14 @@ function BookingsTab({ viewOnly }) {
   }
 
   function addPayment(bookingId, payment) {
-    setBookings(prev=>prev.map(b=>b.id===bookingId ? { ...b, payments:[...(b.payments||[]),{...payment,id:Date.now(),date:new Date().toISOString()}] } : b));
+    const normalized = {
+      ...payment,
+      id: Date.now(),
+      amount: Number(payment.amount || 0),
+      date: payment.date || new Date().toISOString().split('T')[0],
+      milestoneId: payment.milestoneId || '',
+    };
+    setBookings(prev=>prev.map(b=>b.id===bookingId ? { ...b, payments:[...(b.payments||[]), normalized] } : b));
     addToast('Payment recorded');
   }
 
@@ -463,7 +602,11 @@ function BookingsTab({ viewOnly }) {
                     <div style={{ fontSize:12, fontWeight:600, color:'#071437' }}>{b.customerName}</div>
                     <div style={{ fontSize:10, color:'#78829D' }}>{b.customerPhone}</div>
                   </td>
-                  <td style={{ padding:'9px 14px', fontSize:12, color:'#252F4A' }}>{b.unitId||'—'}</td>
+                  <td style={{ padding:'9px 14px', fontSize:12, color:'#252F4A' }}>{(() => {
+                    const proj = projects.find(p => String(p.id) === String(b.projectId));
+                    const unit = (proj?.units || []).find(u => String(u.id) === String(b.unitId));
+                    return unit?.unitNo || b.unitId || '—';
+                  })()}</td>
                   <td style={{ padding:'9px 14px', fontSize:12, color:'#252F4A' }}>₹{(b.agreementValue||0).toLocaleString('en-IN')}</td>
                   <td style={{ padding:'9px 14px' }}>
                     <div style={{ fontSize:12, color:'#17C653', fontWeight:600 }}>₹{collected.toLocaleString('en-IN')}</div>
@@ -496,14 +639,26 @@ function BookingsTab({ viewOnly }) {
             <FormField label="Customer Name *" value={form.customerName} onChange={v=>setForm(f=>({...f,customerName:v}))} />
             <FormField label="Customer Phone" value={form.customerPhone} onChange={v=>setForm(f=>({...f,customerPhone:v}))} />
             <FormField label="Customer PAN" value={form.customerPAN} onChange={v=>setForm(f=>({...f,customerPAN:v}))} />
+            <FormField label="Co-applicant Name" value={form.coApplicantName} onChange={v=>setForm(f=>({...f,coApplicantName:v}))} />
+            <FormField label="Co-applicant PAN" value={form.coApplicantPAN} onChange={v=>setForm(f=>({...f,coApplicantPAN:v}))} />
             <div>
               <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Project *</label>
-              <select value={form.projectId} onChange={e=>setForm(f=>({...f,projectId:Number(e.target.value)}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+              <select value={form.projectId} onChange={e=>setForm(f=>({...f,projectId:Number(e.target.value),unitId:'',unitType:''}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
                 <option value="">Select Project</option>
                 {projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
-            <FormField label="Unit No / ID" value={form.unitId} onChange={v=>setForm(f=>({...f,unitId:v}))} />
+            <div>
+              <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Unit *</label>
+              <select value={form.unitId} onChange={e=>setForm(f=>({...f,unitId:Number(e.target.value)}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+                <option value="">Select Unit</option>
+                {availableUnits.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.unitNo || u.id} {u.type ? `(${u.type})` : ''} {u.floor ? `• Floor ${u.floor}` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
             <FormField label="Booking Date" value={form.bookingDate} onChange={v=>setForm(f=>({...f,bookingDate:v}))} type="date" />
             <FormField label="Agreement Value (₹)" value={form.agreementValue} onChange={v=>setForm(f=>({...f,agreementValue:Number(v)}))} type="number" />
             <div>
@@ -511,6 +666,26 @@ function BookingsTab({ viewOnly }) {
               <select value={form.gstRate} onChange={e=>setForm(f=>({...f,gstRate:Number(e.target.value)}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
                 {[1,5,12,18].map(r=><option key={r} value={r}>{r}%</option>)}
               </select>
+            </div>
+            <div style={{ gridColumn:'1/-1', marginTop:4 }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                <label style={{ fontSize:11, fontWeight:700, color:'#252F4A' }}>Milestones</label>
+                <Btn onClick={addMilestoneRow} small color="#4B5675"><Plus size={11}/> Add Milestone</Btn>
+              </div>
+              {(form.milestones || []).length === 0 ? (
+                <div style={{ fontSize:11, color:'#78829D', padding:'8px 0' }}>No milestones added yet.</div>
+              ) : (
+                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                  {(form.milestones || []).map((m, idx) => (
+                    <div key={m.id || idx} style={{ display:'grid', gridTemplateColumns:'2fr 1fr 1fr auto', gap:8, alignItems:'end' }}>
+                      <FormField label="Label" value={m.label} onChange={v=>updateMilestoneRow(m.id, 'label', v)} />
+                      <FormField label="Amount (₹)" type="number" value={m.amount} onChange={v=>updateMilestoneRow(m.id, 'amount', Number(v))} />
+                      <FormField label="Due Date" type="date" value={m.dueDate} onChange={v=>updateMilestoneRow(m.id, 'dueDate', v)} />
+                      <button onClick={()=>removeMilestoneRow(m.id)} style={{ height:32, border:'1px solid #FFB8C6', background:'#FFE2E5', color:'#F8285A', borderRadius:8, padding:'0 10px' }}>Del</button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:8 }}>
@@ -551,7 +726,11 @@ function BookingsTab({ viewOnly }) {
       {modal==='view' && selected && (
         <ModalOverlay onClose={()=>setModal(null)} title={`Booking — ${selected.bookingNo}`} wide>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:16 }}>
-            {[['Customer',selected.customerName],['Phone',selected.customerPhone],['PAN',selected.customerPAN||'—'],['Unit',selected.unitId||'—'],['Agreement Value',`₹${(selected.agreementValue||0).toLocaleString('en-IN')}`],['Status',selected.status],['Booking Date',selected.bookingDate],['Approved By',selected.approvedBy||'—'],['Booking No',selected.bookingNo||'—']].map(([k,v])=>(
+            {[['Customer',selected.customerName],['Phone',selected.customerPhone],['PAN',selected.customerPAN||'—'],['Co-applicant',selected.coApplicantName||'—'],['Co-app PAN',selected.coApplicantPAN||'—'],['Unit',(() => {
+              const proj = projects.find(p => String(p.id) === String(selected.projectId));
+              const unit = (proj?.units || []).find(u => String(u.id) === String(selected.unitId));
+              return unit?.unitNo || selected.unitId || '—';
+            })()],['Agreement Value',`₹${(selected.agreementValue||0).toLocaleString('en-IN')}`],['Status',selected.status],['Booking Date',selected.bookingDate],['Approved By',selected.approvedBy||'—'],['Booking No',selected.bookingNo||'—']].map(([k,v])=>(
               <div key={k}><div style={{ fontSize:10, color:'#78829D' }}>{k}</div><div style={{ fontSize:13, fontWeight:600, color:'#071437' }}>{v}</div></div>
             ))}
           </div>
@@ -569,7 +748,14 @@ function BookingsTab({ viewOnly }) {
             </table>
           )}
           {!viewOnly && selected.status !== 'cancelled' && (
-            <AddPaymentForm onAdd={(p)=>{ addPayment(selected.id, p); setSelected(s=>({...s,payments:[...(s.payments||[]),{...p,id:Date.now(),date:new Date().toISOString()}]})); }} />
+            <AddPaymentForm
+              milestones={selected.milestones || []}
+              payments={selected.payments || []}
+              onAdd={(p)=>{
+                addPayment(selected.id, p);
+                setSelected(s=>({...s,payments:[...(s.payments||[]),{...p,id:Date.now(),date:p.date || new Date().toISOString().split('T')[0]}]}));
+              }}
+            />
           )}
         </ModalOverlay>
       )}
@@ -577,14 +763,35 @@ function BookingsTab({ viewOnly }) {
   );
 }
 
-function AddPaymentForm({ onAdd }) {
-  const [form, setForm] = useState({ amount:'', mode:'NEFT', ref:'', date:new Date().toISOString().split('T')[0] });
-  function submit() { if (!form.amount) return; onAdd(form); setForm({ amount:'', mode:'NEFT', ref:'', date:new Date().toISOString().split('T')[0] }); }
+function AddPaymentForm({ onAdd, milestones = [], payments = [] }) {
+  const paidMilestoneIds = new Set((payments || []).map(p => String(p.milestoneId)).filter(Boolean));
+  const openMilestones = (milestones || []).filter(m => !paidMilestoneIds.has(String(m.id)));
+  const [form, setForm] = useState({ amount:'', mode:'NEFT', ref:'', date:new Date().toISOString().split('T')[0], milestoneId:'' });
+  useEffect(() => {
+    if (!form.milestoneId) return;
+    const m = openMilestones.find(x => String(x.id) === String(form.milestoneId));
+    if (!m) return;
+    setForm(f => ({ ...f, amount: Number(f.amount || 0) > 0 ? f.amount : Number(m.amount || 0) }));
+  }, [form.milestoneId, openMilestones.length]);
+  function submit() {
+    if (!form.amount) return;
+    onAdd(form);
+    setForm({ amount:'', mode:'NEFT', ref:'', date:new Date().toISOString().split('T')[0], milestoneId:'' });
+  }
   return (
     <div style={{ background:'#FCFCFC', borderRadius:10, padding:'12px 14px' }}>
       <div style={{ fontWeight:700, fontSize:12, color:'#071437', marginBottom:8 }}>Record Payment</div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr auto', gap:8, alignItems:'flex-end' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1.2fr 1fr 1fr 1fr auto', gap:8, alignItems:'flex-end' }}>
         <FormField label="Amount (₹)" value={form.amount} onChange={v=>setForm(f=>({...f,amount:Number(v)}))} type="number" />
+        <div>
+          <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Milestone</label>
+          <select value={form.milestoneId} onChange={e=>setForm(f=>({...f,milestoneId:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
+            <option value="">General payment</option>
+            {openMilestones.map(m => (
+              <option key={m.id} value={m.id}>{m.label} • ₹{Number(m.amount || 0).toLocaleString('en-IN')}</option>
+            ))}
+          </select>
+        </div>
         <div>
           <label style={{ fontSize:11, fontWeight:600, color:'#252F4A', display:'block', marginBottom:4 }}>Mode</label>
           <select value={form.mode} onChange={e=>setForm(f=>({...f,mode:e.target.value}))} style={{ width:'100%', padding:'7px 10px', border:'1px solid #F1F1F4', borderRadius:8, fontSize:12 }}>
@@ -601,7 +808,7 @@ function AddPaymentForm({ onAdd }) {
 
 // ── COLLECTIONS ────────────────────────────────────────────────────────────
 function CollectionsTab({ viewOnly }) {
-  const { bookings } = useAppStore();
+  const { bookings, addToast } = useAppStore();
   const [agingFilter, setAgingFilter] = useState('all');
 
   const today = new Date();
@@ -630,6 +837,9 @@ function CollectionsTab({ viewOnly }) {
   // Forecast
   const next30 = bookings.flatMap(b=>(b.milestones||[]).map(m=>({...m,customerName:b.customerName,bookingNo:b.bookingNo}))).filter(m=>{ const d=new Date(m.dueDate||''); const diff=(d-today)/86400000; return diff>=0&&diff<=30; });
   const next60 = bookings.flatMap(b=>(b.milestones||[]).map(m=>({...m,customerName:b.customerName,bookingNo:b.bookingNo}))).filter(m=>{ const d=new Date(m.dueDate||''); const diff=(d-today)/86400000; return diff>30&&diff<=60; });
+  function sendDemandNotice(demand) {
+    addToast(`Demand notice queued for ${demand.customerName} (${demand.bookingNo})`, 'info');
+  }
 
   return (
     <div>
@@ -665,7 +875,7 @@ function CollectionsTab({ viewOnly }) {
           ))}
         </div>
         <table style={{ width:'100%', borderCollapse:'collapse' }}>
-          <thead><tr style={{ background:'#FCFCFC' }}>{['Booking No','Customer','Milestone','Due Date','Amount','Overdue By'].map(h=><th key={h} style={{ padding:'9px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ background:'#FCFCFC' }}>{['Booking No','Customer','Milestone','Due Date','Amount','Overdue By','Actions'].map(h=><th key={h} style={{ padding:'9px 14px', fontSize:11, fontWeight:700, color:'#4B5675', textAlign:'left', borderBottom:'1px solid #FCFCFC' }}>{h}</th>)}</tr></thead>
           <tbody>
             {displayed.map((d,i)=>(
               <tr key={i} style={{ borderBottom:'1px solid #FCFCFC' }}>
@@ -675,6 +885,16 @@ function CollectionsTab({ viewOnly }) {
                 <td style={{ padding:'8px 14px', fontSize:12 }}>{d.dueDate}</td>
                 <td style={{ padding:'8px 14px', fontSize:12, fontWeight:600 }}>₹{(d.amount||0).toLocaleString('en-IN')}</td>
                 <td style={{ padding:'8px 14px' }}><Badge label={d.daysOverdue>0?`${d.daysOverdue} days`:'Upcoming'} color={d.daysOverdue>90?'#F8285A':d.daysOverdue>60?'#DC6B19':d.daysOverdue>30?'#F6C000':'#17C653'} /></td>
+                <td style={{ padding:'8px 14px' }}>
+                  {!viewOnly && (
+                    <button
+                      onClick={() => sendDemandNotice(d)}
+                      style={{ background:'#EEF6FF', color:'#1B84FF', border:'none', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer' }}
+                    >
+                      Send Demand
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

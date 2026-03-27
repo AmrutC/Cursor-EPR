@@ -100,6 +100,7 @@ export const useAppStore = create((set, get) => ({
   setUser: (user) => set({ user }),
   logout: () => set(s => ({
     user: null, activeEntity: null, activeModule: 'dashboard', activeSubTab: null,
+    subTabsByModule: {},
     dataLoaded: false, ...EMPTY_ENTITY,
     entities: s.entities, users: s.users, moduleLocks: s.moduleLocks,
   })),
@@ -132,8 +133,19 @@ export const useAppStore = create((set, get) => ({
   // ── NAVIGATION ───────────────────────────────────────────────────────
   activeModule: 'dashboard',
   activeSubTab: null,
-  setActiveModule: (mod, subTab) => set({ activeModule: mod, activeSubTab: subTab || null }),
-  setActiveSubTab: (tab) => set({ activeSubTab: tab }),
+  subTabsByModule: {},
+  setActiveModule: (mod, subTab) => set(s => {
+    const nextSub = subTab !== undefined ? subTab : (s.subTabsByModule[mod] || null);
+    return {
+      activeModule: mod,
+      activeSubTab: nextSub,
+      subTabsByModule: nextSub ? { ...s.subTabsByModule, [mod]: nextSub } : s.subTabsByModule,
+    };
+  }),
+  setActiveSubTab: (tab) => set(s => ({
+    activeSubTab: tab || null,
+    subTabsByModule: tab ? { ...s.subTabsByModule, [s.activeModule]: tab } : s.subTabsByModule,
+  })),
 
   // ── GLOBAL SEARCH ────────────────────────────────────────────────────
   searchOpen: false,
@@ -185,10 +197,17 @@ export const useAppStore = create((set, get) => ({
 
   // ── TOASTS ───────────────────────────────────────────────────────────
   toasts: [],
-  addToast: (msg, type = 'success') => {
+  addToast: (msg, type = 'success', durationMs) => {
     const id = Date.now();
-    set(s => ({ toasts: [...s.toasts, { id, msg, type }] }));
-    setTimeout(() => set(s => ({ toasts: s.toasts.filter(t => t.id !== id) })), 3800);
+    const durationByType = {
+      success: 2500,
+      error: 5000,
+      warning: 4200,
+      info: 3200,
+    };
+    const ttl = durationMs ?? durationByType[type] ?? 3200;
+    set(s => ({ toasts: [...s.toasts, { id, msg, type, duration: ttl }] }));
+    setTimeout(() => set(s => ({ toasts: s.toasts.filter(t => t.id !== id) })), ttl);
   },
 
   // ── AUDIT LOG ─────────────────────────────────────────────────────────

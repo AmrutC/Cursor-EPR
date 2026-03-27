@@ -293,7 +293,7 @@ function LedgerTab({ viewOnly }) {
             <FormField label="Reference / Cheque No" value={form.ref} onChange={v => setForm(f => ({ ...f, ref: v }))} />
             <FormField label="GSTIN (if applicable)" value={form.gstin} onChange={v => setForm(f => ({ ...f, gstin: v }))} />
           </div>
-          {form.drAccount && form.crAccount && form.amount && (
+          {form.drAccount && form.crAccount && Number(form.amount) > 0 && (
             <div style={{ background: '#E8FFF3', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12 }}>
               <strong>Preview:</strong> Dr {form.drAccount} ₹{Number(form.amount).toLocaleString('en-IN')} | Cr {form.crAccount} ₹{Number(form.amount).toLocaleString('en-IN')}
             </div>
@@ -356,6 +356,24 @@ function BankReconTab({ viewOnly }) {
     addToast('Auto-match complete');
   }
 
+  function postMatchedRows() {
+    if (!selBank) { addToast('Select bank account first', 'error'); return; }
+    const rowsToPost = csvRows.filter(r => r.matched);
+    if (rowsToPost.length === 0) { addToast('No matched rows to post', 'warning'); return; }
+    const posted = rowsToPost.map(r => ({
+      id: Date.now() + Math.random(),
+      bankId: selBank,
+      date: r.date,
+      narration: r.narration,
+      amount: Math.abs(Number(r.amount || 0)),
+      type: r.type,
+      matched: true,
+      createdAt: new Date().toISOString(),
+    }));
+    setBankTransactions(prev => [...posted, ...prev]);
+    addToast(`${posted.length} transactions posted to bank ledger`);
+  }
+
   const bank = bankAccounts.find(b => String(b.id) === selBank);
   const bankTxns = bankTransactions.filter(t => t.bankId === selBank);
   const closingBalance = (bank?.openingBalance || 0) + bankTxns.reduce((s, t) => s + (t.type === 'credit' ? t.amount : -t.amount), 0);
@@ -368,6 +386,7 @@ function BankReconTab({ viewOnly }) {
           {!viewOnly && <Btn onClick={() => { setForm({ bankName: '', accountNo: '', ifsc: '', openingBalance: 0 }); setModal('addBank'); }} small color="#4B5675"><Plus size={12} /> Add Bank</Btn>}
           <Btn onClick={importCSV} small><Upload size={12} /> Import Bank CSV</Btn>
           {csvRows.length > 0 && <Btn onClick={autoMatch} small color="#7239EA"><RefreshCw size={12} /> Auto-Match</Btn>}
+          {!viewOnly && csvRows.length > 0 && <Btn onClick={postMatchedRows} small color="#17C653">Post Matched</Btn>}
         </div>
       </div>
 
@@ -568,7 +587,7 @@ function GSTTab({ viewOnly }) {
   const { gstData, setGstData, addToast, activeEntity } = useAppStore();
   const [subTab, setSubTab] = useState('salesInvoices');
   const [modal, setModal] = useState(false);
-  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], partyName: '', gstin: '', invoiceNo: '', taxableValue: '', cgst: '', sgst: '', igst: '', total: '' });
+  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], partyName: '', gstin: '', invoiceNo: '', taxableValue: '', gstRate: 18, cgst: '', sgst: '', igst: '', total: '' });
 
   const rows = gstData[subTab] || [];
 
@@ -579,6 +598,19 @@ function GSTTab({ viewOnly }) {
     setGstData(d => ({ ...d, [subTab]: [entry, ...(d[subTab] || [])] }));
     addToast('GST entry saved'); setModal(false);
   }
+
+  useEffect(() => {
+    const taxable = Number(form.taxableValue || 0);
+    const rate = Number(form.gstRate || 0);
+    if (!taxable || !rate) return;
+    const totalTax = taxable * (rate / 100);
+    if (String(form.gstin || '').slice(0, 2) === '27') {
+      const half = totalTax / 2;
+      setForm(f => ({ ...f, cgst: Number(half.toFixed(2)), sgst: Number(half.toFixed(2)), igst: 0 }));
+    } else {
+      setForm(f => ({ ...f, cgst: 0, sgst: 0, igst: Number(totalTax.toFixed(2)) }));
+    }
+  }, [form.taxableValue, form.gstRate, form.gstin]);
 
   const totalTaxable = rows.reduce((s, r) => s + Number(r.taxableValue || 0), 0);
   const totalTax = rows.reduce((s, r) => s + Number(r.cgst || 0) + Number(r.sgst || 0) + Number(r.igst || 0), 0);
@@ -607,7 +639,7 @@ function GSTTab({ viewOnly }) {
 
       {!viewOnly && ['salesInvoices', 'purchaseInvoices'].includes(subTab) && (
         <div style={{ marginBottom: 12 }}>
-          <Btn onClick={() => { setForm({ date: new Date().toISOString().split('T')[0], partyName: '', gstin: '', invoiceNo: '', taxableValue: '', cgst: '', sgst: '', igst: '', total: '' }); setModal(true); }} small><Plus size={12} /> Add Entry</Btn>
+          <Btn onClick={() => { setForm({ date: new Date().toISOString().split('T')[0], partyName: '', gstin: '', invoiceNo: '', taxableValue: '', gstRate: 18, cgst: '', sgst: '', igst: '', total: '' }); setModal(true); }} small><Plus size={12} /> Add Entry</Btn>
         </div>
       )}
 
@@ -656,6 +688,7 @@ function GSTTab({ viewOnly }) {
             <FormField label="Party Name" value={form.partyName} onChange={v => setForm(f => ({ ...f, partyName: v }))} required />
             <FormField label="GSTIN" value={form.gstin} onChange={v => setForm(f => ({ ...f, gstin: v }))} />
             <FormField label="Taxable Value (₹)" value={form.taxableValue} onChange={v => setForm(f => ({ ...f, taxableValue: v }))} type="number" required />
+            <FormField label="GST Rate (%)" value={form.gstRate} onChange={v => setForm(f => ({ ...f, gstRate: Number(v) }))} options={[5, 12, 18]} />
             <FormField label="CGST (₹)" value={form.cgst} onChange={v => setForm(f => ({ ...f, cgst: v }))} type="number" />
             <FormField label="SGST (₹)" value={form.sgst} onChange={v => setForm(f => ({ ...f, sgst: v }))} type="number" />
             <FormField label="IGST (₹)" value={form.igst} onChange={v => setForm(f => ({ ...f, igst: v }))} type="number" />
@@ -694,6 +727,13 @@ function TDSTab({ viewOnly }) {
     setTdsEntries(prev => [...prev, { ...form, id: Date.now(), amount: Number(form.amount), tdsAmount: Number(form.tdsAmount), createdAt: new Date().toISOString() }]);
     addToast('TDS entry saved'); setModal(false);
   }
+
+  useEffect(() => {
+    const amount = Number(form.amount || 0);
+    const rate = Number(form.tdsRate || 0);
+    if (!amount || !rate) return;
+    setForm(f => ({ ...f, tdsAmount: Number(((amount * rate) / 100).toFixed(2)) }));
+  }, [form.amount, form.tdsRate]);
 
   return (
     <div>
@@ -770,6 +810,7 @@ function ExpensesTab({ viewOnly }) {
   const [subTab, setSubTab] = useState('claims');
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], claimedBy: '', category: 'Travel', amount: '', description: '', billNo: '', status: 'pending' });
+  const [pettyForm, setPettyForm] = useState({ date: new Date().toISOString().split('T')[0], type: 'expense', amount: '', purpose: '', ref: '' });
 
   function saveClaim() {
     if (!form.amount || !form.claimedBy) { addToast('Amount and claimant required', 'error'); return; }
@@ -781,6 +822,24 @@ function ExpensesTab({ viewOnly }) {
     setExpenseClaims(prev => prev.map(e => e.id === id ? { ...e, status: 'approved', approvedBy: user?.full_name, approvedAt: new Date().toISOString() } : e));
     addToast('Claim approved');
   }
+
+  function addPettyEntry() {
+    if (!pettyForm.amount || !pettyForm.purpose) { addToast('Amount and purpose required', 'error'); return; }
+    const entry = {
+      id: Date.now(),
+      date: pettyForm.date,
+      type: pettyForm.type,
+      amount: Number(pettyForm.amount),
+      purpose: pettyForm.purpose,
+      ref: pettyForm.ref || '',
+      createdAt: new Date().toISOString(),
+    };
+    setPettyCache(prev => [entry, ...(prev || [])]);
+    setPettyForm({ date: new Date().toISOString().split('T')[0], type: 'expense', amount: '', purpose: '', ref: '' });
+    addToast('Petty cash entry saved');
+  }
+
+  const pettyBalance = (pettyCache || []).reduce((s, e) => s + (e.type === 'receipt' ? Number(e.amount || 0) : -Number(e.amount || 0)), 0);
 
   const STATUS_COLORS = { pending: '#F6C000', approved: '#17C653', rejected: '#F8285A' };
 
@@ -826,9 +885,46 @@ function ExpensesTab({ viewOnly }) {
 
       {subTab === 'petty' && (
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 20 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#071437', marginBottom: 8 }}>Petty Cash Ledger</div>
-          <div style={{ fontSize: 13, color: '#4B5675' }}>Petty cash entries — track small day-to-day expenses here.</div>
-          <div style={{ marginTop: 20, color: '#78829D', fontSize: 12 }}>No petty cash entries yet.</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#071437' }}>Petty Cash Ledger</div>
+              <div style={{ fontSize: 12, color: '#4B5675' }}>Track receipts and expenses for day-to-day cash.</div>
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: pettyBalance >= 0 ? '#17C653' : '#F8285A' }}>
+              Balance: ₹{Math.abs(pettyBalance).toLocaleString('en-IN')} {pettyBalance >= 0 ? 'Dr' : 'Cr'}
+            </div>
+          </div>
+
+          {!viewOnly && (
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 2fr 1fr auto', gap:8, alignItems:'end', marginBottom:14 }}>
+              <FormField label="Date" value={pettyForm.date} onChange={v=>setPettyForm(f=>({...f,date:v}))} type="date" />
+              <FormField label="Type" value={pettyForm.type} onChange={v=>setPettyForm(f=>({...f,type:v}))} options={[{value:'expense',label:'Expense'},{value:'receipt',label:'Receipt'}]} />
+              <FormField label="Amount (₹)" value={pettyForm.amount} onChange={v=>setPettyForm(f=>({...f,amount:v}))} type="number" />
+              <FormField label="Purpose" value={pettyForm.purpose} onChange={v=>setPettyForm(f=>({...f,purpose:v}))} />
+              <FormField label="Ref" value={pettyForm.ref} onChange={v=>setPettyForm(f=>({...f,ref:v}))} />
+              <Btn onClick={addPettyEntry} small>Add</Btn>
+            </div>
+          )}
+
+          <div style={{ border:'1px solid #F1F1F4', borderRadius:10, overflow:'hidden' }}>
+            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+              <thead><tr><Th>Date</Th><Th>Type</Th><Th>Purpose</Th><Th>Ref</Th><Th>Amount</Th></tr></thead>
+              <tbody>
+                {(pettyCache || []).map(e => (
+                  <tr key={e.id}>
+                    <Td>{e.date}</Td>
+                    <Td><Badge label={e.type} color={e.type === 'receipt' ? '#17C653' : '#F8285A'} /></Td>
+                    <Td>{e.purpose}</Td>
+                    <Td>{e.ref || '—'}</Td>
+                    <Td style={{ fontWeight:700, color:e.type === 'receipt' ? '#17C653' : '#F8285A' }}>
+                      ₹{Number(e.amount || 0).toLocaleString('en-IN')}
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {(pettyCache || []).length === 0 && <div style={{ padding: 20, color: '#78829D', fontSize: 12 }}>No petty cash entries yet.</div>}
+          </div>
         </div>
       )}
 
@@ -860,6 +956,7 @@ function VendorAdvanceTab({ viewOnly }) {
   const { vendorAdvances, setVendorAdvances, vendors, addToast } = useAppStore();
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], vendorId: '', vendorName: '', amount: '', purpose: '', recoveredAmount: 0 });
+  const [recoverInputs, setRecoverInputs] = useState({});
 
   function saveAdvance() {
     if (!form.amount || !form.vendorName) { addToast('Vendor and amount required', 'error'); return; }
@@ -905,7 +1002,27 @@ function VendorAdvanceTab({ viewOnly }) {
                 <Td style={{ fontWeight: 700, color: (a.balance || a.amount - a.recoveredAmount) > 0 ? '#F8285A' : '#17C653' }}>₹{(a.balance ?? (a.amount - (a.recoveredAmount || 0))).toLocaleString('en-IN')}</Td>
                 <Td>
                   {!viewOnly && (a.balance ?? (a.amount - (a.recoveredAmount || 0))) > 0 && (
-                    <button onClick={() => { const amt = parseFloat(prompt('Recovery amount (₹)?') || '0'); if (amt > 0) recover(a.id, amt); }} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Recover</button>
+                    <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                      <input
+                        type="number"
+                        value={recoverInputs[a.id] || ''}
+                        onChange={e => setRecoverInputs(prev => ({ ...prev, [a.id]: e.target.value }))}
+                        placeholder="Amt"
+                        style={{ width: 90, padding: '4px 8px', border: '1px solid #F1F1F4', borderRadius: 6, fontSize: 11 }}
+                      />
+                      <button
+                        onClick={() => {
+                          const amt = Number(recoverInputs[a.id] || 0);
+                          if (amt > 0) {
+                            recover(a.id, amt);
+                            setRecoverInputs(prev => ({ ...prev, [a.id]: '' }));
+                          }
+                        }}
+                        style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}
+                      >
+                        Recover
+                      </button>
+                    </div>
                   )}
                 </Td>
               </tr>

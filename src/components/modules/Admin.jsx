@@ -564,6 +564,7 @@ const TALLY_IMPORT_TYPES = [
 function TallyImportTab() {
   const { addToast, setJournalEntries, setVendors, setEmployees } = useAppStore();
   const [preview, setPreview] = useState(null);
+  const [xmlDoc, setXmlDoc] = useState(null);
   const [importType, setImportType] = useState('ledger');
   const [conflicts, setConflicts] = useState([]);
   const [resolution, setResolution] = useState('skip'); // skip | overwrite | merge
@@ -573,10 +574,10 @@ function TallyImportTab() {
     const res = await window.vgERP.tally.readFile();
     if (res.cancelled) return;
     if (!res.ok) { addToast('Failed to read XML', 'error'); return; }
-    // Basic XML parsing preview
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(res.content, 'text/xml');
+      setXmlDoc(doc);
       const nodes = doc.querySelectorAll('VOUCHER, LEDGER, STOCKITEM, EMPLOYEE');
       setPreview({ count: nodes.length, fileName: res.filePath?.split('\\').pop(), raw: res.content.slice(0, 500) });
       addToast(`${nodes.length} records found in XML`);
@@ -585,11 +586,132 @@ function TallyImportTab() {
     }
   }
 
+  function textOf(node, selectors = []) {
+    for (const sel of selectors) {
+      const el = node.querySelector(sel);
+      if (el && el.textContent) return el.textContent.trim();
+    }
+    return '';
+  }
+
+  function parseLedgerEntries(doc) {
+    const vouchers = Array.from(doc.querySelectorAll('VOUCHER'));
+    return vouchers.map((v, idx) => {
+      const amount = Number(textOf(v, ['AMOUNT', 'ALLLEDGERENTRIES.LIST AMOUNT']) || 0);
+      const type = textOf(v, ['VOUCHERTYPENAME']) || 'Journal';
+      const dateRaw = textOf(v, ['DATE']);
+      const date = dateRaw?.length === 8
+        ? `${dateRaw.slice(0, 4)}-${dateRaw.slice(4, 6)}-${dateRaw.slice(6, 8)}`
+        : new Date().toISOString().split('T')[0];
+      const narration = textOf(v, ['NARRATION']) || `${type} import`;
+      const party = textOf(v, ['PARTYLEDGERNAME']);
+      return {
+        id: Date.now() + idx,
+        date,
+        voucherType: type,
+        voucherNo: textOf(v, ['VOUCHERNUMBER']) || `TLY/${String(idx + 1).padStart(4, '0')}`,
+        narration: party ? `${narration} (${party})` : narration,
+        amount: Math.abs(amount),
+        drAccount: 'A003',
+        crAccount: 'L002',
+        ref: textOf(v, ['REFERENCE']),
+        importedFrom: 'tally',
+        createdAt: new Date().toISOString(),
+      };
+    }).filter(e => e.amount > 0);
+  }
+
+  function parseVendors(doc) {
+    const ledgers = Array.from(doc.querySelectorAll('LEDGER'));
+    return ledgers.map((l, idx) => {
+      const name = l.getAttribute('NAME') || textOf(l, ['NAME']);
+      if (!name) return null;
+      return {
+        id: Date.now() + idx,
+        name,
+        category: 'Imported',
+        gstin: textOf(l, ['GSTIN']),
+        pan: textOf(l, ['INCOMETAXNUMBER', 'PAN']),
+        phone: textOf(l, ['LEDGERPHONE', 'PHONENUMBER']),
+        email: textOf(l, ['EMAIL']),
+        importedFrom: 'tally',
+      };
+    }).filter(Boolean);
+  }
+
+  function parseEmployees(doc) {
+    const emps = Array.from(doc.querySelectorAll('EMPLOYEE, EMPLOYEEMASTER'));
+    return emps.map((e, idx) => {
+      const name = e.getAttribute('NAME') || textOf(e, ['NAME']);
+      if (!name) return null;
+      return {
+        id: Date.now() + idx,
+        name,
+        employeeCode: textOf(e, ['EMPLOYEECODE']) || `IMP${String(idx + 1).padStart(3, '0')}`,
+        department: textOf(e, ['DEPARTMENT']) || 'Imported',
+        designation: textOf(e, ['DESIGNATION']) || 'Staff',
+        phone: textOf(e, ['PHONE', 'MOBILENO']),
+        pan: textOf(e, ['PAN']),
+        status: 'active',
+        importedFrom: 'tally',
+      };
+    }).filter(Boolean);
+  }
+
+  function mergeByName(existing, incoming) {
+    const byKey = new Map(existing.map(e => [String(e.name || e.narration || '').toLowerCase(), e]));
+    for (const item of incoming) {
+      const key = String(item.name || item.narration || '').toLowerCase();
+      if (!key) continue;
+      if (!byKey.has(key) || resolution === 'overwrite') byKey.set(key, item);
+    }
+    return Array.from(byKey.values());
+  }
+
   function importData() {
-    if (!preview) { addToast('Load XML file first', 'error'); return; }
-    // In production: full XML-to-store mapping here
-    addToast(`Import complete — ${preview.count} records (${resolution} conflicts)`);
+    if (!preview || !xmlDoc) { addToast('Load XML file first', 'error'); return; }
+    let count = 0;
+    if (importType === 'ledger') {
+      const incoming = parseLedgerEntries(xmlDoc);
+      setJournalEntries(prev => {
+        const next = resolution === 'skip'
+          ? [...incoming.filter(i => !prev.some(p => p.voucherNo === i.voucherNo)), ...prev]
+          : resolution === 'overwrite'
+            ? [...incoming, ...prev.filter(p => !incoming.some(i => i.voucherNo === p.voucherNo))]
+            : mergeByName(prev, incoming);
+        count = incoming.length;
+        return next;
+      });
+    } else if (importType === 'parties') {
+      const incoming = parseVendors(xmlDoc);
+      setVendors(prev => {
+        const next = resolution === 'skip'
+          ? [...incoming.filter(i => !prev.some(p => String(p.name).toLowerCase() === String(i.name).toLowerCase())), ...prev]
+          : resolution === 'overwrite'
+            ? [...incoming, ...prev.filter(p => !incoming.some(i => String(i.name).toLowerCase() === String(p.name).toLowerCase()))]
+            : mergeByName(prev, incoming);
+        count = incoming.length;
+        return next;
+      });
+    } else if (importType === 'employees') {
+      const incoming = parseEmployees(xmlDoc);
+      setEmployees(prev => {
+        const next = resolution === 'skip'
+          ? [...incoming.filter(i => !prev.some(p => String(p.name).toLowerCase() === String(i.name).toLowerCase())), ...prev]
+          : resolution === 'overwrite'
+            ? [...incoming, ...prev.filter(p => !incoming.some(i => String(i.name).toLowerCase() === String(p.name).toLowerCase()))]
+            : mergeByName(prev, incoming);
+        count = incoming.length;
+        return next;
+      });
+    } else {
+      addToast('Selected import type is not mapped yet', 'warning');
+      return;
+    }
+
+    addToast(`Import complete — ${count} ${importType} records (${resolution} mode)`);
     setPreview(null);
+    setXmlDoc(null);
   }
 
   return (
