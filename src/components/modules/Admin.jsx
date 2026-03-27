@@ -12,7 +12,7 @@ import {
   fieldStyle,
   onFieldFocus,
   onFieldBlur,
-} from '../theme/moduleUi';
+} from '../theme/moduleUi.jsx';
 
 export default function AdminModule({ viewOnly }) {
   const { activeSubTab, user } = useAppStore();

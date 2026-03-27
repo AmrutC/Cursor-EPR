@@ -11,7 +11,7 @@ import {
   fieldStyle,
   onFieldFocus,
   onFieldBlur,
-} from '../theme/moduleUi';
+} from '../theme/moduleUi.jsx';
 
 export default function ConstructionModule({ viewOnly }) {
   const { activeSubTab } = useAppStore();

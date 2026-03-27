@@ -14,7 +14,7 @@ import {
   PAGE_HEADER_STYLE,
   PAGE_TITLE_STYLE,
   PAGE_SUBTITLE_STYLE,
-} from '../theme/moduleUi';
+} from '../theme/moduleUi.jsx';
 
 // ── SUB-TAB ROUTER ─────────────────────────────────────────────────────────
 export default function SalesModule({ viewOnly }) {

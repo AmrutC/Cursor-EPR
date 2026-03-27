@@ -15,7 +15,7 @@ import {
   PAGE_HEADER_STYLE,
   PAGE_TITLE_STYLE,
   PAGE_SUBTITLE_STYLE,
-} from '../theme/moduleUi';
+} from '../theme/moduleUi.jsx';
 
 export default function FinanceModule({ viewOnly }) {
   const { activeSubTab } = useAppStore();
