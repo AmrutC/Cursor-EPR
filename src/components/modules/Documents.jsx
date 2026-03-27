@@ -20,9 +20,9 @@ const DEMO_ALLOTTEES = [];
 const DEMO_LOG = [];
 const DOC_TYPE_COLORS = {
   BKG:{bg:'#E1F0FF',text:'#1B84FF'}, ALT:{bg:'#E4FFF8',text:'#0E9F8A'},
-  DMD:{bg:'#FFF8DD',text:'#9A6700'}, RCP:{bg:'#E8FFF3',text:'#17C653'},
-  AGR:{bg:'#F1E8FF',text:'#5014D0'}, POS:{bg:'#E0F2FE',text:'#075985'},
-  NOC:{bg:'#E8FFF3',text:'#17C653'}, CXL:{bg:'#FFE2E5',text:'#A10035'},
+  DMD:{bg:'#FFF8DD',text:'#7A4E00'}, RCP:{bg:'#E8FFF3',text:'#17C653'},
+  AGR:{bg:'#F1E8FF',text:'#7239EA'}, POS:{bg:'#E1F0FF',text:'#1B84FF'},
+  NOC:{bg:'#E8FFF3',text:'#17C653'}, CXL:{bg:'#FFE2E5',text:'#7F1D1D'},
 };
 
 export default function Documents() {
@@ -41,14 +41,14 @@ export default function Documents() {
     setGenModal(null);
   }
 
-  const sel = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif', cursor:'pointer' };
+  const sel = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif', cursor:'pointer' };
 
   return (
     <div>
       {/* Tabs */}
-      <div style={{display:'flex',gap:3,background:'#F9F9F9',borderRadius:10,padding:3,marginBottom:16,width:'fit-content'}}>
+      <div style={{display:'flex',gap:3,background:'#FCFCFC',borderRadius:10,padding:3,marginBottom:16,width:'fit-content'}}>
         {[['generate','Generate Documents'],['log','Document Log']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{padding:'6px 20px',borderRadius:7,fontSize:12.5,fontWeight:tab===id?700:500,color:tab===id?'#071437':'#78829D',background:tab===id?'#fff':'transparent',cursor:'pointer',boxShadow:tab===id?'0 1px 3px rgba(0,0,0,0.1)':'',border:'none'}}>
+          <button key={id} onClick={()=>setTab(id)} style={{padding:'6px 20px',borderRadius:7,fontSize:12.5,fontWeight:tab===id?700:500,color:tab===id?'#071437':'#4B5675',background:tab===id?'#fff':'transparent',cursor:'pointer',boxShadow:tab===id?'0 1px 3px rgba(0,0,0,0.1)':'',border:'none'}}>
             {label}
           </button>
         ))}
@@ -56,7 +56,7 @@ export default function Documents() {
 
       {tab==='generate'&&(<>
         {/* Allottee selector */}
-        <div style={{background:'#F1F1F4',border:'1px solid #DBDFE9',borderRadius:12,padding:'14px 18px',marginBottom:18,display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
+        <div style={{background:'#EAF0F8',border:'1px solid #C5D5E8',borderRadius:12,padding:'14px 18px',marginBottom:18,display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
           <div style={{fontSize:12.5,fontWeight:700,color:'#071437',flexShrink:0}}>Select Allottee:</div>
           <select style={{...sel,width:320}} value={selAllottee} onChange={e=>setSelAllottee(e.target.value)}>
             <option value="">— Choose allottee & flat —</option>
@@ -72,7 +72,7 @@ export default function Documents() {
         {/* Document type grid */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
           {DOC_TYPES.map(d=>{
-            const c=DOC_TYPE_COLORS[d.code]||{bg:'#F9F9F9',text:'#252F4A'};
+            const c=DOC_TYPE_COLORS[d.code]||{bg:'#FCFCFC',text:'#252F4A'};
             return(
               <div key={d.code} style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.04)',display:'flex',flexDirection:'column'}}>
                 {/* Header */}
@@ -85,7 +85,7 @@ export default function Documents() {
                 <div style={{padding:'12px 16px',flex:1,display:'flex',flexDirection:'column',gap:8}}>
                   <div style={{fontSize:11.5,color:'#4B5675',lineHeight:1.5,flex:1}}>{d.desc}</div>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                    <span style={{fontSize:10,fontWeight:700,color:'#78829D',background:'#F9F9F9',padding:'2px 8px',borderRadius:10}}>{d.format}</span>
+                    <span style={{fontSize:10,fontWeight:700,color:'#4B5675',background:'#FCFCFC',padding:'2px 8px',borderRadius:10}}>{d.format}</span>
                     <button onClick={()=>setGenModal(d)}
                       style={{background:c.bg,border:`1px solid ${c.text}30`,borderRadius:8,padding:'5px 12px',cursor:'pointer',fontSize:11.5,fontWeight:700,color:c.text,display:'flex',alignItems:'center',gap:5}}>
                       <FileText size={11}/> Generate
@@ -100,39 +100,39 @@ export default function Documents() {
 
       {tab==='log'&&(
         <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
-          <div style={{padding:'13px 18px',borderBottom:'1px solid #F9F9F9',fontSize:12,fontWeight:700,color:'#071437',textTransform:'uppercase',letterSpacing:'0.5px'}}>
+          <div style={{padding:'13px 18px',borderBottom:'1px solid #FCFCFC',fontSize:12,fontWeight:700,color:'#071437',textTransform:'uppercase',letterSpacing:'0.5px'}}>
             Document Generation Log
           </div>
           <table style={{width:'100%',borderCollapse:'collapse'}}>
-            <thead><tr style={{background:'#F9F9F9',borderBottom:'2px solid #F1F1F4'}}>
+            <thead><tr style={{background:'#FCFCFC',borderBottom:'2px solid #F1F1F4'}}>
               {['Document No.','Type','Allottee','Flat','Generated On','Emailed','WhatsApp','Actions'].map(h=>(
                 <th key={h} style={{padding:'9px 14px',textAlign:'left',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',whiteSpace:'nowrap'}}>{h}</th>
               ))}
             </tr></thead>
             <tbody>
               {log.map((l,i)=>{
-                const c=DOC_TYPE_COLORS[l.type]||{bg:'#F9F9F9',text:'#252F4A'};
+                const c=DOC_TYPE_COLORS[l.type]||{bg:'#FCFCFC',text:'#252F4A'};
                 return(
-                  <tr key={l.id} style={{borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC'}}>
+                  <tr key={l.id} style={{borderBottom:'1px solid #FCFCFC',background:i%2===0?'#fff':'#FAFAFA'}}>
                     <td style={{padding:'9px 14px',fontSize:12,fontFamily:'monospace',fontWeight:700,color:'#071437'}}>{l.doc_no}</td>
                     <td style={{padding:'9px 14px'}}>
                       <span style={{background:c.bg,color:c.text,fontSize:10.5,fontWeight:700,padding:'2px 8px',borderRadius:12}}>{l.type}</span>
                     </td>
-                    <td style={{padding:'9px 14px',fontSize:13,fontWeight:600,color:'#111827'}}>{l.allottee}</td>
+                    <td style={{padding:'9px 14px',fontSize:13,fontWeight:600,color:'#252F4A'}}>{l.allottee}</td>
                     <td style={{padding:'9px 14px',fontSize:13,fontWeight:700,color:'#1B84FF'}}>{l.flat}</td>
                     <td style={{padding:'9px 14px',fontSize:12.5,color:'#252F4A'}}>{fmtDate(l.date)}</td>
                     <td style={{padding:'9px 14px',textAlign:'center'}}>
-                      {l.emailed?<CheckCircle2 size={14} style={{color:'#17C653'}}/>:<span style={{color:'#99A1B7',fontSize:11}}>—</span>}
+                      {l.emailed?<CheckCircle2 size={14} style={{color:'#17C653'}}/>:<span style={{color:'#78829D',fontSize:11}}>—</span>}
                     </td>
                     <td style={{padding:'9px 14px',textAlign:'center'}}>
-                      {l.shared?<CheckCircle2 size={14} style={{color:'#17C653'}}/>:<span style={{color:'#99A1B7',fontSize:11}}>—</span>}
+                      {l.shared?<CheckCircle2 size={14} style={{color:'#17C653'}}/>:<span style={{color:'#78829D',fontSize:11}}>—</span>}
                     </td>
                     <td style={{padding:'9px 14px'}}>
                       <div style={{display:'flex',gap:5}}>
-                        <button style={{background:'#F9F9F9',border:'1px solid #F1F1F4',borderRadius:6,padding:'3px 9px',cursor:'pointer',fontSize:10.5,fontWeight:600,color:'#252F4A',display:'flex',alignItems:'center',gap:4}}>
+                        <button style={{background:'#FCFCFC',border:'1px solid #F1F1F4',borderRadius:6,padding:'3px 9px',cursor:'pointer',fontSize:10.5,fontWeight:600,color:'#252F4A',display:'flex',alignItems:'center',gap:4}}>
                           <Download size={10}/> PDF
                         </button>
-                        <button onClick={()=>addToast('Email sent to allottee.','success')} style={{background:'#E1F0FF',border:'1px solid #A4CEFF',borderRadius:6,padding:'3px 9px',cursor:'pointer',fontSize:10.5,fontWeight:600,color:'#1B84FF',display:'flex',alignItems:'center',gap:4}}>
+                        <button onClick={()=>addToast('Email sent to allottee.','success')} style={{background:'#E1F0FF',border:'1px solid #B5D8FF',borderRadius:6,padding:'3px 9px',cursor:'pointer',fontSize:10.5,fontWeight:600,color:'#1B84FF',display:'flex',alignItems:'center',gap:4}}>
                           <Mail size={10}/> Email
                         </button>
                       </div>
@@ -153,10 +153,10 @@ export default function Documents() {
             <button onClick={()=>generate(genModal)} className="btn-primary" style={{fontSize:13}}>Generate Document</button>
           </>}>
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
-            <div style={{background:'#F1F1F4',borderRadius:10,padding:'12px 14px'}}>
+            <div style={{background:'#EAF0F8',borderRadius:10,padding:'12px 14px'}}>
               <div style={{fontSize:12,fontWeight:700,color:'#071437',marginBottom:4}}>Generating: {genModal.code} — {genModal.label}</div>
               <div style={{fontSize:12,color:'#4B5675'}}>{genModal.desc}</div>
-              <div style={{fontSize:11.5,color:'#78829D',marginTop:4}}>Format: {genModal.format}</div>
+              <div style={{fontSize:11.5,color:'#4B5675',marginTop:4}}>Format: {genModal.format}</div>
             </div>
             {selAllottee?(
               <div style={{background:'#FCFCFC',borderRadius:10,padding:'12px 14px'}}>
@@ -166,11 +166,11 @@ export default function Documents() {
                 })()}
               </div>
             ):(
-              <div style={{background:'#FFF8DD',border:'1px solid #F6C000',borderRadius:10,padding:'12px 14px',fontSize:12.5,fontWeight:600,color:'#9A6700'}}>
+              <div style={{background:'#FFF8DD',border:'1px solid #F6C000',borderRadius:10,padding:'12px 14px',fontSize:12.5,fontWeight:600,color:'#7A4E00'}}>
                 ⚠ No allottee selected. Go back and select an allottee first.
               </div>
             )}
-            <div style={{fontSize:12,color:'#78829D',lineHeight:1.6}}>
+            <div style={{fontSize:12,color:'#4B5675',lineHeight:1.6}}>
               The document will be saved to <strong style={{fontFamily:'monospace',color:'#071437'}}>OneDrive/documents/{genModal.code}/</strong> and recorded in the Document Log.
             </div>
           </div>

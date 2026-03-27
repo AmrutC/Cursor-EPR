@@ -1,7 +1,7 @@
 {
   "name": "vg-erp",
-  "version": "4.0.0",
-  "description": "Vision Grroup Real Estate ERP",
+  "version": "5.0.0",
+  "description": "Vision Grroup Real Estate ERP v5.0",
   "main": "main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
@@ -60,6 +60,7 @@
     "docx": "^9.5.3",
     "nodemailer": "^6.9.9",
     "pdfkit": "^0.15.0",
+    "tesseract.js": "^5.1.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

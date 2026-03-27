@@ -5,7 +5,7 @@ import Badge from '../ui/Badge';
 import Modal from '../ui/Modal';
 import { Plus, Edit2, Upload, Building2, User, CreditCard, Settings, FileText, Lock } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
@@ -121,7 +121,7 @@ export default function AdminSetup() {
   return (
     <div>
       {/* Admin badge */}
-      <div style={{ background:'#F1E8FF', border:'1px solid #C4B5FD', borderRadius:10, padding:'8px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:8, fontSize:12.5, fontWeight:600, color:'#5014D0' }}>
+      <div style={{ background:'#F1E8FF', border:'1px solid #D4B9FF', borderRadius:10, padding:'8px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:8, fontSize:12.5, fontWeight:600, color:'#5014D0' }}>
         <Lock size={13}/> Admin Setup — Restricted to Super Admin &amp; Director only
       </div>
 

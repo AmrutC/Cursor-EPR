@@ -5,7 +5,7 @@ import Modal from '../ui/Modal';
 import { inr, fmtDate } from '../../utils';
 import { Plus, Search, Edit2, FileText, CheckCircle2 } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
@@ -183,10 +183,10 @@ export default function Vendors() {
   return (
     <div>
       {/* Tabs */}
-      <div style={{ display:'flex', gap:3, background:'#F9F9F9', borderRadius:10, padding:3, marginBottom:14, width:'fit-content' }}>
+      <div style={{ display:'flex', gap:3, background:'#FCFCFC', borderRadius:10, padding:3, marginBottom:14, width:'fit-content' }}>
         {[['vendors','Vendor Master'],['bills','Bill Register'],['pending','Pending Payment'],['po','Purchase Orders']].map(([id,label])=>(
           <button key={id} onClick={()=>setTab(id)}
-            style={{ padding:'6px 18px', borderRadius:7, fontSize:12.5, fontWeight:tab===id?700:500, color:tab===id?'#071437':'#78829D', background:tab===id?'#fff':'transparent', cursor:'pointer', border:tab===id?'1px solid #F1F1F4':'1px solid transparent', boxShadow:tab===id?'0 1px 2px rgba(0,0,0,0.06)':'' }}>
+            style={{ padding:'6px 18px', borderRadius:7, fontSize:12.5, fontWeight:tab===id?700:500, color:tab===id?'#071437':'#4B5675', background:tab===id?'#fff':'transparent', cursor:'pointer', border:tab===id?'1px solid #F1F1F4':'1px solid transparent', boxShadow:tab===id?'0 1px 2px rgba(0,0,0,0.06)':'' }}>
             {label}
           </button>
         ))}
@@ -197,7 +197,7 @@ export default function Vendors() {
         <div>
           <div style={{ display:'flex', gap:8, marginBottom:12 }}>
             <div style={{ flex:1, position:'relative' }}>
-              <Search size={12} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#99A1B7' }}/>
+              <Search size={12} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#78829D' }}/>
               <input style={{ ...inp, paddingLeft:30 }} placeholder="Search vendors…" value={search} onChange={e=>setSearch(e.target.value)}/>
             </div>
             <button onClick={()=>{ setVForm(EMPTY_VENDOR); setEditVId(null); setVendorModal(true); }} className="btn-primary" style={{ fontSize:12.5 }}><Plus size={13}/> Add Vendor</button>
@@ -216,12 +216,12 @@ export default function Vendors() {
                   </div>
                   <div style={{ display:'flex', gap:7, alignItems:'center' }}>
                     <Badge value={v.status}/>
-                    <button onClick={()=>{ setVForm({...v}); setEditVId(v.id); setVendorModal(true); }} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:7, padding:'4px 10px', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:4 }}><Edit2 size={10}/> Edit</button>
+                    <button onClick={()=>{ setVForm({...v}); setEditVId(v.id); setVendorModal(true); }} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:7, padding:'4px 10px', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:4 }}><Edit2 size={10}/> Edit</button>
                     <button onClick={()=>{ setSelVendor(v); setBForm(EMPTY_BILL); setBillModal(true); }} className="btn-primary" style={{ fontSize:11.5 }}><Plus size={11}/> Add Bill</button>
                   </div>
                 </div>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
-                  {[['Contract Value',inr(v.contract_value||0,true),'#071437'],['Total Billed',inr(totalBilled,true),'#9A6700'],['Total Paid',inr(totalPaid,true),'#17C653'],['Balance',inr(totalBilled-totalPaid,true),totalBilled-totalPaid>0?'#A10035':'#252F4A']].map(([l,val,c])=>(
+                  {[['Contract Value',inr(v.contract_value||0,true),'#071437'],['Total Billed',inr(totalBilled,true),'#7A4E00'],['Total Paid',inr(totalPaid,true),'#17C653'],['Balance',inr(totalBilled-totalPaid,true),totalBilled-totalPaid>0?'#7F1D1D':'#252F4A']].map(([l,val,c])=>(
                     <div key={l} style={{ background:'#FCFCFC', borderRadius:8, padding:'8px 11px' }}>
                       <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
                       <div style={{ fontSize:13, fontWeight:800, color:c, fontFamily:'monospace' }}>{val}</div>
@@ -232,20 +232,20 @@ export default function Vendors() {
                 {(v.bills||[]).length > 0 && (
                   <div style={{ marginTop:10, overflowX:'auto' }}>
                     <table style={{ width:'100%', borderCollapse:'collapse', minWidth:800 }}>
-                      <thead><tr style={{ background:'#F9F9F9', borderBottom:'1px solid #F1F1F4' }}>
+                      <thead><tr style={{ background:'#FCFCFC', borderBottom:'1px solid #F1F1F4' }}>
                         {['Invoice','Date','Description','Taxable','GST','TDS','Total Bill','Net Payable','Paid','Balance','Status',''].map(h=>(
                           <th key={h} style={{ padding:'6px 10px', textAlign:'left', fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                         ))}
                       </tr></thead>
                       <tbody>
                         {(v.bills||[]).map((b,i)=>(
-                          <tr key={b.id} style={{ borderBottom:'1px solid #F9F9F9', background:i%2===0?'#fff':'#FCFCFC' }}>
+                          <tr key={b.id} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
                             <td style={{ padding:'7px 10px', fontSize:11.5, fontFamily:'monospace', fontWeight:600, color:'#071437' }}>{b.invoice_no}</td>
                             <td style={{ padding:'7px 10px', fontSize:11.5, color:'#252F4A' }}>{fmtDate(b.invoice_date)}</td>
                             <td style={{ padding:'7px 10px', fontSize:12, color:'#252F4A', maxWidth:160, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.description}</td>
                             <td style={{ padding:'7px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#252F4A' }}>{inr(b.taxable_value)}</td>
-                            <td style={{ padding:'7px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:b.gst_applicable?'#9A6700':'#99A1B7' }}>{b.gst_applicable?inr(b.gst_total):'—'}</td>
-                            <td style={{ padding:'7px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:b.tds_applicable?'#1B84FF':'#99A1B7' }}>{b.tds_applicable?`-${inr(b.tds_amount)}`:'—'}</td>
+                            <td style={{ padding:'7px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:b.gst_applicable?'#7A4E00':'#78829D' }}>{b.gst_applicable?inr(b.gst_total):'—'}</td>
+                            <td style={{ padding:'7px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:b.tds_applicable?'#1B84FF':'#78829D' }}>{b.tds_applicable?`-${inr(b.tds_amount)}`:'—'}</td>
                             <td style={{ padding:'7px 10px', fontSize:12.5, fontFamily:'monospace', textAlign:'right', fontWeight:700, color:'#071437' }}>{inr(b.total_bill)}</td>
                             <td style={{ padding:'7px 10px', fontSize:12.5, fontFamily:'monospace', textAlign:'right', fontWeight:700, color:'#17C653' }}>{inr(b.net_payable)}</td>
                             <td style={{ padding:'7px 10px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#17C653' }}>{inr(b.paid_amount)}</td>
@@ -254,7 +254,7 @@ export default function Vendors() {
                             <td style={{ padding:'7px 10px' }}>
                               {b.status!=='Paid' && (
                                 <button onClick={()=>{ setPayModal({...b,vendor_id:v.id}); setPayAmount(String(b.net_payable-b.paid_amount)); setPayDate(new Date().toISOString().slice(0,10)); }}
-                                  style={{ background:'#E8FFF3', border:'1px solid #A2E8BA', borderRadius:6, padding:'2px 8px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#17C653' }}>Pay</button>
+                                  style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:6, padding:'2px 8px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#17C653' }}>Pay</button>
                               )}
                             </td>
                           </tr>
@@ -274,21 +274,21 @@ export default function Vendors() {
         <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
           <div style={{ overflowX:'auto' }}>
             <table style={{ width:'100%', borderCollapse:'collapse', minWidth:900 }}>
-              <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
+              <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
                 {['Vendor','Invoice No.','Date','Description','Taxable','GST Amount','TDS Amount','Total Bill','Net Payable','Status'].map(h=>(
                   <th key={h} style={{ padding:'9px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
-                {allBills.length===0?<tr><td colSpan={10} style={{ textAlign:'center', padding:40, color:'#99A1B7', fontSize:13 }}>No bills recorded yet.</td></tr>:
+                {allBills.length===0?<tr><td colSpan={10} style={{ textAlign:'center', padding:40, color:'#78829D', fontSize:13 }}>No bills recorded yet.</td></tr>:
                 allBills.map((b,i)=>(
-                  <tr key={b.id} style={{ borderBottom:'1px solid #F9F9F9', background:i%2===0?'#fff':'#FCFCFC' }}>
+                  <tr key={b.id} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
                     <td style={{ padding:'9px 12px', fontSize:12.5, fontWeight:600, color:'#071437' }}>{b.vendor_name}</td>
                     <td style={{ padding:'9px 12px', fontSize:11.5, fontFamily:'monospace', fontWeight:700, color:'#252F4A' }}>{b.invoice_no}</td>
                     <td style={{ padding:'9px 12px', fontSize:12.5, color:'#252F4A' }}>{fmtDate(b.invoice_date)}</td>
                     <td style={{ padding:'9px 12px', fontSize:12, color:'#252F4A' }}>{b.description}</td>
                     <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#252F4A' }}>{inr(b.taxable_value)}</td>
-                    <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#9A6700' }}>{b.gst_applicable?inr(b.gst_total):'—'}</td>
+                    <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#7A4E00' }}>{b.gst_applicable?inr(b.gst_total):'—'}</td>
                     <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#1B84FF' }}>{b.tds_applicable?inr(b.tds_amount):'—'}</td>
                     <td style={{ padding:'9px 12px', fontSize:12.5, fontFamily:'monospace', textAlign:'right', fontWeight:700, color:'#071437' }}>{inr(b.total_bill)}</td>
                     <td style={{ padding:'9px 12px', fontSize:12.5, fontFamily:'monospace', textAlign:'right', fontWeight:700, color:'#17C653' }}>{inr(b.net_payable)}</td>
@@ -305,16 +305,16 @@ export default function Vendors() {
       {tab==='pending' && (
         <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
-            <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
+            <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
               {['Vendor','Invoice No.','Net Payable','Paid','Balance',''].map(h=>(
                 <th key={h} style={{ padding:'9px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
               ))}
             </tr></thead>
             <tbody>
               {allBills.filter(b=>b.status!=='Paid').length===0
-                ?<tr><td colSpan={6} style={{ textAlign:'center', padding:40, color:'#99A1B7', fontSize:13 }}>No pending payments.</td></tr>
+                ?<tr><td colSpan={6} style={{ textAlign:'center', padding:40, color:'#78829D', fontSize:13 }}>No pending payments.</td></tr>
                 :allBills.filter(b=>b.status!=='Paid').map((b,i)=>(
-                  <tr key={b.id} style={{ borderBottom:'1px solid #F9F9F9', background:i%2===0?'#fff':'#FCFCFC' }}>
+                  <tr key={b.id} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
                     <td style={{ padding:'9px 14px', fontSize:13, fontWeight:700, color:'#071437' }}>{b.vendor_name}</td>
                     <td style={{ padding:'9px 14px', fontSize:11.5, fontFamily:'monospace', color:'#252F4A' }}>{b.invoice_no}</td>
                     <td style={{ padding:'9px 14px', fontSize:13, fontFamily:'monospace', fontWeight:700, textAlign:'right', color:'#071437' }}>{inr(b.net_payable)}</td>
@@ -322,7 +322,7 @@ export default function Vendors() {
                     <td style={{ padding:'9px 14px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#F8285A' }}>{inr(b.net_payable-b.paid_amount)}</td>
                     <td style={{ padding:'9px 14px' }}>
                       <button onClick={()=>{ setPayModal({...b}); setPayAmount(String(b.net_payable-b.paid_amount)); setPayDate(new Date().toISOString().slice(0,10)); }}
-                        style={{ background:'#E8FFF3', border:'1px solid #A2E8BA', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontSize:11, fontWeight:700, color:'#17C653' }}>
+                        style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontSize:11, fontWeight:700, color:'#17C653' }}>
                         Record Payment
                       </button>
                     </td>
@@ -367,7 +367,7 @@ export default function Vendors() {
               <label htmlFor="gst_chk" style={{ fontSize:13, fontWeight:700, color:'#252F4A', cursor:'pointer' }}>GST Applicable?</label>
             </div>
             {bForm.gst_applicable && (
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:13, padding:'12px', background:'#F1F1F4', borderRadius:10, border:'1px solid #DBDFE9' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:13, padding:'12px', background:'#EAF0F8', borderRadius:10, border:'1px solid #C5D5E8' }}>
                 <F label="Vendor GSTIN" required><input style={inp} value={selVendor?.gstin||bForm.vendor_gstin||''} readOnly placeholder="From vendor master"/></F>
                 <F label="Supply Type">
                   <select style={sel} value={bForm.supply_type} onChange={setB('supply_type')}>
@@ -384,19 +384,19 @@ export default function Vendors() {
                   {bForm.supply_type==='CGST+SGST'?(<>
                     <div style={{ background:'#fff', borderRadius:8, padding:'8px 11px' }}>
                       <div style={{ fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', marginBottom:3 }}>CGST</div>
-                      <div style={{ fontSize:13, fontWeight:800, color:'#9A6700', fontFamily:'monospace' }}>{inr(bForm.cgst)}</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:'#7A4E00', fontFamily:'monospace' }}>{inr(bForm.cgst)}</div>
                     </div>
                     <div style={{ background:'#fff', borderRadius:8, padding:'8px 11px' }}>
                       <div style={{ fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', marginBottom:3 }}>SGST</div>
-                      <div style={{ fontSize:13, fontWeight:800, color:'#9A6700', fontFamily:'monospace' }}>{inr(bForm.sgst)}</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:'#7A4E00', fontFamily:'monospace' }}>{inr(bForm.sgst)}</div>
                     </div>
                   </>):(
                     <div style={{ background:'#fff', borderRadius:8, padding:'8px 11px' }}>
                       <div style={{ fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', marginBottom:3 }}>IGST</div>
-                      <div style={{ fontSize:13, fontWeight:800, color:'#9A6700', fontFamily:'monospace' }}>{inr(bForm.igst)}</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:'#7A4E00', fontFamily:'monospace' }}>{inr(bForm.igst)}</div>
                     </div>
                   )}
-                  <div style={{ background:'#F1F1F4', borderRadius:8, padding:'8px 11px' }}>
+                  <div style={{ background:'#EAF0F8', borderRadius:8, padding:'8px 11px' }}>
                     <div style={{ fontSize:10, fontWeight:700, color:'#1B84FF', textTransform:'uppercase', marginBottom:3 }}>Total GST</div>
                     <div style={{ fontSize:13, fontWeight:800, color:'#1B84FF', fontFamily:'monospace' }}>{inr(bForm.gst_total)}</div>
                   </div>
@@ -412,7 +412,7 @@ export default function Vendors() {
               <label htmlFor="tds_chk" style={{ fontSize:13, fontWeight:700, color:'#252F4A', cursor:'pointer' }}>TDS Applicable?</label>
             </div>
             {bForm.tds_applicable && (
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:13, padding:'12px', background:'#F1E8FF', borderRadius:10, border:'1px solid #C4B5FD' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:13, padding:'12px', background:'#F1E8FF', borderRadius:10, border:'1px solid #D4B9FF' }}>
                 <F label="Vendor PAN" required><input style={inp} value={selVendor?.pan||''} readOnly placeholder="From vendor master"/></F>
                 <F label="TDS Section">
                   <select style={sel} value={bForm.tds_section} onChange={onTDSSectionChange}>
@@ -423,9 +423,9 @@ export default function Vendors() {
                   <input style={inp} type="number" value={bForm.tds_rate} onChange={onTDSRateChange} placeholder="Rate"/>
                 </F>
                 <div style={{ background:'#F1E8FF', borderRadius:8, padding:'10px 12px' }}>
-                  <div style={{ fontSize:10, fontWeight:700, color:'#5014D0', textTransform:'uppercase', marginBottom:3 }}>TDS Deduction</div>
-                  <div style={{ fontSize:16, fontWeight:800, color:'#5014D0', fontFamily:'monospace' }}>{inr(bForm.tds_amount)}</div>
-                  <div style={{ fontSize:10.5, color:'#78829D', marginTop:2 }}>= Taxable Value × {bForm.tds_rate}%</div>
+                  <div style={{ fontSize:10, fontWeight:700, color:'#7239EA', textTransform:'uppercase', marginBottom:3 }}>TDS Deduction</div>
+                  <div style={{ fontSize:16, fontWeight:800, color:'#7239EA', fontFamily:'monospace' }}>{inr(bForm.tds_amount)}</div>
+                  <div style={{ fontSize:10.5, color:'#4B5675', marginTop:2 }}>= Taxable Value × {bForm.tds_rate}%</div>
                 </div>
               </div>
             )}
@@ -433,7 +433,7 @@ export default function Vendors() {
 
           {/* Net Payable summary */}
           <div style={{ gridColumn:'1/-1', background:'#071437', borderRadius:10, padding:'12px 16px', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
-            {[['Total Bill',inr(bForm.total_bill),'#F1F1F4'],['TDS Deducted',inr(bForm.tds_amount),'#C4B5FD'],['Net Payable',inr(bForm.net_payable),'#A2E8BA']].map(([l,v,c])=>(
+            {[['Total Bill',inr(bForm.total_bill),'#F1F1F4'],['TDS Deducted',inr(bForm.tds_amount),'#D4B9FF'],['Net Payable',inr(bForm.net_payable),'#50CD89']].map(([l,v,c])=>(
               <div key={l}>
                 <div style={{ fontSize:9.5, fontWeight:700, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:3 }}>{l}</div>
                 <div style={{ fontSize:16, fontWeight:800, color:c, fontFamily:'monospace' }}>{v}</div>
@@ -448,10 +448,10 @@ export default function Vendors() {
         footer={<><button onClick={()=>setPayModal(null)} className="btn-secondary" style={{ fontSize:13 }}>Cancel</button><button onClick={recordPayment} className="btn-primary" style={{ fontSize:13 }}>Record Payment</button></>}>
         {payModal && (
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:13 }}>
-            <div style={{ gridColumn:'1/-1', background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:10, padding:'10px 14px', fontSize:12.5 }}>
+            <div style={{ gridColumn:'1/-1', background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'10px 14px', fontSize:12.5 }}>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
                 <div><span style={{ color:'#4B5675', fontWeight:600 }}>Total Bill: </span><strong style={{ fontFamily:'monospace' }}>{inr(payModal.total_bill)}</strong></div>
-                <div><span style={{ color:'#4B5675', fontWeight:600 }}>TDS Deducted: </span><strong style={{ color:'#5014D0', fontFamily:'monospace' }}>{inr(payModal.tds_amount)}</strong></div>
+                <div><span style={{ color:'#4B5675', fontWeight:600 }}>TDS Deducted: </span><strong style={{ color:'#7239EA', fontFamily:'monospace' }}>{inr(payModal.tds_amount)}</strong></div>
                 <div><span style={{ color:'#4B5675', fontWeight:600 }}>Net Payable: </span><strong style={{ color:'#17C653', fontFamily:'monospace' }}>{inr(payModal.net_payable-payModal.paid_amount)}</strong></div>
               </div>
             </div>
@@ -472,7 +472,7 @@ export default function Vendors() {
               <Plus size={13}/> New Purchase Order
             </button>
           </div>
-          <div style={{ background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:12, padding:'14px 18px' }}>
+          <div style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:12, padding:'14px 18px' }}>
             <div style={{ fontSize:12, fontWeight:700, color:'#1B84FF', marginBottom:8 }}>How PO Generation Works</div>
             <div style={{ fontSize:12, color:'#252F4A', lineHeight:1.7 }}>
               1. Select vendor — details (name, GSTIN, PAN, phone) auto-fill from Vendor Master<br/>
@@ -498,7 +498,7 @@ export default function Vendors() {
             <div style={{ position:'relative', background:'#fff', borderRadius:18, width:'100%', maxWidth:900, maxHeight:'92vh', display:'flex', flexDirection:'column', boxShadow:'0 24px 64px rgba(0,0,0,0.22)' }}>
               <div style={{ padding:'16px 22px', borderBottom:'1px solid #F1F1F4', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div style={{ fontSize:15, fontWeight:800, color:'#071437' }}>New Purchase Order</div>
-                <button onClick={()=>setPoModal(false)} style={{ background:'#F9F9F9', border:'none', borderRadius:8, width:28, height:28, cursor:'pointer', color:'#78829D', fontSize:16 }}>✕</button>
+                <button onClick={()=>setPoModal(false)} style={{ background:'#FCFCFC', border:'none', borderRadius:8, width:28, height:28, cursor:'pointer', color:'#4B5675', fontSize:16 }}>✕</button>
               </div>
 
               <div style={{ flex:1, overflowY:'auto', padding:'18px 22px' }}>
@@ -511,7 +511,7 @@ export default function Vendors() {
                       {entityVendors.filter(v=>v.status==='Active').map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
                     </select>
                     {selVend && (
-                      <div style={{ marginTop:6, background:'#F0FDF4', border:'1px solid #A2E8BA', borderRadius:8, padding:'8px 10px', fontSize:11.5 }}>
+                      <div style={{ marginTop:6, background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:8, padding:'8px 10px', fontSize:11.5 }}>
                         <div style={{ fontWeight:700, color:'#071437' }}>{selVend.name}</div>
                         {selVend.phone && <div style={{ color:'#252F4A' }}>📞 {selVend.phone}</div>}
                         {selVend.gstin && <div style={{ fontFamily:'monospace', color:'#252F4A' }}>GSTIN: {selVend.gstin}</div>}
@@ -525,7 +525,7 @@ export default function Vendors() {
                       {entityProjects.map(p=><option key={p.id} value={p.id}>{p.code} — {p.name}</option>)}
                     </select>
                     {selProj && (
-                      <div style={{ marginTop:6, background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:8, padding:'8px 10px', fontSize:11.5 }}>
+                      <div style={{ marginTop:6, background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:8, padding:'8px 10px', fontSize:11.5 }}>
                         <div style={{ fontWeight:700, color:'#071437' }}>Delivery to: {selProj.name}</div>
                         <div style={{ color:'#252F4A' }}>{selProj.village}, {selProj.taluka}, {selProj.district} — {selProj.pin}</div>
                       </div>
@@ -555,15 +555,15 @@ export default function Vendors() {
                   </div>
                   <div style={{ overflowX:'auto' }}>
                     <table style={{ width:'100%', borderCollapse:'collapse', minWidth:700 }}>
-                      <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
+                      <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
                         {['#','Description of Items / Work','Unit','Qty','Rate (₹)','Amount (₹)',''].map(h=>(
                           <th key={h} style={{ padding:'8px 10px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                         ))}
                       </tr></thead>
                       <tbody>
                         {poItems.map((item,i)=>(
-                          <tr key={item.id} style={{ borderBottom:'1px solid #F9F9F9' }}>
-                            <td style={{ padding:'6px 10px', fontSize:12, color:'#78829D', width:30 }}>{i+1}</td>
+                          <tr key={item.id} style={{ borderBottom:'1px solid #FCFCFC' }}>
+                            <td style={{ padding:'6px 10px', fontSize:12, color:'#4B5675', width:30 }}>{i+1}</td>
                             <td style={{ padding:'5px 8px', minWidth:260 }}>
                               <input style={{ ...inp, padding:'5px 8px', fontSize:12 }} value={item.description} onChange={e=>updatePoItem(item.id,'description',e.target.value)} placeholder="Material / work description"/>
                             </td>
@@ -583,7 +583,7 @@ export default function Vendors() {
                             </td>
                             <td style={{ padding:'6px 8px' }}>
                               {poItems.length>1 && (
-                                <button onClick={()=>removePoItem(item.id)} style={{ background:'#FFE2E5', border:'1px solid #FCA9BD', borderRadius:6, padding:'3px 7px', cursor:'pointer', color:'#A10035', fontSize:11 }}>✕</button>
+                                <button onClick={()=>removePoItem(item.id)} style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:6, padding:'3px 7px', cursor:'pointer', color:'#7F1D1D', fontSize:11 }}>✕</button>
                               )}
                             </td>
                           </tr>
@@ -649,7 +649,7 @@ export default function Vendors() {
 
               {/* Footer */}
               <div style={{ padding:'14px 22px', borderTop:'1px solid #F1F1F4', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <button onClick={()=>setPoModal(false)} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:600, color:'#252F4A' }}>Cancel</button>
+                <button onClick={()=>setPoModal(false)} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:600, color:'#252F4A' }}>Cancel</button>
                 <button onClick={generatePO} disabled={poGenerating} style={{ background:'#071437', color:'#fff', border:'none', borderRadius:8, padding:'8px 22px', cursor:'pointer', fontSize:13, fontWeight:700, display:'flex', alignItems:'center', gap:8, opacity:poGenerating?0.6:1 }}>
                   <FileText size={14}/>
                   {poGenerating ? 'Generating Word file…' : 'Generate PO (Word File)'}

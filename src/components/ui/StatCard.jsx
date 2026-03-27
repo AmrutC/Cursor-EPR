@@ -1,15 +1,15 @@
 import React from 'react';
 
 const COLOR_MAP = {
-  navy:   { value: '#071437', bg: '#F1F1F4', border: '#DBDFE9' },
-  green:  { value: '#17C653', bg: '#E8FFF3', border: '#A2E8BA' },
-  red:    { value: '#A10035', bg: '#FFE2E5', border: '#FCA9BD' },
-  amber:  { value: '#9A6700', bg: '#FFF8DD', border: '#F6C000' },
-  blue:   { value: '#1B84FF', bg: '#E1F0FF', border: '#A4CEFF' },
-  purple: { value: '#5014D0', bg: '#F1E8FF', border: '#C4B5FD' },
-  teal:   { value: '#0E9F8A', bg: '#E4FFF8', border: '#8EE8D2' },
-  gray:   { value: '#252F4A', bg: '#F9F9F9', border: '#DBDFE9' },
-  gold:   { value: '#9A6700', bg: '#FFF8DD', border: '#F6C000' },
+  navy:   { value: '#071437', bg: '#EAF0F8', border: '#C5D5E8' },
+  green:  { value: '#17C653', bg: '#E8FFF3', border: '#50CD89' },
+  red:    { value: '#7F1D1D', bg: '#FFE2E5', border: '#FFB8C6' },
+  amber:  { value: '#7A4E00', bg: '#FFF8DD', border: '#F6C000' },
+  blue:   { value: '#1B84FF', bg: '#E1F0FF', border: '#B5D8FF' },
+  purple: { value: '#7239EA', bg: '#F1E8FF', border: '#D4B9FF' },
+  teal:   { value: '#0E9F8A', bg: '#E4FFF8', border: '#50CD89' },
+  gray:   { value: '#252F4A', bg: '#FCFCFC', border: '#DBDFE9' },
+  gold:   { value: '#7A4E00', bg: '#FFF8DD', border: '#F6C000' },
 };
 
 export default function StatCard({ label, value, sub, color = 'navy', icon: Icon }) {
@@ -67,7 +67,7 @@ export default function StatCard({ label, value, sub, color = 'navy', icon: Icon
       {sub && (
         <div style={{
           fontSize: 11,
-          color: '#78829D',  // readable gray, not too light
+          color: '#4B5675',  // readable gray, not too light
           marginTop: 1,
         }}>
           {sub}

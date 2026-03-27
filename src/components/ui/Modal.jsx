@@ -1,11 +1,6 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
-
-const WIDTH_MAP = {
-  'max-w-xl': 700,
-  'max-w-2xl': 900,
-  'max-w-3xl': 1100,
-};
+import { clx } from '../../utils';
 
 export default function Modal({ open, onClose, title, children, width = 'max-w-xl', footer }) {
   useEffect(() => {
@@ -16,20 +11,21 @@ export default function Modal({ open, onClose, title, children, width = 'max-w-x
 
   if (!open) return null;
 
-  const maxWidth = WIDTH_MAP[width] || 700;
-
   return (
-    <div className="vg-modal-backdrop">
-      <div className="vg-modal-overlay" onClick={onClose} />
-      <div className="vg-modal" style={{ maxWidth }}>
-        <div className="vg-modal-head">
-          <h2>{title}</h2>
-          <button onClick={onClose} className="btn btn-icon btn-sm btn-light">
-            <X size={14} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose}/>
+      <div className={clx('relative bg-white rounded-2xl shadow-2xl w-full flex flex-col max-h-[90vh]', width)}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+          <h2 className="text-[15px] font-bold text-navy">{title}</h2>
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600">
+            <X size={15}/>
           </button>
         </div>
-        <div className="vg-modal-body">{children}</div>
-        {footer && <div className="vg-modal-foot">{footer}</div>}
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+        {/* Footer */}
+        {footer && <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-2 flex-shrink-0">{footer}</div>}
       </div>
     </div>
   );

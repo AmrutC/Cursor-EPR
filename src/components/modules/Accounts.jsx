@@ -4,7 +4,7 @@ import Modal from '../ui/Modal';
 import { inr, fmtDate } from '../../utils';
 import { Plus, Search, Paperclip, TrendingUp, TrendingDown, Download, Link, Edit2, Eye, Trash2 } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
@@ -373,9 +373,9 @@ export default function Accounts() {
     <div>
       {/* Summary */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginBottom:14 }}>
-        {[['Total Credits (Income)',inr(totalCredit,true),'#E8FFF3','#A2E8BA','#17C653',TrendingUp],
-          ['Total Debits (Expenses)',inr(totalDebit,true),'#FFE2E5','#FCA9BD','#A10035',TrendingDown],
-          ['Net Balance',inr(Math.abs(balance),true)+(balance<0?' (Deficit)':''),'#F1F1F4','#DBDFE9',balance>=0?'#071437':'#A10035',null]
+        {[['Total Credits (Income)',inr(totalCredit,true),'#E8FFF3','#50CD89','#17C653',TrendingUp],
+          ['Total Debits (Expenses)',inr(totalDebit,true),'#FFE2E5','#FFB8C6','#7F1D1D',TrendingDown],
+          ['Net Balance',inr(Math.abs(balance),true)+(balance<0?' (Deficit)':''),'#EAF0F8','#C5D5E8',balance>=0?'#071437':'#7F1D1D',null]
         ].map(([l,v,bg,bdr,tc,Icon])=>(
           <div key={l} style={{ background:bg, border:`1px solid ${bdr}`, borderRadius:12, padding:'13px 16px', display:'flex', alignItems:'center', gap:12 }}>
             {Icon&&<Icon size={20} style={{ color:tc }}/>}
@@ -390,7 +390,7 @@ export default function Accounts() {
       {/* Toolbar */}
       <div style={{ display:'flex', gap:8, marginBottom:12, flexWrap:'wrap' }}>
         <div style={{ flex:1, minWidth:180, position:'relative' }}>
-          <Search size={12} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#99A1B7' }}/>
+          <Search size={12} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#78829D' }}/>
           <input style={{ ...inp, paddingLeft:30 }} placeholder="Search description, project, party…" value={search} onChange={e=>setSearch(e.target.value)}/>
         </div>
         <select style={{ ...sel, width:160 }} value={filterProject} onChange={e=>setFilterProject(e.target.value)}>
@@ -412,36 +412,36 @@ export default function Accounts() {
       {/* Table */}
       <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
         {filtered.length===0
-          ?<div style={{ padding:60, textAlign:'center', color:'#99A1B7', fontSize:13 }}>No entries found.</div>
+          ?<div style={{ padding:60, textAlign:'center', color:'#78829D', fontSize:13 }}>No entries found.</div>
           :<table style={{ width:'100%', borderCollapse:'collapse' }}>
-            <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
+            <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
               {['Date','Project','Type','Category','Description','Party','Mode','Taxable / Amount','GST','Total','Ref/Status','Attachment'].map(h=>(
                 <th key={h} style={{ padding:'9px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
               ))}
-              <th style={{ padding:'9px 12px', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap', position:'sticky', right:0, background:'#F9F9F9', boxShadow:'-2px 0 4px rgba(0,0,0,0.06)' }}>Actions</th>
+              <th style={{ padding:'9px 12px', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap', position:'sticky', right:0, background:'#FCFCFC', boxShadow:'-2px 0 4px rgba(0,0,0,0.06)' }}>Actions</th>
             </tr></thead>
             <tbody>
               {filtered.map((e,i)=>{
                 const cat=e.category==='Other (specify)'?(e.custom_category||'Other'):e.category;
                 const isAdv = cat.startsWith('Advance');
-                const rowBg = isAdv ? (i%2===0?'#FFF8DD':'#FEF9E7') : (i%2===0?'#fff':'#FCFCFC');
+                const rowBg = isAdv ? (i%2===0?'#FFF8DD':'#FEF9E7') : (i%2===0?'#fff':'#FAFAFA');
                 return(
-                  <tr key={e.id} style={{ borderBottom:'1px solid #F9F9F9', background:rowBg }}>
+                  <tr key={e.id} style={{ borderBottom:'1px solid #FCFCFC', background:rowBg }}>
                     <td style={{ padding:'9px 12px', fontSize:12.5, color:'#252F4A', whiteSpace:'nowrap' }}>{fmtDate(e.date)}</td>
                     <td style={{ padding:'9px 12px', fontSize:12.5, fontWeight:600, color:'#071437' }}>{e.project_name||'—'}</td>
                     <td style={{ padding:'9px 12px' }}>
-                      <span style={{ background:e.type==='Credit'?'#E8FFF3':'#FFE2E5', color:e.type==='Credit'?'#17C653':'#A10035', fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>{e.type}</span>
+                      <span style={{ background:e.type==='Credit'?'#E8FFF3':'#FFE2E5', color:e.type==='Credit'?'#17C653':'#7F1D1D', fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>{e.type}</span>
                     </td>
-                    <td style={{ padding:'9px 12px', fontSize:12, color: isAdv?'#9A6700':'#252F4A', fontWeight:isAdv?700:400 }}>
+                    <td style={{ padding:'9px 12px', fontSize:12, color: isAdv?'#7A4E00':'#252F4A', fontWeight:isAdv?700:400 }}>
                       {isAdv && <span style={{ marginRight:4 }}>🔶</span>}{cat}
                     </td>
-                    <td style={{ padding:'9px 12px', fontSize:12.5, color:'#111827', maxWidth:200, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{e.description}</td>
+                    <td style={{ padding:'9px 12px', fontSize:12.5, color:'#252F4A', maxWidth:200, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{e.description}</td>
                     <td style={{ padding:'9px 12px', fontSize:12, color:'#252F4A', fontWeight:isAdv?600:400 }}>{e.party_name||e.advance_party||'—'}</td>
                     <td style={{ padding:'9px 12px', fontSize:12, color:'#252F4A' }}>{e.payment_mode||'—'}</td>
                     <td style={{ padding:'9px 12px', fontSize:13, fontWeight:800, fontFamily:'monospace', textAlign:'right', color:e.type==='Credit'?'#17C653':'#F8285A' }}>
                       {e.type==='Credit'?'+':'-'}{inr(e.gst_amount > 0 ? e.taxable_value : e.amount)}
                     </td>
-                    <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#9A6700' }}>
+                    <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#7A4E00' }}>
                       {e.gst_amount > 0 ? inr(e.gst_amount) : '—'}
                     </td>
                     <td style={{ padding:'9px 12px', fontSize:13, fontWeight:800, fontFamily:'monospace', textAlign:'right', color:e.type==='Credit'?'#17C653':'#F8285A' }}>
@@ -449,7 +449,7 @@ export default function Accounts() {
                     </td>
                     <td style={{ padding:'9px 12px', fontSize:11.5, color:'#4B5675' }}>
                       {isAdv
-                        ? <span style={{ background:e.advance_status==='Fully Adjusted'||e.advance_status==='Adjusted Against Booking'?'#E8FFF3':e.advance_status==='Partially Adjusted'?'#FFF8DD':'#FFE2E5', color:e.advance_status==='Fully Adjusted'||e.advance_status==='Adjusted Against Booking'?'#17C653':e.advance_status==='Partially Adjusted'?'#9A6700':'#A10035', fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>
+                        ? <span style={{ background:e.advance_status==='Fully Adjusted'||e.advance_status==='Adjusted Against Booking'?'#E8FFF3':e.advance_status==='Partially Adjusted'?'#FFF8DD':'#FFE2E5', color:e.advance_status==='Fully Adjusted'||e.advance_status==='Adjusted Against Booking'?'#17C653':e.advance_status==='Partially Adjusted'?'#7A4E00':'#7F1D1D', fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>
                             {e.advance_status||'Pending'}
                           </span>
                         : <span style={{ fontFamily:'monospace' }}>{e.ref||'—'}</span>
@@ -458,23 +458,23 @@ export default function Accounts() {
                     <td style={{ padding:'9px 12px' }}>
                       {e.attachment
                         ?<span style={{ display:'flex', alignItems:'center', gap:4, fontSize:11.5, color:'#1B84FF', cursor:'pointer' }}><Paperclip size={12}/>{e.attachment.name}</span>
-                        :<span style={{ fontSize:12, color:'#99A1B7' }}>—</span>}
+                        :<span style={{ fontSize:12, color:'#78829D' }}>—</span>}
                     </td>
                     <td style={{ padding:'7px 10px', whiteSpace:'nowrap', position:'sticky', right:0, background:rowBg, boxShadow:'-2px 0 4px rgba(0,0,0,0.06)' }}>
                       <div style={{ display:'flex', gap:4 }}>
                         <button onClick={()=>setViewEntry(e)}
                           title="View Details"
-                          style={{ background:'#F1F1F4', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#071437', display:'flex', alignItems:'center' }}>
+                          style={{ background:'#EAF0F8', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#071437', display:'flex', alignItems:'center' }}>
                           <Eye size={11}/>
                         </button>
                         <button onClick={()=>openEdit(e)}
                           title="Edit Entry"
-                          style={{ background:'#FFF8DD', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#9A6700', display:'flex', alignItems:'center' }}>
+                          style={{ background:'#FFF8DD', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#7A4E00', display:'flex', alignItems:'center' }}>
                           <Edit2 size={11}/>
                         </button>
                         <button onClick={()=>deleteEntry(e.id)}
                           title="Delete Entry"
-                          style={{ background:'#FFE2E5', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#A10035', display:'flex', alignItems:'center' }}>
+                          style={{ background:'#FFE2E5', border:'none', borderRadius:6, padding:'4px 7px', cursor:'pointer', color:'#7F1D1D', display:'flex', alignItems:'center' }}>
                           <Trash2 size={11}/>
                         </button>
                       </div>
@@ -492,7 +492,7 @@ export default function Accounts() {
                 <td style={{ padding:'9px 12px', textAlign:'right', fontSize:11, fontFamily:'monospace', fontWeight:600, color:'#FFF8DD' }}>
                   {inr(filtered.reduce((s,e)=>s+(e.gst_amount||0),0))}
                 </td>
-                <td style={{ padding:'9px 12px', textAlign:'right', fontSize:13, fontFamily:'monospace', fontWeight:800, color:balance>=0?'#A2E8BA':'#FCA9BD' }}>
+                <td style={{ padding:'9px 12px', textAlign:'right', fontSize:13, fontFamily:'monospace', fontWeight:800, color:balance>=0?'#50CD89':'#FFB8C6' }}>
                   {balance>=0?'+':''}{inr(balance)}
                 </td>
                 <td colSpan={2}/>
@@ -520,16 +520,16 @@ export default function Accounts() {
               {['Debit','Credit'].map(t=>{
                 const isLocked = isVendorPay||isSalesRcpt||isAdvance;
                 return (
-                  <label key={t} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'7px 12px', borderRadius:8, border:`2px solid ${form.type===t?'#071437':'#F1F1F4'}`, background:form.type===t?'#F1F1F4':'#fff', justifyContent:'center', opacity:isLocked?0.6:1 }}>
+                  <label key={t} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'7px 12px', borderRadius:8, border:`2px solid ${form.type===t?'#071437':'#F1F1F4'}`, background:form.type===t?'#EAF0F8':'#fff', justifyContent:'center', opacity:isLocked?0.6:1 }}>
                     <input type="radio" name="etype" value={t} checked={form.type===t}
                       onChange={isLocked?undefined:set('type')}
                       disabled={isLocked} style={{ width:13, height:13 }}/>
-                    <span style={{ fontSize:13, fontWeight:700, color:form.type===t?'#071437':'#78829D' }}>{t}</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:form.type===t?'#071437':'#4B5675' }}>{t}</span>
                   </label>
                 );
               })}
             </div>
-            {(isVendorPay||isSalesRcpt||isAdvance)&&<div style={{ fontSize:11, color:'#78829D', marginTop:3 }}>Auto-set for this category</div>}
+            {(isVendorPay||isSalesRcpt||isAdvance)&&<div style={{ fontSize:11, color:'#4B5675', marginTop:3 }}>Auto-set for this category</div>}
           </F>
 
           <F label="Project" required error={errors.project_id}>
@@ -541,7 +541,7 @@ export default function Accounts() {
 
           {/* ── VENDOR PAYMENT ─────────────────────────────── */}
           {isVendorPay&&(<>
-            <div style={{ gridColumn:'1/-1', background:'#F1E8FF', border:'1px solid #C4B5FD', borderRadius:10, padding:'9px 13px', fontSize:12.5, color:'#5014D0', display:'flex', alignItems:'center', gap:6 }}>
+            <div style={{ gridColumn:'1/-1', background:'#F1E8FF', border:'1px solid #D4B9FF', borderRadius:10, padding:'9px 13px', fontSize:12.5, color:'#7239EA', display:'flex', alignItems:'center', gap:6 }}>
               <Link size={13}/> Linked to Vendors module — bill status auto-updates on save.
             </div>
             <F label="Vendor" required error={errors.vendor_id}>
@@ -570,7 +570,7 @@ export default function Accounts() {
 
           {/* ── SALES RECEIPT ──────────────────────────────── */}
           {isSalesRcpt&&(<>
-            <div style={{ gridColumn:'1/-1', background:'#E8FFF3', border:'1px solid #A2E8BA', borderRadius:10, padding:'9px 13px', fontSize:12.5, color:'#17C653', display:'flex', alignItems:'center', gap:6 }}>
+            <div style={{ gridColumn:'1/-1', background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:10, padding:'9px 13px', fontSize:12.5, color:'#17C653', display:'flex', alignItems:'center', gap:6 }}>
               <Link size={13}/> Select project then unit to auto-fetch allottee details.
             </div>
             <F label="Unit / Flat No." required error={errors.unit_no}>
@@ -586,7 +586,7 @@ export default function Accounts() {
             </F>
             <div/>
             {form.booking_id&&(
-              <div style={{ gridColumn:'1/-1', background:'#F0FDF4', border:'1px solid #A2E8BA', borderRadius:10, padding:'12px 14px' }}>
+              <div style={{ gridColumn:'1/-1', background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:10, padding:'12px 14px' }}>
                 <div style={{ fontSize:10, fontWeight:700, color:'#17C653', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>Auto-fetched Booking Details</div>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, fontSize:12 }}>
                   <div><span style={{ color:'#4B5675', fontWeight:600 }}>Allottee: </span><strong>{form.allottee_name}</strong></div>
@@ -603,23 +603,23 @@ export default function Accounts() {
           {/* ── GST PAYMENT — auto-suggests monthly liability ──────────── */}
           {isGSTPay&&gstMonths.length>0&&(
             <div style={{ gridColumn:'1/-1', background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:10, padding:'10px 14px' }}>
-              <div style={{ fontSize:10, fontWeight:700, color:'#9A6700', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>GST Liability by Month (from payments)</div>
+              <div style={{ fontSize:10, fontWeight:700, color:'#7A4E00', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>GST Liability by Month (from payments)</div>
               <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                 {gstMonths.slice(0,6).map(([ym,amt])=>(
                   <button key={ym} onClick={()=>setForm(f=>({...f, amount:String(amt), description:`GST payment for ${ym}`, ref:`GST-${ym}`}))}
-                    style={{ background:'#fff', border:'1px solid #F6C000', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, color:'#9A6700', fontWeight:600 }}>
+                    style={{ background:'#fff', border:'1px solid #F6C000', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, color:'#7A4E00', fontWeight:600 }}>
                     {ym}: {inr(amt)}
                   </button>
                 ))}
               </div>
-              <div style={{ fontSize:11, color:'#9A6700', marginTop:6 }}>Click a month to auto-fill GST payment amount. Add late payment / interest manually.</div>
+              <div style={{ fontSize:11, color:'#7A4E00', marginTop:6 }}>Click a month to auto-fill GST payment amount. Add late payment / interest manually.</div>
             </div>
           )}
 
           {/* ── ADVANCE TO VENDOR ───────────────────────────── */}
           {isAdvVendor&&(
             <div style={{ gridColumn:'1/-1', background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:10, padding:'12px 14px' }}>
-              <div style={{ fontSize:10, fontWeight:700, color:'#9A6700', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:10 }}>
+              <div style={{ fontSize:10, fontWeight:700, color:'#7A4E00', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:10 }}>
                 🔶 Advance to Vendor — will appear as pending adjustment in Vendor module
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
@@ -639,7 +639,7 @@ export default function Accounts() {
                   </select>
                 </F>
               </div>
-              <div style={{ marginTop:8, fontSize:11.5, color:'#9A6700' }}>
+              <div style={{ marginTop:8, fontSize:11.5, color:'#7A4E00' }}>
                 This advance will be visible in the Vendors module under that vendor's advance register.
               </div>
             </div>
@@ -647,7 +647,7 @@ export default function Accounts() {
 
           {/* ── ADVANCE FROM CUSTOMER ─────────────────────── */}
           {isAdvCustomer&&(
-            <div style={{ gridColumn:'1/-1', background:'#E8FFF3', border:'1px solid #A2E8BA', borderRadius:10, padding:'12px 14px' }}>
+            <div style={{ gridColumn:'1/-1', background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:10, padding:'12px 14px' }}>
               <div style={{ fontSize:10, fontWeight:700, color:'#17C653', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:10 }}>
                 🟢 Advance from Customer — link to a booking or enter manually
               </div>
@@ -709,7 +709,7 @@ export default function Accounts() {
             const roundOff   = totalAmt - (taxable + gstAmt);
             return (
               <div style={{ gridColumn:'1/-1' }}>
-                <div style={{ background:'#F0FDF4', border:'1px solid #A2E8BA', borderRadius:12, padding:'14px 16px' }}>
+                <div style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:12, padding:'14px 16px' }}>
                   <div style={{ fontSize:10, fontWeight:700, color:'#17C653', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:12 }}>
                     Sales Receipt — Enter Total Amount Received (incl. GST)
                   </div>
@@ -719,14 +719,14 @@ export default function Accounts() {
                         onChange={set('amount')} placeholder="e.g. 525000"/>
                     </F>
                     <F label="GST Rate (Auto from Booking)">
-                      <input style={{ ...inp, background:'#F9F9F9' }} value={gstRate+'%'} readOnly/>
+                      <input style={{ ...inp, background:'#FCFCFC' }} value={gstRate+'%'} readOnly/>
                     </F>
                   </div>
                   {totalAmt > 0 && (
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
                       {[
-                        ['Taxable Value (excl. GST)', inr(taxable), '#071437', '#F1F1F4'],
-                        ['GST @'+gstRate+'%',          inr(gstAmt),  '#9A6700', '#FFF8DD'],
+                        ['Taxable Value (excl. GST)', inr(taxable), '#071437', '#EAF0F8'],
+                        ['GST @'+gstRate+'%',          inr(gstAmt),  '#7A4E00', '#FFF8DD'],
                         ['Total Received',              inr(totalAmt),'#17C653', '#E8FFF3'],
                       ].map(([l,v,c,bg])=>(
                         <div key={l} style={{ background:bg, borderRadius:8, padding:'10px 12px' }}>
@@ -737,7 +737,7 @@ export default function Accounts() {
                     </div>
                   )}
                   {totalAmt > 0 && (
-                    <div style={{ marginTop:10, background:'#F1F1F4', borderRadius:8, padding:'8px 12px', fontSize:12, color:'#1B84FF' }}>
+                    <div style={{ marginTop:10, background:'#EAF0F8', borderRadius:8, padding:'8px 12px', fontSize:12, color:'#1B84FF' }}>
                       This GST amount ({inr(gstAmt)}) will auto-reflect in the GST Register and customer's booking ledger as "GST received against Unit {form.unit_no}".
                     </div>
                   )}
@@ -779,7 +779,7 @@ export default function Accounts() {
               <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png"
                 onChange={e=>{ const f=e.target.files[0]; if(f)setForm(fm=>({...fm,attachment:{name:f.name,size:f.size,type:f.type}})); }}
                 style={{ display:'none' }}/>
-              <button onClick={()=>fileRef.current?.click()} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 14px', cursor:'pointer', fontSize:12.5, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:6 }}>
+              <button onClick={()=>fileRef.current?.click()} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 14px', cursor:'pointer', fontSize:12.5, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:6 }}>
                 <Paperclip size={12}/> Choose File
               </button>
               {form.attachment&&<span style={{ fontSize:12, color:'#1B84FF' }}>{form.attachment.name}</span>}
@@ -796,15 +796,15 @@ export default function Accounts() {
             <div style={{ padding:'13px 20px', borderBottom:'1px solid #F1F1F4', display:'flex', justifyContent:'space-between', alignItems:'center', flexShrink:0 }}>
               <div>
                 <div style={{ fontSize:14, fontWeight:800, color:'#071437' }}>Ledger Entry Details</div>
-                <div style={{ fontSize:11, color:'#99A1B7', marginTop:2 }}>{fmtDate(viewEntry.date)} · {viewEntry.project_name}</div>
+                <div style={{ fontSize:11, color:'#78829D', marginTop:2 }}>{fmtDate(viewEntry.date)} · {viewEntry.project_name}</div>
               </div>
               <div style={{ display:'flex', gap:6 }}>
                 <button onClick={()=>{ setViewEntry(null); openEdit(viewEntry); }}
-                  style={{ background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:7, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:700, color:'#9A6700', display:'flex', alignItems:'center', gap:5 }}>
+                  style={{ background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:7, padding:'5px 12px', cursor:'pointer', fontSize:12, fontWeight:700, color:'#7A4E00', display:'flex', alignItems:'center', gap:5 }}>
                   <Edit2 size={11}/> Edit
                 </button>
                 <button onClick={()=>setViewEntry(null)}
-                  style={{ background:'#F9F9F9', border:'none', borderRadius:7, width:26, height:26, cursor:'pointer', color:'#78829D', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+                  style={{ background:'#FCFCFC', border:'none', borderRadius:7, width:26, height:26, cursor:'pointer', color:'#4B5675', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
               </div>
             </div>
             <div style={{ flex:1, overflowY:'auto', padding:'16px 20px' }}>
@@ -828,8 +828,8 @@ export default function Accounts() {
                   ['Unit No.',       viewEntry.unit_no||'—'],
                   ['Booking ID',     viewEntry.booking_id||'—'],
                 ].filter(([,v])=>v&&v!=='—').map(([label,value])=>(
-                  <div key={label} style={{ padding:'8px 0', borderBottom:'1px solid #F9F9F9' }}>
-                    <div style={{ fontSize:9.5, fontWeight:700, color:'#78829D', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{label}</div>
+                  <div key={label} style={{ padding:'8px 0', borderBottom:'1px solid #FCFCFC' }}>
+                    <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{label}</div>
                     <div style={{ fontSize:13, fontWeight:600, color:'#071437' }}>{value}</div>
                   </div>
                 ))}
@@ -837,11 +837,11 @@ export default function Accounts() {
             </div>
             <div style={{ padding:'12px 20px', borderTop:'1px solid #F1F1F4', display:'flex', gap:8, justifyContent:'space-between', flexShrink:0 }}>
               <button onClick={()=>{ if(confirm('Delete this entry?')){ deleteEntry(viewEntry.id); setViewEntry(null); } }}
-                style={{ background:'#FFE2E5', border:'1px solid #FCA9BD', borderRadius:8, padding:'7px 14px', cursor:'pointer', fontSize:12.5, fontWeight:700, color:'#A10035', display:'flex', alignItems:'center', gap:5 }}>
+                style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:8, padding:'7px 14px', cursor:'pointer', fontSize:12.5, fontWeight:700, color:'#7F1D1D', display:'flex', alignItems:'center', gap:5 }}>
                 <Trash2 size={12}/> Delete
               </button>
               <button onClick={()=>setViewEntry(null)}
-                style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:600, color:'#252F4A' }}>Close</button>
+                style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:600, color:'#252F4A' }}>Close</button>
             </div>
           </div>
         </div>

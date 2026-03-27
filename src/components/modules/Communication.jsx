@@ -13,7 +13,7 @@ const EMAIL_TEMPLATES = [
   { id:3, name:'Booking Confirmation',subject:'Booking Confirmation — {{flat_no}} | {{project_name}}', body:'Dear {{allottee_name}},\n\nWe are pleased to confirm your booking for Flat {{flat_no}} at {{project_name}}.\n\nWe will share the allotment letter shortly.\n\nRegards,\nVision Grroup' },
 ];
 
-const inp = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const sel = { ...inp, cursor:'pointer' };
 const F = ({ label, children, span }) => (
   <div style={{ gridColumn: span ? `span ${span}` : '' }}>
@@ -72,9 +72,9 @@ export default function Communication() {
   return (
     <div>
       {/* Tabs */}
-      <div style={{display:'flex',gap:3,background:'#F9F9F9',borderRadius:10,padding:3,marginBottom:16,width:'fit-content'}}>
+      <div style={{display:'flex',gap:3,background:'#FCFCFC',borderRadius:10,padding:3,marginBottom:16,width:'fit-content'}}>
         {TABS.map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{padding:'6px 16px',borderRadius:7,fontSize:12.5,fontWeight:tab===id?700:500,color:tab===id?'#071437':'#78829D',background:tab===id?'#fff':'transparent',cursor:'pointer',boxShadow:tab===id?'0 1px 3px rgba(0,0,0,0.1)':'',border:'none'}}>
+          <button key={id} onClick={()=>setTab(id)} style={{padding:'6px 16px',borderRadius:7,fontSize:12.5,fontWeight:tab===id?700:500,color:tab===id?'#071437':'#4B5675',background:tab===id?'#fff':'transparent',cursor:'pointer',boxShadow:tab===id?'0 1px 3px rgba(0,0,0,0.1)':'',border:'none'}}>
             {label}
           </button>
         ))}
@@ -115,7 +115,7 @@ export default function Communication() {
                 <div key={t.id} style={{padding:'10px 12px',border:'1px solid #F1F1F4',borderRadius:10,cursor:'pointer'}}
                   onClick={()=>loadTemplate(t)}>
                   <div style={{fontSize:13,fontWeight:700,color:'#071437',marginBottom:3}}>{t.name}</div>
-                  <div style={{fontSize:11,color:'#78829D',lineHeight:1.4}}>{t.subject.slice(0,50)}…</div>
+                  <div style={{fontSize:11,color:'#4B5675',lineHeight:1.4}}>{t.subject.slice(0,50)}…</div>
                   <div style={{marginTop:6,fontSize:11,color:'#1B84FF',fontWeight:600}}>Click to load template →</div>
                 </div>
               ))}
@@ -128,26 +128,26 @@ export default function Communication() {
       {tab==='log'&&(<>
         <div style={{display:'flex',gap:10,marginBottom:14}}>
           <div style={{flex:1,position:'relative'}}>
-            <Search size={13} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#99A1B7'}}/>
+            <Search size={13} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#78829D'}}/>
             <input style={{...inp,paddingLeft:32}} placeholder="Search subject or allottee…" value={search} onChange={e=>setSearch(e.target.value)}/>
           </div>
         </div>
         <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
           <table style={{width:'100%',borderCollapse:'collapse'}}>
-            <thead><tr style={{background:'#F9F9F9',borderBottom:'2px solid #F1F1F4'}}>
+            <thead><tr style={{background:'#FCFCFC',borderBottom:'2px solid #F1F1F4'}}>
               {['Date','To','Allottee','Subject','Type','Status'].map(h=>(
                 <th key={h} style={{padding:'9px 14px',textAlign:'left',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',whiteSpace:'nowrap'}}>{h}</th>
               ))}
             </tr></thead>
             <tbody>
-              {filtered.length===0?<tr><td colSpan={6} style={{textAlign:'center',padding:40,color:'#99A1B7',fontSize:13}}>No emails sent yet.</td></tr>:
+              {filtered.length===0?<tr><td colSpan={6} style={{textAlign:'center',padding:40,color:'#78829D',fontSize:13}}>No emails sent yet.</td></tr>:
               filtered.map((l,i)=>(
-                <tr key={l.id} style={{borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC'}}>
+                <tr key={l.id} style={{borderBottom:'1px solid #FCFCFC',background:i%2===0?'#fff':'#FAFAFA'}}>
                   <td style={{padding:'9px 14px',fontSize:12.5,color:'#252F4A'}}>{fmtDate(l.date)}</td>
                   <td style={{padding:'9px 14px',fontSize:12,fontFamily:'monospace',color:'#252F4A'}}>{l.to}</td>
                   <td style={{padding:'9px 14px',fontSize:13,fontWeight:600,color:'#071437'}}>{l.allottee}</td>
-                  <td style={{padding:'9px 14px',fontSize:12.5,color:'#111827'}}>{l.subject}</td>
-                  <td style={{padding:'9px 14px'}}><span style={{background:'#F1E8FF',color:'#5014D0',fontSize:10.5,fontWeight:700,padding:'2px 7px',borderRadius:10}}>{l.type}</span></td>
+                  <td style={{padding:'9px 14px',fontSize:12.5,color:'#252F4A'}}>{l.subject}</td>
+                  <td style={{padding:'9px 14px'}}><span style={{background:'#F1E8FF',color:'#7239EA',fontSize:10.5,fontWeight:700,padding:'2px 7px',borderRadius:10}}>{l.type}</span></td>
                   <td style={{padding:'9px 14px'}}>
                     <span style={{display:'flex',alignItems:'center',gap:5,fontSize:12,fontWeight:600,color:'#17C653'}}>
                       <CheckCircle2 size={12}/>{l.status}
@@ -187,14 +187,14 @@ export default function Communication() {
               </button>
             </div>
           </div>
-          <div style={{background:'#F0FDF4',border:'1px solid #A2E8BA',borderRadius:14,padding:'18px 20px'}}>
+          <div style={{background:'#E8FFF3',border:'1px solid #50CD89',borderRadius:14,padding:'18px 20px'}}>
             <div style={{fontSize:13,fontWeight:700,color:'#17C653',marginBottom:8}}>How WhatsApp sharing works</div>
             <div style={{fontSize:12.5,color:'#252F4A',lineHeight:1.8}}>
               1. Select the allottee and document type above<br/>
               2. Click "Open WhatsApp" — this opens WhatsApp Web / App with a pre-filled message<br/>
               3. Attach the PDF from the <strong style={{fontFamily:'monospace'}}>OneDrive/documents/</strong> folder manually<br/>
               4. Send from your phone<br/><br/>
-              <span style={{color:'#78829D',fontSize:11.5}}>Phase 2 will integrate WhatsApp Business API for automated PDF delivery.</span>
+              <span style={{color:'#4B5675',fontSize:11.5}}>Phase 2 will integrate WhatsApp Business API for automated PDF delivery.</span>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function Communication() {
             <F label="From Name"><input style={inp} value={config.from_name} onChange={setCfg('from_name')} placeholder="Vision Grroup"/></F>
             <F label="From Email"><input style={inp} value={config.from_email} onChange={setCfg('from_email')} placeholder="noreply@visiongrroup.in"/></F>
           </div>
-          <div style={{marginTop:14,background:'#F1F1F4',borderRadius:8,padding:'10px 12px',fontSize:12,color:'#1B84FF',lineHeight:1.6}}>
+          <div style={{marginTop:14,background:'#EAF0F8',borderRadius:8,padding:'10px 12px',fontSize:12,color:'#1B84FF',lineHeight:1.6}}>
             <strong>Setup steps:</strong> Sign in to portal.office.com → Account Settings → Security → App passwords → Generate new → Use that password here. Do NOT use your regular Microsoft 365 password.
           </div>
           <button onClick={()=>addToast('Email config saved.','success')} className="btn-primary" style={{marginTop:14,fontSize:13}}>Save Configuration</button>

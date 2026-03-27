@@ -6,7 +6,7 @@ import Modal from '../ui/Modal';
 import { inr, fmtDate } from '../../utils';
 import { Plus, Search, Edit2, Phone, Mail, CheckCircle2 } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
@@ -104,10 +104,10 @@ export default function Brokerage() {
   return (
     <div>
       {/* Tabs */}
-      <div style={{ display:'flex', gap:3, background:'#F9F9F9', borderRadius:10, padding:3, marginBottom:14, width:'fit-content' }}>
+      <div style={{ display:'flex', gap:3, background:'#FCFCFC', borderRadius:10, padding:3, marginBottom:14, width:'fit-content' }}>
         {[['master','Broker Master'],['payouts','Payout Register']].map(([id,label])=>(
           <button key={id} onClick={()=>setTab(id)}
-            style={{ padding:'6px 18px', borderRadius:7, fontSize:12.5, fontWeight:tab===id?700:500, color:tab===id?'#071437':'#78829D', background:tab===id?'#fff':'transparent', cursor:'pointer', border:tab===id?'1px solid #F1F1F4':'1px solid transparent' }}>
+            style={{ padding:'6px 18px', borderRadius:7, fontSize:12.5, fontWeight:tab===id?700:500, color:tab===id?'#071437':'#4B5675', background:tab===id?'#fff':'transparent', cursor:'pointer', border:tab===id?'1px solid #F1F1F4':'1px solid transparent' }}>
             {label}
           </button>
         ))}
@@ -118,7 +118,7 @@ export default function Brokerage() {
         <div>
           <div style={{ display:'flex', gap:8, marginBottom:12 }}>
             <div style={{ flex:1, position:'relative' }}>
-              <Search size={12} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#99A1B7' }}/>
+              <Search size={12} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#78829D' }}/>
               <input style={{ ...inp, paddingLeft:30 }} placeholder="Search brokers…" value={search} onChange={e=>setSearch(e.target.value)}/>
             </div>
             <button onClick={openNew} className="btn-primary" style={{ fontSize:12.5 }}><Plus size={13}/> Register Broker</button>
@@ -127,8 +127,8 @@ export default function Brokerage() {
           {filtered.length===0 ? (
             <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:60, textAlign:'center' }}>
               <div style={{ fontSize:36, marginBottom:12 }}>🤝</div>
-              <div style={{ fontSize:14, fontWeight:600, color:'#78829D' }}>No brokers registered yet</div>
-              <div style={{ fontSize:12, color:'#99A1B7', marginTop:4 }}>Registered brokers will appear in the Booking form Step 4</div>
+              <div style={{ fontSize:14, fontWeight:600, color:'#4B5675' }}>No brokers registered yet</div>
+              <div style={{ fontSize:12, color:'#78829D', marginTop:4 }}>Registered brokers will appear in the Booking form Step 4</div>
             </div>
           ) : filtered.map(b=>{
             const payouts = getBrokerPayouts(b);
@@ -146,13 +146,13 @@ export default function Brokerage() {
                   </div>
                   <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                     <Badge value={b.status}/>
-                    <button onClick={e=>{ e.stopPropagation(); openEdit(b); }} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:7, padding:'4px 10px', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:4 }}><Edit2 size={10}/> Edit</button>
+                    <button onClick={e=>{ e.stopPropagation(); openEdit(b); }} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:7, padding:'4px 10px', cursor:'pointer', fontSize:11.5, fontWeight:600, color:'#252F4A', display:'flex', alignItems:'center', gap:4 }}><Edit2 size={10}/> Edit</button>
                   </div>
                 </div>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8 }}>
                   {[['PAN',b.pan||'—'],['RERA No.',b.rera_no||'—'],['TDS Rate',`${b.tds_rate||5}% (u/s 194H)`],['Bookings',String(payouts.length)],['Total Brokerage (Gross)',inr(payouts.reduce((s,p)=>s+p.gross_brokerage,0),true)]].map(([l,v])=>(
                     <div key={l} style={{ background:'#FCFCFC', borderRadius:8, padding:'8px 10px' }}>
-                      <div style={{ fontSize:9.5, fontWeight:700, color:'#78829D', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
+                      <div style={{ fontSize:9.5, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', marginBottom:2 }}>{l}</div>
                       <div style={{ fontSize:12.5, fontWeight:700, color:'#071437', fontFamily:l==='PAN'||l==='RERA No.'?'monospace':'inherit' }}>{v}</div>
                     </div>
                   ))}
@@ -176,7 +176,7 @@ export default function Brokerage() {
 
           {selBroker && (<>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:14 }}>
-              {[['Gross Brokerage',inr(totalGross,true),'#9A6700','#FFF8DD','#F6C000'],['TDS (u/s 194H)',inr(totalTDS,true),'#5014D0','#F1E8FF','#C4B5FD'],['Net Payable',inr(totalNet,true),'#17C653','#E8FFF3','#A2E8BA'],['Total Bookings',String(selPayouts.length),'#071437','#F1F1F4','#DBDFE9']].map(([l,v,tc,bg,bdr])=>(
+              {[['Gross Brokerage',inr(totalGross,true),'#7A4E00','#FFF8DD','#F6C000'],['TDS (u/s 194H)',inr(totalTDS,true),'#7239EA','#F1E8FF','#D4B9FF'],['Net Payable',inr(totalNet,true),'#17C653','#E8FFF3','#50CD89'],['Total Bookings',String(selPayouts.length),'#071437','#EAF0F8','#C5D5E8']].map(([l,v,tc,bg,bdr])=>(
                 <div key={l} style={{ background:bg, border:`1px solid ${bdr}`, borderRadius:12, padding:'12px 16px' }}>
                   <div style={{ fontSize:9.5, fontWeight:700, color:tc, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:4 }}>{l}</div>
                   <div style={{ fontSize:18, fontWeight:800, color:tc, fontFamily:'monospace' }}>{v}</div>
@@ -185,24 +185,24 @@ export default function Brokerage() {
             </div>
 
             {selPayouts.length===0 ? (
-              <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:40, textAlign:'center', color:'#99A1B7', fontSize:13 }}>No approved bookings found for {selBroker.firm_name}.</div>
+              <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, padding:40, textAlign:'center', color:'#78829D', fontSize:13 }}>No approved bookings found for {selBroker.firm_name}.</div>
             ) : (
               <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
                 <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                  <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
+                  <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
                     {['Booking No.','Unit','Allottee','Agreement Value','Gross Brokerage',`TDS (${selBroker.tds_rate||5}% u/s 194H)`,'Net Payable','Payout Status'].map(h=>(
                       <th key={h} style={{ padding:'9px 12px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
                     ))}
                   </tr></thead>
                   <tbody>
                     {selPayouts.map((p,i)=>(
-                      <tr key={i} style={{ borderBottom:'1px solid #F9F9F9', background:i%2===0?'#fff':'#FCFCFC' }}>
+                      <tr key={i} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
                         <td style={{ padding:'9px 12px', fontSize:11.5, fontFamily:'monospace', fontWeight:700, color:'#071437' }}>{p.booking_no}</td>
                         <td style={{ padding:'9px 12px', fontSize:12.5, fontWeight:600, color:'#1B84FF' }}>Unit {p.unit_no}</td>
                         <td style={{ padding:'9px 12px', fontSize:12.5, color:'#252F4A' }}>{p.allottee}</td>
                         <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#252F4A' }}>{inr(p.agreement_value)}</td>
-                        <td style={{ padding:'9px 12px', fontSize:12.5, fontFamily:'monospace', textAlign:'right', fontWeight:700, color:'#9A6700' }}>{inr(p.gross_brokerage)}</td>
-                        <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#5014D0' }}>-{inr(p.tds)}</td>
+                        <td style={{ padding:'9px 12px', fontSize:12.5, fontFamily:'monospace', textAlign:'right', fontWeight:700, color:'#7A4E00' }}>{inr(p.gross_brokerage)}</td>
+                        <td style={{ padding:'9px 12px', fontSize:12, fontFamily:'monospace', textAlign:'right', color:'#7239EA' }}>-{inr(p.tds)}</td>
                         <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#17C653' }}>{inr(p.net_brokerage)}</td>
                         <td style={{ padding:'9px 12px' }}><Badge value="Pending"/></td>
                       </tr>
@@ -212,13 +212,13 @@ export default function Brokerage() {
                     <tr style={{ background:'#071437' }}>
                       <td colSpan={4} style={{ padding:'9px 12px', fontSize:12, fontWeight:800, color:'#fff' }}>TOTAL</td>
                       <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#FFF8DD' }}>{inr(totalGross)}</td>
-                      <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#C4B5FD' }}>{inr(totalTDS)}</td>
-                      <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#A2E8BA' }}>{inr(totalNet)}</td>
+                      <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#D4B9FF' }}>{inr(totalTDS)}</td>
+                      <td style={{ padding:'9px 12px', fontSize:13, fontFamily:'monospace', textAlign:'right', fontWeight:800, color:'#50CD89' }}>{inr(totalNet)}</td>
                       <td/>
                     </tr>
                   </tfoot>
                 </table>
-                <div style={{ padding:'11px 14px', background:'#FFF8DD', borderTop:'1px solid #F6C000', fontSize:12, color:'#9A6700' }}>
+                <div style={{ padding:'11px 14px', background:'#FFF8DD', borderTop:'1px solid #F6C000', fontSize:12, color:'#7A4E00' }}>
                   TDS certificate (Form 16A) will be issued quarterly. PAN of broker: <strong style={{ fontFamily:'monospace' }}>{selBroker.pan}</strong>
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default function Brokerage() {
           <F label="Status"><select style={sel} value={form.status} onChange={set('status')}><option>Active</option><option>Inactive</option></select></F>
           <div/>
           <F label="Full Address" required error={errors.address} span={2}><textarea style={{ ...(errors.address?inpE:inp), height:60, resize:'vertical' }} value={form.address} onChange={set('address')} placeholder="Complete address with PIN code"/></F>
-          <div style={{ gridColumn:'1/-1', background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:9, padding:'9px 13px', fontSize:12, color:'#1B84FF' }}>
+          <div style={{ gridColumn:'1/-1', background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:9, padding:'9px 13px', fontSize:12, color:'#1B84FF' }}>
             This broker will appear in the Booking form's broker dropdown once registered and marked Active.
           </div>
         </div>

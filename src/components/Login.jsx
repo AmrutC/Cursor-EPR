@@ -1,245 +1,131 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { USERS as SEED_USERS } from '../data';
-import { Eye, EyeOff, LogIn, Building2, Lock } from 'lucide-react';
 
 export default function Login() {
-  const { setUser, setActiveEntity, setAvailableEntities, addToast, users: storeUsers, entities } = useAppStore();
-  const allEntities = entities && entities.length > 0 ? entities : [];
-
-  const [selEntityId, setSelEntityId] = useState('');
-  const [form, setForm] = useState({ username: '', password: '' });
-  const [showPw, setShowPw] = useState(false);
+  const { entities, users, setUser, setActiveEntity } = useAppStore();
+  const [step, setStep] = useState('entity'); // entity | login
+  const [selEntity, setSelEntity] = useState(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState('entity');
 
-  function handleEntitySelect() {
-    if (!selEntityId) { setError('Please select an entity.'); return; }
-    setError(''); setStep('credentials');
+  function selectEntity(entity) {
+    setSelEntity(entity);
+    setStep('login');
+    setError('');
   }
 
-  async function handleLogin(e) {
-    e.preventDefault();
-    if (!form.username||!form.password) { setError('Enter username and password.'); return; }
-    setLoading(true); setError('');
-    try {
-      let user = null;
-
-      // 1. Try SQLite auth (Electron)
-      if (window.vgERP?.db?.login) {
-        const res = await window.vgERP.db.login({ username:form.username, password:form.password });
-        if (res.ok) {
-          user = res.user;
-          if (typeof user.entity_access==='string') {
-            try { user.entity_access = JSON.parse(user.entity_access); } catch { user.entity_access=[1,2,3]; }
-          }
-        } else {
-          // SQLite says no — fall through to in-memory checks
-        }
+  function handleLogin() {
+    setError(''); setLoading(true);
+    setTimeout(() => {
+      const u = users.find(u => u.username === username && u.password === password && u.is_active);
+      if (!u) { setError('Invalid username or password'); setLoading(false); return; }
+      // Check entity access
+      if (!(u.entity_access || []).includes(selEntity.id) && u.role !== 'super_admin') {
+        setError('You do not have access to this entity'); setLoading(false); return;
       }
-
-      // 2. Check store users (added via AdminSetup — highest priority after SQLite)
-      if (!user && storeUsers && storeUsers.length > 0) {
-        const found = storeUsers.find(u =>
-          u.username === form.username &&
-          u.password === form.password &&
-          u.is_active !== false
-        );
-        if (found) user = { ...found };
-      }
-
-      // 3. Fallback: seed users from data.js (admin/director)
-      if (!user) {
-        const found = SEED_USERS.find(u =>
-          u.username === form.username && u.password === form.password && u.is_active !== false
-        );
-        if (found) user = { ...found };
-      }
-
-      if (!user) {
-        setError('Invalid username or password.');
-        setLoading(false); return;
-      }
-
-      const entity = allEntities.find(e => e.id === Number(selEntityId));
-      if (!entity) { setError('Invalid entity. Please log out and try again.'); setLoading(false); return; }
-
-      // Parse entity_access — handle both array and JSON string
-      let entityAccess = user.entity_access;
-      if (typeof entityAccess === 'string') {
-        try { entityAccess = JSON.parse(entityAccess); } catch { entityAccess = []; }
-      }
-      // Super admin and director can always access all entities
-      const isAdmin = user.role === 'super_admin' || user.role === 'director';
-      const hasAccess = isAdmin || (Array.isArray(entityAccess) && entityAccess.includes(entity.id));
-      if (!hasAccess) {
-        setError(`You do not have access to ${entity.name}. Contact your administrator.`);
-        setLoading(false); return;
-      }
-
-      const available = isAdmin ? allEntities : allEntities.filter(e => (entityAccess||[]).includes(e.id));
-      setAvailableEntities(available);
-      setActiveEntity(entity);
-      setUser(user);
-      addToast(`Welcome, ${user.full_name}! Logged into ${entity.code}.`);
-    } catch(err) {
-      setError('Login error: ' + err.message);
-    }
-    setLoading(false);
+      setActiveEntity(selEntity);
+      setUser(u);
+      setLoading(false);
+    }, 300);
   }
-
-  const inp = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'8px 12px', fontSize:13.5, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 
   return (
-    <div className="vg-auth-page">
-      <div className="vg-auth-left">
-        <div>
-          <div className="d-flex align-items-center gap-3 mb-10">
-            <img
-              src="/metronic/assets/media/logos/demo50.svg"
-              alt="Vision Grroup"
-              style={{ height: 26 }}
-            />
-            <span className="text-gray-500 fs-7 fw-semibold">Real Estate ERP v4.0</span>
-          </div>
-          <h2 className="vg-auth-title">
-            Manage every project,
-            <br />
-            every allottee,
-            <br />
-            every rupee.
-          </h2>
-          <div className="vg-auth-list">
-            {['13 integrated modules', 'SQLite persistent data', 'Multi-entity support', 'Full audit trail'].map((f) => (
-              <div key={f} className="vg-auth-list-item">
-                <span className="vg-auth-list-dot" />
-                {f}
-              </div>
-            ))}
-          </div>
+    <div style={{ height: '100vh', display: 'flex', background: '#071437', overflow: 'hidden' }}>
+      {/* Left panel */}
+      <div style={{ width: 420, background: '#071437', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 40px', flexShrink: 0 }}>
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ color: '#F6C000', fontWeight: 900, fontSize: 26, letterSpacing: '-0.5px' }}>Vision Grroup</div>
+          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4, letterSpacing: '2px', textTransform: 'uppercase' }}>ERP v5.0</div>
         </div>
-        <div className="text-gray-500 fs-8">© 2026 Vision Grroup. All rights reserved.</div>
+        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, lineHeight: 1.8 }}>
+          {['Real Estate CRM & Bookings', 'Finance & Accounts', 'Construction Management', 'HR & Payroll', 'GST & TDS Compliance', 'Document Automation'].map(f => (
+            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#F6C000' }} />
+              {f}
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 'auto', paddingTop: 40, color: 'rgba(255,255,255,0.2)', fontSize: 10 }}>
+          © 2026 Vision Grroup. All Rights Reserved.
+        </div>
       </div>
 
-      <div className="vg-auth-right">
-        <div className="vg-auth-card card shadow-sm">
+      {/* Right panel */}
+      <div style={{ flex: 1, background: '#F5F8FA', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
+        <div style={{ width: '100%', maxWidth: 480 }}>
+
           {step === 'entity' && (
-            <>
-              <div className="mb-6">
-                <h1 className="fs-2 fw-bolder text-gray-900 mb-2">Select Entity</h1>
-                <p className="text-gray-500 fs-7 m-0">Choose your working entity. Cannot switch without logging out.</p>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#071437', marginBottom: 4 }}>Select Entity</div>
+              <div style={{ fontSize: 13, color: '#78829D', marginBottom: 28 }}>Choose the company you want to work in</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {entities.map(e => (
+                  <button key={e.id} onClick={() => selectEntity(e)} style={{
+                    background: '#fff', border: '2px solid #F1F1F4', borderRadius: 12, padding: '16px 20px',
+                    cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 14,
+                  }}
+                    onMouseEnter={ev => { ev.currentTarget.style.borderColor = '#F6C000'; ev.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+                    onMouseLeave={ev => { ev.currentTarget.style.borderColor = '#F1F1F4'; ev.currentTarget.style.boxShadow = 'none'; }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 10, background: '#071437', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ color: '#F6C000', fontWeight: 800, fontSize: 13 }}>{e.code}</span>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#071437' }}>{e.name}</div>
+                      <div style={{ fontSize: 11, color: '#78829D', marginTop: 2 }}>{e.cin_llpin || e.type || '—'}</div>
+                    </div>
+                  </button>
+                ))}
               </div>
-
-              <div className="d-flex flex-column gap-3 mb-5">
-                {allEntities.map((en) => {
-                  const active = selEntityId === String(en.id);
-                  return (
-                    <button
-                      key={en.id}
-                      type="button"
-                      className={`vg-entity-select ${active ? 'is-active' : ''}`}
-                      onClick={() => {
-                        setSelEntityId(String(en.id));
-                        setError('');
-                      }}
-                    >
-                      <Building2 size={16} />
-                      <div className="vg-entity-select-meta">
-                        <span>{en.name}</span>
-                        <small>{en.code}</small>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {error && <div className="alert alert-danger py-2 px-3 fs-8 mb-4">{error}</div>}
-              <button type="button" className="btn btn-primary w-100" onClick={handleEntitySelect}>
-                Continue
-              </button>
-            </>
+            </div>
           )}
 
-          {step === 'credentials' && (
-            <>
-              <div className="mb-6">
-                <div className="alert alert-primary d-flex align-items-center gap-2 py-2 px-3 mb-4">
-                  <Lock size={12} />
-                  <span className="fs-8 fw-bold">
-                    {allEntities.find((e) => e.id === Number(selEntityId))?.code} —{' '}
-                    {allEntities.find((e) => e.id === Number(selEntityId))?.name}
-                  </span>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-light ms-auto"
-                    onClick={() => {
-                      setStep('entity');
-                      setError('');
-                    }}
-                  >
-                    Change
-                  </button>
-                </div>
-                <h1 className="fs-2 fw-bolder text-gray-900 mb-2">Sign in</h1>
-                <p className="text-gray-500 fs-7 m-0">Enter your credentials</p>
+          {step === 'login' && (
+            <div>
+              <button onClick={() => { setStep('entity'); setError(''); }} style={{ fontSize: 12, color: '#4B5675', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 20 }}>
+                ← Back
+              </button>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#071437', marginBottom: 4 }}>Sign in</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
+                <div style={{ background: '#071437', color: '#F6C000', fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 4 }}>{selEntity?.code}</div>
+                <div style={{ fontSize: 13, color: '#4B5675' }}>{selEntity?.name}</div>
               </div>
 
-              <form onSubmit={handleLogin} className="d-flex flex-column gap-4">
-                <div>
-                  <label className="form-label fs-8 fw-bold text-gray-700">Username</label>
-                  <input
-                    className="form-control form-control-solid"
-                    style={inp}
-                    placeholder="Username"
-                    autoFocus
-                    value={form.username}
-                    onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
-                  />
+              {error && (
+                <div style={{ background: '#FFE2E5', border: '1px solid #FFB8C6', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 12, color: '#F8285A' }}>
+                  {error}
                 </div>
-                <div>
-                  <label className="form-label fs-8 fw-bold text-gray-700">Password</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      className="form-control form-control-solid"
-                      style={{ ...inp, paddingRight: 40 }}
-                      type={showPw ? 'text' : 'password'}
-                      placeholder="Password"
-                      value={form.password}
-                      onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPw((v) => !v)}
-                      style={{
-                        position: 'absolute',
-                        right: 12,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#99A1B7',
-                      }}
-                    >
-                      {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-                    </button>
-                  </div>
-                </div>
+              )}
 
-                {error && <div className="alert alert-danger py-2 px-3 fs-8 m-0">{error}</div>}
-                <button type="submit" className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" disabled={loading}>
-                  <LogIn size={15} />
-                  {loading ? 'Signing in...' : 'Sign in'}
-                </button>
-              </form>
-
-              <div className="alert alert-warning mt-5 mb-0 fs-8">
-                <div className="fw-bold">admin / Admin@1234</div>
-                <div className="fw-bold">director / Director@1234</div>
-                <div className="text-muted mt-1">Other users: add via Admin Setup → Users</div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 6 }}>Username</label>
+                <input value={username} onChange={e => setUsername(e.target.value)} autoFocus
+                  onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                  style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #F1F1F4', borderRadius: 10, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={ev => ev.target.style.borderColor = '#F6C000'} onBlur={ev => ev.target.style.borderColor = '#F1F1F4'} />
               </div>
-            </>
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 6 }}>Password</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                  style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #F1F1F4', borderRadius: 10, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={ev => ev.target.style.borderColor = '#F6C000'} onBlur={ev => ev.target.style.borderColor = '#F1F1F4'} />
+              </div>
+
+              <button onClick={handleLogin} disabled={loading} style={{
+                width: '100%', background: loading ? '#F1F1F4' : '#071437', color: loading ? '#78829D' : '#F6C000',
+                border: 'none', borderRadius: 10, padding: '12px', fontSize: 14, fontWeight: 800,
+                cursor: loading ? 'default' : 'pointer', letterSpacing: '0.3px', transition: 'all 0.15s',
+              }}>
+                {loading ? 'Signing in…' : 'Sign In'}
+              </button>
+
+              <div style={{ marginTop: 24, padding: '12px 14px', background: '#FCFCFC', borderRadius: 8, fontSize: 11, color: '#78829D', lineHeight: 1.6 }}>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>Default accounts:</div>
+                admin / Admin@1234 (Super Admin) · director / Director@1234 · accounts / Acc@1234
+              </div>
+            </div>
           )}
         </div>
       </div>

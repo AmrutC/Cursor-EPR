@@ -6,12 +6,12 @@ import Modal from '../ui/Modal';
 import { Grid, List, Lock, ChevronRight } from 'lucide-react';
 
 // Landowner — grey locked style
-const LANDOWNER_COLOR = { bg:'#FCFCFC', text:'#78829D', dot:'#99A1B7' };
+const LANDOWNER_COLOR = { bg:'#F5F8FA', text:'#78829D', dot:'#99A1B7' };
 
 // Status display config (includes Landowner)
 function getStatusColor(unit) {
   if (unit.is_landowner) return LANDOWNER_COLOR;
-  return UNIT_STATUS_COLORS[unit.status] || { bg:'#F9F9F9', text:'#4B5675', dot:'#99A1B7' };
+  return UNIT_STATUS_COLORS[unit.status] || { bg:'#FCFCFC', text:'#4B5675', dot:'#78829D' };
 }
 
 const STATUS_ORDER = ['Available','Booked','Agreement Done','Registered','Possession Given','Landowner','Cancelled'];
@@ -144,9 +144,9 @@ export default function Inventory() {
         {selProject && (
           <div className="flex gap-3 ml-2 flex-wrap">
             {[
-              ['Available',    availableCount, '#17C653', '#E8FFF3'],
-              ['Booked',       bookedCount,    '#1B84FF', '#E1F0FF'],
-              ['Landowner',    landownerCount, '#99A1B7', '#FCFCFC'],
+              ['Available',    availableCount, '#17C653', '#E8F5EE'],
+              ['Booked',       bookedCount,    '#1B84FF', '#EEF4FF'],
+              ['Landowner',    landownerCount, '#99A1B7', '#F5F8FA'],
             ].filter(([,cnt]) => cnt > 0).map(([label, cnt, tc, bg]) => (
               <span key={label} style={{ background:bg, color:tc }}
                 className="text-xs font-bold px-2.5 py-1 rounded-full">
@@ -222,7 +222,7 @@ export default function Inventory() {
                           title={isLO ? `Landowner — ${u.landowner_name||'Reserved'} (cannot book)` : (u.allottee_name || u.status)}
                           style={{
                             background:   sc.bg,
-                            borderColor:  isLO ? '#C4CADA' : sc.dot + '50',
+                            borderColor:  isLO ? '#C5D5E8' : sc.dot + '50',
                             color:        sc.text,
                             opacity:      isLO ? 0.75 : 1,
                             cursor:       'pointer',

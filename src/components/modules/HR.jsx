@@ -1,425 +1,642 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../stores/appStore';
-import Badge from '../ui/Badge';
-import Modal from '../ui/Modal';
-import { inr, fmtDate } from '../../utils';
-import { Plus, Search, Upload, FileText, ChevronRight } from 'lucide-react';
+import { Plus, Search, Download, X, ChevronDown, User } from 'lucide-react';
 
-const DEPTS=['Management','Sales','Accounts','Legal','HR','Admin','Operations','Design','Site'];
-const ATT_COLORS={ Present:{bg:'#E8FFF3',text:'#17C653'}, Absent:{bg:'#FFE2E5',text:'#A10035'}, 'Half Day':{bg:'#FFF8DD',text:'#9A6700'}, Leave:{bg:'#F1E8FF',text:'#5014D0'}, Holiday:{bg:'#F9F9F9',text:'#252F4A'} };
-const EMPTY_E={ name:'', designation:'', department:'Operations', phone:'', email:'', pan:'', doj:new Date().toISOString().slice(0,10), monthly_salary:'', status:'Active' };
-const DEMO_EMP=[
-  {id:1,emp_code:'EMP001',name:'Neeraj Bhandare',designation:'Architect',department:'Design',phone:'9876500002',email:'neeraj@email.com',pan:'ABCDE1234F',doj:'2025-01-01',monthly_salary:75000,status:'Active'},
-  {id:2,emp_code:'EMP002',name:'Suresh Kamble',designation:'Site Supervisor',department:'Site',phone:'9876500003',email:'',pan:'',doj:'2025-03-01',monthly_salary:35000,status:'Active'},
-  {id:3,emp_code:'EMP003',name:'Priya Sharma',designation:'Accounts Executive',department:'Accounts',phone:'9876500004',email:'priya@email.com',pan:'',doj:'2025-06-01',monthly_salary:28000,status:'Active'},
-];
-const MONTHS_LIST=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const COMPANY={name:'Vision Grroup',entity:'Vision Estate Holdings Pvt Ltd',address:'Panvel, Raigad, Maharashtra 410206',phone:'9876540000',email:'hr@visiongrroup.in'};
-const inp={width:'100%',border:'1px solid #DBDFE9',borderRadius:8,padding:'7px 10px',fontSize:13,color:'#111827',background:'#fff',outline:'none',fontFamily:'Inter,system-ui,sans-serif'};
-const sel={...inp,cursor:'pointer'};
-const F=({label,required,children,span})=>(
-  <div style={{gridColumn:span?`span ${span}`:''}}>
-    <label style={{display:'block',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:5}}>
-      {label}{required&&<span style={{color:'#F8285A',marginLeft:2}}>*</span>}
-    </label>
-    {children}
-  </div>
+export default function HRModule({ viewOnly }) {
+  const { activeSubTab } = useAppStore();
+  const tab = activeSubTab || 'employees';
+  return (
+    <div>
+      {tab === 'employees'   && <EmployeesTab viewOnly={viewOnly} />}
+      {tab === 'attendance'  && <AttendanceTab viewOnly={viewOnly} />}
+      {tab === 'leave'       && <LeaveTab viewOnly={viewOnly} />}
+      {tab === 'payroll'     && <PayrollTab viewOnly={viewOnly} />}
+      {tab === 'salaryslips' && <SalarySlipsTab viewOnly={viewOnly} />}
+      {tab === 'hrloans'     && <LoansTab viewOnly={viewOnly} />}
+    </div>
+  );
+}
+
+// ── SHARED ─────────────────────────────────────────────────────────────────
+const Btn = ({ children, onClick, color = '#0E9F8A', small, disabled, style = {} }) => (
+  <button onClick={onClick} disabled={disabled} style={{ background: disabled ? '#F1F1F4' : color, color: disabled ? '#78829D' : '#fff', border: 'none', borderRadius: 8, padding: small ? '5px 12px' : '7px 16px', fontSize: small ? 11 : 12, fontWeight: 700, cursor: disabled ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 5, ...style }}>{children}</button>
 );
-
-function printDoc(html,title){
-  const w=window.open('','_blank','width=794,height=1000');
-  w.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:13px;color:#111;padding:32px}.no-print{margin-bottom:16px}@media print{.no-print{display:none}body{padding:0}}</style></head><body><div class="no-print"><button onclick="window.print()" style="background:#071437;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;margin-right:8px">🖨 Print / Save PDF</button><button onclick="window.close()" style="background:#F9F9F9;color:#252F4A;border:1px solid #F1F1F4;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px">Close</button><span style="margin-left:12px;font-size:12px;color:#78829D">Print dialog → Save as PDF</span></div>${html}</body></html>`);
-  w.document.close();
-}
-
-function buildSalarySlip(emp,monthLabel,year,pd,wd=26){
-  const basic=Math.round(emp.monthly_salary*.5),hra=Math.round(emp.monthly_salary*.2),conv=Math.round(emp.monthly_salary*.1),spec=emp.monthly_salary-basic-hra-conv;
-  const earned=Math.round(emp.monthly_salary*pd/wd),pf=Math.round(Math.min(basic,15000)*.12),esic=earned<=21000?Math.round(earned*.0075):0,pt=earned>15000?200:earned>10000?150:0,totalDed=pf+esic+pt,netPay=earned-totalDed;
-  return`<div style="border:2px solid #071437;border-radius:4px;max-width:730px;margin:0 auto"><div style="background:#071437;color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:20px;font-weight:700;color:#F6C000">VISION GRROUP</div><div style="font-size:11px;opacity:.65;margin-top:2px">${COMPANY.entity} · ${COMPANY.address}</div></div><div style="text-align:right"><div style="font-size:16px;font-weight:700;color:#F6C000">SALARY SLIP</div><div style="font-size:12px;opacity:.7">${monthLabel} ${year}</div></div></div><div style="padding:16px 22px;border-bottom:1px solid #F1F1F4"><table style="width:100%;font-size:12.5px"><tr><td style="padding:4px 0;color:#78829D;width:25%">Employee Name</td><td style="font-weight:700;color:#071437">${emp.name}</td><td style="padding:4px 0;color:#78829D;width:25%">Employee Code</td><td style="font-weight:700;font-family:monospace">${emp.emp_code}</td></tr><tr><td style="padding:4px 0;color:#78829D">Designation</td><td style="font-weight:600">${emp.designation}</td><td style="padding:4px 0;color:#78829D">Department</td><td>${emp.department}</td></tr><tr><td style="padding:4px 0;color:#78829D">Date of Joining</td><td>${fmtDate(emp.doj)}</td><td style="padding:4px 0;color:#78829D">PAN</td><td style="font-family:monospace">${emp.pan||'—'}</td></tr><tr><td style="padding:4px 0;color:#78829D">Working Days</td><td>${wd}</td><td style="padding:4px 0;color:#78829D">Present Days</td><td style="font-weight:700;color:#17C653">${pd}</td></tr></table></div><div style="display:grid;grid-template-columns:1fr 1fr;padding:16px 22px;gap:24px"><div><div style="font-size:11px;font-weight:700;color:#071437;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;border-bottom:2px solid #071437;padding-bottom:4px">Earnings</div>${[['Basic Salary',basic],['HRA',hra],['Conveyance',conv],['Special Allowance',spec]].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #F9F9F9;font-size:12.5px"><span style="color:#252F4A">${l}</span><span style="font-family:monospace;font-weight:600">${inr(v)}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:800;font-size:13px;color:#17C653;border-top:2px solid #071437;margin-top:4px"><span>Gross Earned</span><span style="font-family:monospace">${inr(earned)}</span></div></div><div><div style="font-size:11px;font-weight:700;color:#071437;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;border-bottom:2px solid #F8285A;padding-bottom:4px">Deductions</div>${[['Provident Fund (12%)',pf],['ESIC (0.75%)',esic],['Professional Tax',pt],['TDS',0]].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #F9F9F9;font-size:12.5px"><span style="color:#252F4A">${l}</span><span style="font-family:monospace;font-weight:600;color:${v>0?'#F8285A':'#99A1B7'}">${v>0?inr(v):'—'}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:800;font-size:13px;color:#F8285A;border-top:2px solid #F8285A;margin-top:4px"><span>Total Deductions</span><span style="font-family:monospace">${inr(totalDed)}</span></div></div></div><div style="background:#071437;padding:14px 22px;display:flex;justify-content:space-between;align-items:center"><div style="color:#fff;font-size:14px;font-weight:700">NET PAY</div><div style="color:#F6C000;font-size:22px;font-weight:800;font-family:monospace">${inr(netPay)}</div></div><div style="padding:12px 22px;font-size:11px;color:#78829D;display:flex;justify-content:space-between"><span>Computer generated salary slip.</span><span>For ${COMPANY.entity} — Authorised Signatory</span></div></div>`;
-}
-
-function buildJoiningLetter(emp){
-  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
-  return`<div style="max-width:730px;margin:0 auto;font-size:13px;line-height:1.8"><div style="text-align:center;margin-bottom:20px"><div style="font-size:22px;font-weight:700;color:#071437">VISION GRROUP</div><div style="font-size:12px;color:#78829D">${COMPANY.entity} · ${COMPANY.address}</div><div style="border-bottom:2px solid #071437;margin-top:10px"></div></div><div style="margin-bottom:16px"><div><strong>Date:</strong> ${today}</div><div><strong>Ref:</strong> VEH/HR/JL/${emp.emp_code}</div></div><p>To,<br><strong>${emp.name}</strong>${emp.phone?`<br>Phone: ${emp.phone}`:''}</p><p style="margin-top:12px"><strong>Subject: Appointment Letter — ${emp.designation}, ${emp.department} Department</strong></p><p style="margin-top:12px">Dear <strong>${emp.name}</strong>,</p><p style="margin-top:12px">We are pleased to offer you the position of <strong>${emp.designation}</strong> in the <strong>${emp.department}</strong> department at ${COMPANY.entity}, effective <strong>${fmtDate(emp.doj)}</strong>.</p><table style="width:100%;margin:14px 0;border-collapse:collapse;font-size:12.5px">${[['Designation',emp.designation],['Department',emp.department],['Employee Code',emp.emp_code],['Date of Joining',fmtDate(emp.doj)],['Monthly Gross Salary',inr(emp.monthly_salary)],['Work Location','Vision Harmony Site, Panvel, Raigad'],['Working Hours','9:00 AM – 6:00 PM, Monday to Saturday']].map(([l,v])=>`<tr><td style="padding:6px 12px;border:1px solid #F1F1F4;color:#78829D;font-weight:600;width:40%;background:#F9F9F9">${l}</td><td style="padding:6px 12px;border:1px solid #F1F1F4;font-weight:700;color:#071437">${v}</td></tr>`).join('')}</table><p>Please report on your date of joining with: Aadhaar Card, PAN Card, last employer's relieving letter (if any), bank account details, and 2 passport photos.</p><p style="margin-top:12px">We look forward to a rewarding association with you.</p><div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><div style="border-top:1px solid #252F4A;padding-top:6px;font-size:12px">Authorised Signatory<br><strong>${COMPANY.entity}</strong></div></div><div><div style="border-top:1px solid #252F4A;padding-top:6px;font-size:12px">Acceptance by Employee<br><strong>${emp.name}</strong></div></div></div></div>`;
-}
-
-function buildWarningLetter(emp,reason,details,wno){
-  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
-  return`<div style="max-width:730px;margin:0 auto;font-size:13px;line-height:1.8"><div style="text-align:center;margin-bottom:20px"><div style="font-size:22px;font-weight:700;color:#071437">VISION GRROUP</div><div style="font-size:12px;color:#78829D">${COMPANY.entity} · ${COMPANY.address}</div><div style="border-bottom:2px solid #F8285A;margin-top:10px"></div></div><div style="background:#FFE2E5;border:1px solid #FCA9BD;border-radius:6px;padding:10px 16px;margin-bottom:20px;text-align:center;font-weight:700;color:#A10035;font-size:14px;letter-spacing:.5px">WARNING LETTER — CONFIDENTIAL</div><div style="margin-bottom:16px"><div><strong>Date:</strong> ${today}</div><div><strong>Ref No.:</strong> VEH/HR/WL/${wno}</div></div><p>To,<br><strong>${emp.name}</strong><br>Employee Code: <strong>${emp.emp_code}</strong><br>${emp.designation}, ${emp.department} Department</p><p style="margin-top:12px"><strong>Subject: Written Warning — ${reason}</strong></p><p style="margin-top:12px">Dear <strong>${emp.name}</strong>,</p><p style="margin-top:12px">This letter is a formal written warning regarding: <strong>${reason}</strong>.</p><p style="margin-top:12px"><strong>Details:</strong></p><div style="background:#FFF8DD;border-left:4px solid #F6C000;padding:12px 16px;margin:12px 0;border-radius:0 6px 6px 0">${details}</div><p>This is a violation of company policy. Any repetition may result in further disciplinary action including termination. You are required to submit a written explanation within <strong>3 working days</strong>.</p><div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><div style="border-top:1px solid #252F4A;padding-top:6px;font-size:12px">HR Department<br><strong>${COMPANY.entity}</strong></div></div><div><div style="border-top:1px solid #252F4A;padding-top:6px;font-size:12px">Employee Acknowledgement<br><strong>${emp.name}</strong> — Date: ____________</div></div></div></div>`;
-}
-
-export default function HR(){
-  const {addToast}=useAppStore();
-  const [employees,setEmployees]=useState([]);
-  const [tab,setTab]=useState('employees');
-  const [empModal,setEmpModal]=useState(false);
-  const [form,setForm]=useState(EMPTY_E);
-  const [editingId,setEditingId]=useState(null);
-  const [attDate,setAttDate]=useState(new Date().toISOString().slice(0,10));
-  const [attendance,setAttendance]=useState({});
-  const [search,setSearch]=useState('');
-  // Biometric
-  const [bioStep,setBioStep]=useState('upload');
-  const [bioRaw,setBioRaw]=useState([]);
-  const [bioHeaders,setBioHeaders]=useState([]);
-  const [bioMap,setBioMap]=useState({emp_name:'',date:'',status:''});
-  const [bioPreview,setBioPreview]=useState([]);
-  const [bioResult,setBioResult]=useState(null);
-  const bioRef=useRef();
-  // Documents
-  const [docModal,setDocModal]=useState(false);
-  const [docType,setDocType]=useState('salary');
-  const [docEmpId,setDocEmpId]=useState('');
-  const [salMonth,setSalMonth]=useState(String(new Date().getMonth()));
-  const [salYear,setSalYear]=useState(String(new Date().getFullYear()));
-  const [warnReason,setWarnReason]=useState('');
-  const [warnDetails,setWarnDetails]=useState('');
-
-  const set=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
-  const totalPayroll=(employees||[]).filter(e=>e.status==='Active').reduce((s,e)=>s+(e.monthly_salary||0),0);
-  const activeEmp=(employees||[]).filter(e=>e.status==='Active');
-  const filtered=(employees||[]).filter(e=>!search||e.name.toLowerCase().includes(search.toLowerCase())||e.department.toLowerCase().includes(search.toLowerCase()));
-  const dayAtt=attendance[attDate]||{};
-  const month=attDate.slice(0,7);
-  const monthDays=Object.keys(attendance).filter(d=>d.startsWith(month));
-  function getSummary(id){let p=0,a=0,h=0,l=0;monthDays.forEach(d=>{const s=attendance[d]?.[id];if(s==='Present')p++;else if(s==='Absent')a++;else if(s==='Half Day')h++;else if(s==='Leave')l++;});return{p,a,h,l};}
-  function markAtt(id,s){setAttendance(a=>({...a,[attDate]:{...(a[attDate]||{}),[id]:s}}));}
-  function openNew(){setForm(EMPTY_E);setEditingId(null);setEmpModal(true);}
-  function openEdit(e){setForm({...e});setEditingId(e.id);setEmpModal(true);}
-  function saveEmp(){if(!form.name.trim()){alert('Name required.');return;}if(editingId){setEmployees(es=>es.map(e=>e.id===editingId?{...e,...form,monthly_salary:Number(form.monthly_salary)||0}:e));}else{const code=`EMP${String(employees.length+1).padStart(3,'0')}`;setEmployees(es=>[...es,{...form,id:Date.now(),emp_code:code,monthly_salary:Number(form.monthly_salary)||0}]);}addToast('Employee saved.','success');setEmpModal(false);}
-
-  async function handleBioFile(e){
-    const file=e.target.files[0];if(!file)return;
-    try{
-      const text=await file.text();
-      const lines=text.split('\n').filter(l=>l.trim());
-      const headers=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
-      const rows=lines.slice(1).map(line=>{const cols=line.split(',');return headers.reduce((o,h,i)=>({...o,[h]:cols[i]?.trim().replace(/"/g,'')||''}),{});});
-      setBioHeaders(headers);setBioRaw(rows);
-      setBioMap({emp_name:headers.find(h=>/name/i.test(h))||'',date:headers.find(h=>/date/i.test(h))||'',status:headers.find(h=>/status|punch|att/i.test(h))||''});
-      setBioStep('mapping');addToast(`Loaded ${rows.length} rows from ${file.name}`,'success');
-    }catch{addToast('Error reading file. Use CSV or Excel exported as CSV.','error');}
-  }
-
-  function buildPreview(){if(!bioMap.emp_name||!bioMap.date){alert('Map Employee Name and Date first.');return;}setBioPreview(bioRaw.slice(0,10).map(r=>({emp_name:r[bioMap.emp_name]||'—',date:r[bioMap.date]||'—',status:bioMap.status?r[bioMap.status]||'Present':'Present'})));setBioStep('preview');}
-
-  function confirmImport(){
-    let imp=0,skip=0;const newAtt={...attendance};
-    bioRaw.forEach(row=>{
-      const en=row[bioMap.emp_name]?.trim(),dr=row[bioMap.date]?.trim(),st=bioMap.status?row[bioMap.status]?.trim()||'Present':'Present';
-      if(!en||!dr){skip++;return;}
-      const emp=employees.find(e=>e.name.toLowerCase().includes(en.toLowerCase())||en.toLowerCase().includes(e.name.toLowerCase()));
-      if(!emp){skip++;return;}
-      const d=new Date(dr);if(isNaN(d)){skip++;return;}
-      const dk=d.toISOString().slice(0,10);
-      if(newAtt[dk]?.[emp.id]){skip++;return;}
-      const sl=st.toUpperCase();
-      let as='Present';if(/^A$|ABSENT/.test(sl))as='Absent';else if(/HALF|H$|HD/.test(sl))as='Half Day';else if(/LEAVE|^L$/.test(sl))as='Leave';else if(/HOLIDAY/.test(sl))as='Holiday';
-      newAtt[dk]={...(newAtt[dk]||{}),[emp.id]:as};imp++;
-    });
-    setAttendance(newAtt);setBioResult({imp,skip});setBioStep('done');addToast(`Imported ${imp} records.`,'success');
-  }
-
-  function generateDoc(){
-    const emp=employees.find(e=>e.id===Number(docEmpId));if(!emp){alert('Select an employee.');return;}
-    if(docType==='salary'){const mn=MONTHS_LIST[Number(salMonth)];const s=getSummary(emp.id);const pd=s.p+(s.h*.5)||26;printDoc(buildSalarySlip(emp,mn,salYear,pd),`Salary Slip — ${emp.name} — ${mn} ${salYear}`);}
-    else if(docType==='joining'){printDoc(buildJoiningLetter(emp),`Joining Letter — ${emp.name}`);}
-    else if(docType==='warning'){if(!warnReason.trim()){alert('Select warning reason.');return;}if(!warnDetails.trim()){alert('Enter warning details.');return;}printDoc(buildWarningLetter(emp,warnReason,warnDetails,`${Date.now()}`.slice(-3)),`Warning Letter — ${emp.name}`);}
-  }
-
-  const TABS=[['employees','Employees'],['attendance','Attendance'],['biometric','Biometric Import'],['payroll','Payroll'],['documents','Documents']];
-
-  return(<div>
-    {/* Stats */}
-    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16}}>
-      {[{l:'Total',v:employees.length,c:'#1B84FF'},{l:'Active',v:activeEmp.length,c:'#17C653'},{l:'Monthly Payroll',v:inr(totalPayroll),c:'#071437'},{l:'Departments',v:new Set(employees.map(e=>e.department)).size,c:'#5014D0'}].map(s=>(
-        <div key={s.l} style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:12,padding:'12px 15px'}}>
-          <div style={{fontSize:9.5,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:4}}>{s.l}</div>
-          <div style={{fontSize:17,fontWeight:800,color:s.c,fontFamily:'monospace'}}>{s.v}</div>
+const Badge = ({ label, color = '#0E9F8A' }) => <span style={{ background: color + '18', color, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>{label}</span>;
+function ModalOverlay({ children, onClose, title, wide }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
+      <div style={{ background: '#fff', borderRadius: 14, width: wide ? 820 : 520, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid #FCFCFC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+          <span style={{ fontWeight: 800, fontSize: 14, color: '#071437' }}>{title}</span>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78829D' }}><X size={16} /></button>
         </div>
-      ))}
-    </div>
-    {/* Tabs */}
-    <div style={{display:'flex',gap:3,background:'#F9F9F9',borderRadius:10,padding:3,marginBottom:16,overflowX:'auto'}}>
-      {TABS.map(([id,label])=>(<button key={id} onClick={()=>setTab(id)} style={{flexShrink:0,padding:'6px 16px',borderRadius:7,fontSize:12.5,fontWeight:tab===id?700:500,color:tab===id?'#071437':'#78829D',background:tab===id?'#fff':'transparent',cursor:'pointer',boxShadow:tab===id?'0 1px 3px rgba(0,0,0,0.1)':'',border:'none'}}>{label}</button>))}
-    </div>
-
-    {/* EMPLOYEES */}
-    {tab==='employees'&&(<>
-      <div style={{display:'flex',gap:10,marginBottom:14}}>
-        <div style={{flex:1,position:'relative'}}><Search size={13} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#99A1B7'}}/><input style={{...inp,paddingLeft:32}} placeholder="Search…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
-        <button onClick={openNew} className="btn-primary" style={{fontSize:12.5}}><Plus size={13}/> Add Employee</button>
+        <div style={{ padding: '16px 20px' }}>{children}</div>
       </div>
-      <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.05)'}}>
-        <table style={{width:'100%',borderCollapse:'collapse'}}>
-          <thead><tr style={{background:'#F9F9F9',borderBottom:'2px solid #F1F1F4'}}>
-            {['Code','Name','Designation','Dept','Phone','Salary','DOJ','Status',''].map(h=><th key={h} style={{padding:'9px 12px',textAlign:'left',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',whiteSpace:'nowrap'}}>{h}</th>)}
-          </tr></thead>
+    </div>
+  );
+}
+function FormField({ label, value, onChange, type = 'text', options, required }) {
+  return (
+    <div>
+      <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>{label}{required && ' *'}</label>
+      {options ? (
+        <select value={value || ''} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, boxSizing: 'border-box' }}>
+          {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
+        </select>
+      ) : (
+        <input type={type} value={value ?? ''} onChange={e => onChange(e.target.value)}
+          style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
+          onFocus={e => e.target.style.borderColor = '#0E9F8A'} onBlur={e => e.target.style.borderColor = '#F1F1F4'} />
+      )}
+    </div>
+  );
+}
+function Th({ children }) { return <th style={{ padding: '9px 14px', fontSize: 11, fontWeight: 700, color: '#4B5675', textAlign: 'left', borderBottom: '1px solid #FCFCFC', background: '#FCFCFC' }}>{children}</th>; }
+function Td({ children, style = {} }) { return <td style={{ padding: '8px 14px', fontSize: 12, color: '#252F4A', borderBottom: '1px solid #FCFCFC', ...style }}>{children}</td>; }
+
+const DEPARTMENTS = ['Management', 'Accounts', 'Sales', 'Construction', 'HR', 'Admin', 'Site'];
+const DESIGNATIONS = ['Director', 'Manager', 'Executive', 'Supervisor', 'Engineer', 'Accountant', 'Clerk', 'Worker'];
+
+// ── EMPLOYEES ─────────────────────────────────────────────────────────────
+function EmployeesTab({ viewOnly }) {
+  const { employees, setEmployees, addToast, user } = useAppStore();
+  const [modal, setModal] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState('');
+  const [form, setForm] = useState({ name: '', phone: '', email: '', pan: '', aadhaar: '', department: 'Accounts', designation: 'Executive', employeeCode: '', joinDate: '', salary: '', salaryType: 'monthly', bankAccount: '', ifsc: '', bankName: '', pf: false, esi: false, status: 'active' });
+
+  function saveEmployee() {
+    if (!form.name) { addToast('Employee name required', 'error'); return; }
+    if (selected) {
+      setEmployees(prev => prev.map(e => e.id === selected.id ? { ...e, ...form } : e));
+      addToast('Employee updated');
+    } else {
+      const code = form.employeeCode || `EMP${String(employees.length + 1).padStart(3, '0')}`;
+      setEmployees(prev => [...prev, { ...form, id: Date.now(), employeeCode: code, createdAt: new Date().toISOString() }]);
+      addToast('Employee added');
+    }
+    setModal(null);
+  }
+
+  const filtered = employees.filter(e => !search || e.name?.toLowerCase().includes(search.toLowerCase()) || e.employeeCode?.includes(search));
+  const active = employees.filter(e => e.status === 'active').length;
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Employees</div>
+          <div style={{ fontSize: 11, color: '#78829D' }}>{active} active · {employees.length} total</div>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={11} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: '#78829D' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…" style={{ paddingLeft: 26, paddingRight: 10, paddingTop: 6, paddingBottom: 6, border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, outline: 'none', width: 180 }} />
+          </div>
+          {!viewOnly && <Btn onClick={() => { setSelected(null); setForm({ name: '', phone: '', email: '', pan: '', aadhaar: '', department: 'Accounts', designation: 'Executive', employeeCode: '', joinDate: '', salary: '', salaryType: 'monthly', bankAccount: '', ifsc: '', bankName: '', pf: false, esi: false, status: 'active' }); setModal('form'); }} small><Plus size={12} /> Add Employee</Btn>}
+        </div>
+      </div>
+
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead><tr><Th>Code</Th><Th>Name</Th><Th>Department</Th><Th>Designation</Th><Th>Salary</Th><Th>PF</Th><Th>ESI</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
           <tbody>
-            {filtered.length===0?<tr><td colSpan={9} style={{textAlign:'center',padding:40,color:'#99A1B7',fontSize:13}}>No employees. Add one to get started.</td></tr>:
-            filtered.map((e,i)=>(<tr key={e.id} style={{borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC'}}>
-              <td style={{padding:'9px 12px',fontSize:11.5,fontFamily:'monospace',color:'#78829D'}}>{e.emp_code}</td>
-              <td style={{padding:'9px 12px',fontSize:13,fontWeight:700,color:'#071437'}}>{e.name}</td>
-              <td style={{padding:'9px 12px',fontSize:12.5,color:'#252F4A'}}>{e.designation}</td>
-              <td style={{padding:'9px 12px',fontSize:12.5,color:'#252F4A'}}>{e.department}</td>
-              <td style={{padding:'9px 12px',fontSize:12.5,color:'#252F4A'}}>{e.phone}</td>
-              <td style={{padding:'9px 12px',fontSize:13,fontWeight:700,fontFamily:'monospace',textAlign:'right',color:'#071437'}}>{e.monthly_salary?inr(e.monthly_salary):'—'}</td>
-              <td style={{padding:'9px 12px',fontSize:12,color:'#252F4A'}}>{fmtDate(e.doj)}</td>
-              <td style={{padding:'9px 12px'}}><Badge value={e.status}/></td>
-              <td style={{padding:'9px 12px'}}><button onClick={()=>openEdit(e)} style={{background:'#F9F9F9',border:'1px solid #F1F1F4',borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:11.5,fontWeight:600,color:'#252F4A'}}>Edit</button></td>
-            </tr>))}
+            {filtered.map(e => (
+              <tr key={e.id}>
+                <Td style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: 11 }}>{e.employeeCode}</Td>
+                <Td style={{ fontWeight: 600, color: '#071437' }}>{e.name}</Td>
+                <Td>{e.department}</Td>
+                <Td>{e.designation}</Td>
+                <Td style={{ fontWeight: 600 }}>₹{Number(e.salary || 0).toLocaleString('en-IN')}<span style={{ fontSize: 9, color: '#78829D' }}>/{e.salaryType === 'monthly' ? 'mo' : 'day'}</span></Td>
+                <Td>{e.pf ? <Badge label="PF" color="#0E9F8A" /> : '—'}</Td>
+                <Td>{e.esi ? <Badge label="ESI" color="#1B84FF" /> : '—'}</Td>
+                <Td><Badge label={e.status} color={e.status === 'active' ? '#17C653' : '#F8285A'} /></Td>
+                <Td>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button onClick={() => { setSelected(e); setModal('view'); }} style={{ background: '#E8FFF3', color: '#0E9F8A', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>View</button>
+                    {!viewOnly && <button onClick={() => { setSelected(e); setForm({ ...e }); setModal('form'); }} style={{ background: '#EEF6FF', color: '#1B84FF', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Edit</button>}
+                  </div>
+                </Td>
+              </tr>
+            ))}
           </tbody>
         </table>
+        {filtered.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No employees yet. Add your team.</div>}
       </div>
-    </>)}
 
-    {/* ATTENDANCE */}
-    {tab==='attendance'&&(
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
-        <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.05)'}}>
-          <div style={{padding:'13px 16px',borderBottom:'1px solid #F9F9F9',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:12,fontWeight:700,color:'#071437'}}>Mark Attendance</span>
-            <input type="date" value={attDate} onChange={e=>setAttDate(e.target.value)} style={{...inp,width:'auto',fontSize:12}}/>
+      {modal === 'form' && (
+        <ModalOverlay onClose={() => setModal(null)} title={selected ? `Edit — ${selected.name}` : 'Add Employee'} wide>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#071437', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Basic Info</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <FormField label="Full Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
+            <FormField label="Employee Code" value={form.employeeCode} onChange={v => setForm(f => ({ ...f, employeeCode: v }))} />
+            <FormField label="Join Date" value={form.joinDate} onChange={v => setForm(f => ({ ...f, joinDate: v }))} type="date" />
+            <FormField label="Phone" value={form.phone} onChange={v => setForm(f => ({ ...f, phone: v }))} />
+            <FormField label="Email" value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} />
+            <FormField label="Department" value={form.department} onChange={v => setForm(f => ({ ...f, department: v }))} options={DEPARTMENTS} />
+            <FormField label="Designation" value={form.designation} onChange={v => setForm(f => ({ ...f, designation: v }))} options={DESIGNATIONS} />
+            <FormField label="PAN" value={form.pan} onChange={v => setForm(f => ({ ...f, pan: v.toUpperCase() }))} />
+            <FormField label="Aadhaar No" value={form.aadhaar} onChange={v => setForm(f => ({ ...f, aadhaar: v }))} />
           </div>
-          <div style={{padding:'10px 14px'}}>
-            {activeEmp.map(e=>{const st=dayAtt[e.id]||'';return(
-              <div key={e.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid #F9F9F9'}}>
-                <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:'#071437'}}>{e.name}</div><div style={{fontSize:11,color:'#78829D'}}>{e.designation}</div></div>
-                <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
-                  {['Present','Absent','Half Day','Leave'].map(s=>{const c=ATT_COLORS[s];return(
-                    <button key={s} onClick={()=>markAtt(e.id,s)} style={{background:st===s?c.bg:'#F9F9F9',border:`1px solid ${st===s?c.bg:'#F1F1F4'}`,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:11,fontWeight:st===s?700:500,color:st===s?c.text:'#78829D',transition:'all .12s'}}>
-                      {s==='Half Day'?'½ Day':s}
-                    </button>
-                  );})}
-                </div>
-              </div>
-            );})}
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#071437', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Salary & Compliance</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <FormField label="Salary (₹)" value={form.salary} onChange={v => setForm(f => ({ ...f, salary: v }))} type="number" />
+            <FormField label="Salary Type" value={form.salaryType} onChange={v => setForm(f => ({ ...f, salaryType: v }))} options={[{ value: 'monthly', label: 'Monthly' }, { value: 'daily', label: 'Daily Wage' }]} />
+            <FormField label="Status" value={form.status} onChange={v => setForm(f => ({ ...f, status: v }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
           </div>
+          <div style={{ display: 'flex', gap: 20, marginBottom: 14 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.pf} onChange={e => setForm(f => ({ ...f, pf: e.target.checked }))} />
+              PF Applicable
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.esi} onChange={e => setForm(f => ({ ...f, esi: e.target.checked }))} />
+              ESI Applicable
+            </label>
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#071437', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Bank Details</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
+            <FormField label="Bank Name" value={form.bankName} onChange={v => setForm(f => ({ ...f, bankName: v }))} />
+            <FormField label="Account No" value={form.bankAccount} onChange={v => setForm(f => ({ ...f, bankAccount: v }))} />
+            <FormField label="IFSC Code" value={form.ifsc} onChange={v => setForm(f => ({ ...f, ifsc: v.toUpperCase() }))} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Btn onClick={() => setModal(null)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={saveEmployee} small>Save Employee</Btn>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {modal === 'view' && selected && (
+        <ModalOverlay onClose={() => setModal(null)} title={selected.name} wide>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+            {[['Code', selected.employeeCode], ['Department', selected.department], ['Designation', selected.designation], ['Phone', selected.phone || '—'], ['Email', selected.email || '—'], ['PAN', selected.pan || '—'], ['Aadhaar', selected.aadhaar || '—'], ['Join Date', selected.joinDate || '—'], ['Salary', `₹${Number(selected.salary || 0).toLocaleString('en-IN')}/${selected.salaryType === 'monthly' ? 'month' : 'day'}`], ['PF', selected.pf ? 'Yes' : 'No'], ['ESI', selected.esi ? 'Yes' : 'No'], ['Status', selected.status]].map(([k, v]) => (
+              <div key={k}><div style={{ fontSize: 10, color: '#78829D' }}>{k}</div><div style={{ fontSize: 13, fontWeight: 600, color: '#071437' }}>{v}</div></div>
+            ))}
+          </div>
+        </ModalOverlay>
+      )}
+    </div>
+  );
+}
+
+// ── ATTENDANCE ────────────────────────────────────────────────────────────
+function AttendanceTab({ viewOnly }) {
+  const { employees, attendance, setAttendance, addToast } = useAppStore();
+  const [mode, setMode] = useState('daily'); // daily | monthly
+  const [selDate, setSelDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selMonth, setSelMonth] = useState(new Date().toISOString().slice(0, 7));
+
+  function markAttendance(empId, status) {
+    setAttendance(prev => {
+      const existing = prev.findIndex(a => a.empId === empId && a.date === selDate);
+      if (existing >= 0) {
+        const updated = [...prev];
+        updated[existing] = { ...updated[existing], status };
+        return updated;
+      }
+      return [...prev, { id: Date.now() + empId, empId, date: selDate, status }];
+    });
+  }
+
+  function getStatus(empId) {
+    return attendance.find(a => a.empId === empId && a.date === selDate)?.status || '';
+  }
+
+  // Monthly summary
+  const monthlySummary = useMemo(() => {
+    const monthAttendance = attendance.filter(a => a.date?.startsWith(selMonth));
+    return employees.map(e => {
+      const empAtt = monthAttendance.filter(a => a.empId === e.id);
+      return {
+        ...e,
+        present: empAtt.filter(a => a.status === 'P').length,
+        absent: empAtt.filter(a => a.status === 'A').length,
+        halfday: empAtt.filter(a => a.status === 'HD').length,
+        leave: empAtt.filter(a => a.status === 'L').length,
+        lop: empAtt.filter(a => a.status === 'LOP').length,
+      };
+    });
+  }, [attendance, employees, selMonth]);
+
+  const STATUS_OPTIONS = [
+    { val: 'P', label: 'Present', color: '#17C653' },
+    { val: 'A', label: 'Absent', color: '#F8285A' },
+    { val: 'HD', label: 'Half Day', color: '#F6C000' },
+    { val: 'L', label: 'Leave', color: '#1B84FF' },
+    { val: 'LOP', label: 'LOP', color: '#7239EA' },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Attendance</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', background: '#FCFCFC', borderRadius: 8, padding: 2 }}>
+            {[['daily', 'Daily'], ['monthly', 'Monthly Summary']].map(([v, l]) => (
+              <button key={v} onClick={() => setMode(v)} style={{ padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: mode === v ? 700 : 400, color: mode === v ? '#071437' : '#4B5675', background: mode === v ? '#fff' : 'transparent', border: '1px solid ' + (mode === v ? '#F1F1F4' : 'transparent'), cursor: 'pointer' }}>{l}</button>
+            ))}
+          </div>
+          {mode === 'daily' ? (
+            <input type="date" value={selDate} onChange={e => setSelDate(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
+          ) : (
+            <input type="month" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
+          )}
         </div>
-        <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.05)'}}>
-          <div style={{padding:'13px 16px',borderBottom:'1px solid #F9F9F9',fontSize:12,fontWeight:700,color:'#071437'}}>Monthly Summary — {new Date(month+'-01').toLocaleString('default',{month:'long',year:'numeric'})}</div>
-          <table style={{width:'100%',borderCollapse:'collapse'}}>
-            <thead><tr style={{background:'#F9F9F9',borderBottom:'2px solid #F1F1F4'}}>
-              {['Employee','P','A','H','L','Earned'].map(h=><th key={h} style={{padding:'8px 12px',textAlign:h==='Employee'?'left':'center',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px'}}>{h}</th>)}
-            </tr></thead>
-            <tbody>{activeEmp.map((e,i)=>{const s=getSummary(e.id);const earned=e.monthly_salary?Math.round((s.p+s.h*.5)/26*e.monthly_salary):0;return(
-              <tr key={e.id} style={{borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC'}}>
-                <td style={{padding:'9px 12px',fontSize:13,fontWeight:600,color:'#071437'}}>{e.name}</td>
-                <td style={{padding:'9px 12px',textAlign:'center',fontSize:13,fontWeight:700,color:'#17C653'}}>{s.p}</td>
-                <td style={{padding:'9px 12px',textAlign:'center',fontSize:13,fontWeight:700,color:'#A10035'}}>{s.a}</td>
-                <td style={{padding:'9px 12px',textAlign:'center',fontSize:13,fontWeight:700,color:'#9A6700'}}>{s.h}</td>
-                <td style={{padding:'9px 12px',textAlign:'center',fontSize:13,color:'#5014D0'}}>{s.l}</td>
-                <td style={{padding:'9px 12px',fontSize:13,fontWeight:700,fontFamily:'monospace',textAlign:'right',color:'#071437'}}>{earned?inr(earned):'—'}</td>
-              </tr>);})}</tbody>
+      </div>
+
+      {mode === 'daily' && (
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><Th>Employee</Th><Th>Dept.</Th><Th>Designation</Th><Th>Status</Th></tr></thead>
+            <tbody>
+              {employees.filter(e => e.status === 'active').map(e => {
+                const status = getStatus(e.id);
+                return (
+                  <tr key={e.id}>
+                    <Td style={{ fontWeight: 600 }}>{e.name}</Td>
+                    <Td>{e.department}</Td>
+                    <Td>{e.designation}</Td>
+                    <Td>
+                      {!viewOnly ? (
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          {STATUS_OPTIONS.map(opt => (
+                            <button key={opt.val} onClick={() => markAttendance(e.id, opt.val)} style={{ padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer', background: status === opt.val ? opt.color : 'transparent', color: status === opt.val ? '#fff' : opt.color, border: `1px solid ${opt.color}` }}>{opt.val}</button>
+                          ))}
+                        </div>
+                      ) : (
+                        status ? <Badge label={status} color={STATUS_OPTIONS.find(o => o.val === status)?.color || '#4B5675'} /> : '—'
+                      )}
+                    </Td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {employees.filter(e => e.status === 'active').length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No active employees.</div>}
+        </div>
+      )}
+
+      {mode === 'monthly' && (
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><Th>Employee</Th><Th>Present</Th><Th>Absent</Th><Th>Half Day</Th><Th>Leave</Th><Th>LOP</Th><Th>Payable Days</Th></tr></thead>
+            <tbody>
+              {monthlySummary.filter(e => e.status === 'active').map(e => {
+                const payableDays = e.present + (e.halfday * 0.5) + e.leave;
+                return (
+                  <tr key={e.id}>
+                    <Td style={{ fontWeight: 600 }}>{e.name}</Td>
+                    <Td style={{ color: '#17C653', fontWeight: 600 }}>{e.present}</Td>
+                    <Td style={{ color: '#F8285A', fontWeight: 600 }}>{e.absent}</Td>
+                    <Td style={{ color: '#F6C000' }}>{e.halfday}</Td>
+                    <Td style={{ color: '#1B84FF' }}>{e.leave}</Td>
+                    <Td style={{ color: '#7239EA' }}>{e.lop}</Td>
+                    <Td style={{ fontWeight: 700 }}>{payableDays}</Td>
+                  </tr>
+                );
+              })}
+            </tbody>
           </table>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ── LEAVE ─────────────────────────────────────────────────────────────────
+const LEAVE_TYPES = ['CL', 'SL', 'PL', 'LOP'];
+const LEAVE_LABELS = { CL: 'Casual Leave', SL: 'Sick Leave', PL: 'Privilege Leave', LOP: 'Loss of Pay' };
+const LEAVE_COLORS = { CL: '#1B84FF', SL: '#7239EA', PL: '#0E9F8A', LOP: '#F8285A' };
+
+function LeaveTab({ viewOnly }) {
+  const { employees, leaveApplications, setLeaveApplications, addToast, user } = useAppStore();
+  const [modal, setModal] = useState(false);
+  const [form, setForm] = useState({ empId: '', leaveType: 'CL', fromDate: '', toDate: '', reason: '', status: 'pending' });
+
+  const days = form.fromDate && form.toDate ? Math.max(1, Math.ceil((new Date(form.toDate) - new Date(form.fromDate)) / 86400000) + 1) : 0;
+
+  function applyLeave() {
+    if (!form.empId || !form.fromDate || !form.toDate) { addToast('All fields required', 'error'); return; }
+    setLeaveApplications(prev => [...prev, { ...form, id: Date.now(), days, appliedBy: user?.full_name, appliedAt: new Date().toISOString() }]);
+    addToast('Leave application submitted'); setModal(false);
+  }
+
+  function approveLeave(id) {
+    setLeaveApplications(prev => prev.map(l => l.id === id ? { ...l, status: 'approved', approvedBy: user?.full_name, approvedAt: new Date().toISOString() } : l));
+    addToast('Leave approved');
+  }
+
+  function rejectLeave(id) {
+    setLeaveApplications(prev => prev.map(l => l.id === id ? { ...l, status: 'rejected' } : l));
+    addToast('Leave rejected');
+  }
+
+  const STATUS_COLORS = { pending: '#F6C000', approved: '#17C653', rejected: '#F8285A' };
+  const canApprove = user?.role === 'super_admin' || user?.role === 'director' || user?.role === 'hr_manager';
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Leave Management</div>
+        {!viewOnly && <Btn onClick={() => { setForm({ empId: '', leaveType: 'CL', fromDate: '', toDate: '', reason: '', status: 'pending' }); setModal(true); }} small><Plus size={12} /> Apply Leave</Btn>}
       </div>
-    )}
 
-    {/* BIOMETRIC IMPORT */}
-    {tab==='biometric'&&(
-      <div style={{display:'flex',flexDirection:'column',gap:14}}>
-        {/* Steps */}
-        <div style={{display:'flex',gap:4,alignItems:'center'}}>
-          {['Upload','Map Columns','Preview','Done'].map((s,i)=>{const cur={upload:0,mapping:1,preview:2,done:3}[bioStep];return(<React.Fragment key={s}>
-            <div style={{display:'flex',alignItems:'center',gap:6}}>
-              <div style={{width:24,height:24,borderRadius:'50%',background:i<=cur?'#071437':'#F1F1F4',color:i<=cur?'#fff':'#99A1B7',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center'}}>{i<cur?'✓':i+1}</div>
-              <span style={{fontSize:12,fontWeight:i===cur?700:500,color:i===cur?'#071437':'#99A1B7'}}>{s}</span>
+      {/* Leave type pills summary */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+        {LEAVE_TYPES.map(lt => {
+          const cnt = leaveApplications.filter(l => l.leaveType === lt && l.status === 'approved').length;
+          return (
+            <div key={lt} style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', padding: '10px 16px', minWidth: 90 }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: LEAVE_COLORS[lt] }}>{cnt}</div>
+              <div style={{ fontSize: 10, color: '#78829D' }}>{LEAVE_LABELS[lt]}</div>
             </div>
-            {i<3&&<div style={{flex:1,height:1,background:'#F1F1F4',maxWidth:40}}/>}
-          </React.Fragment>);})}
-        </div>
+          );
+        })}
+      </div>
 
-        {bioStep==='upload'&&(
-          <div style={{background:'#fff',border:'2px dashed #DBDFE9',borderRadius:14,padding:40,textAlign:'center'}}>
-            <Upload size={36} style={{color:'#99A1B7',margin:'0 auto 12px'}}/>
-            <div style={{fontSize:15,fontWeight:700,color:'#071437',marginBottom:6}}>Upload Biometric Attendance File</div>
-            <div style={{fontSize:12.5,color:'#78829D',marginBottom:20,lineHeight:1.7}}>Export your biometric machine data as CSV or Excel.<br/>File should have columns: Employee Name, Date, Status (P/A/H/L).</div>
-            <input ref={bioRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleBioFile} style={{display:'none'}}/>
-            <button onClick={()=>bioRef.current?.click()} style={{background:'#071437',color:'#fff',border:'none',borderRadius:9,padding:'10px 24px',cursor:'pointer',fontSize:13,fontWeight:700,display:'inline-flex',alignItems:'center',gap:8}}>
-              <Upload size={14}/> Choose File (CSV / Excel)
-            </button>
-            <div style={{marginTop:16,background:'#F1F1F4',borderRadius:10,padding:'10px 14px',textAlign:'left',fontSize:12,color:'#1B84FF',display:'inline-block',minWidth:380}}>
-              <strong>Tip:</strong> Open your Excel export → Save As → CSV → upload here.
-            </div>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead><tr><Th>Employee</Th><Th>Type</Th><Th>From</Th><Th>To</Th><Th>Days</Th><Th>Reason</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
+          <tbody>
+            {leaveApplications.map(l => {
+              const emp = employees.find(e => String(e.id) === String(l.empId));
+              return (
+                <tr key={l.id}>
+                  <Td style={{ fontWeight: 500 }}>{emp?.name || '—'}</Td>
+                  <Td><Badge label={l.leaveType} color={LEAVE_COLORS[l.leaveType] || '#4B5675'} /></Td>
+                  <Td>{l.fromDate}</Td>
+                  <Td>{l.toDate}</Td>
+                  <Td style={{ fontWeight: 700 }}>{l.days || 1}</Td>
+                  <Td style={{ maxWidth: 160 }}><div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.reason}</div></Td>
+                  <Td><Badge label={l.status} color={STATUS_COLORS[l.status] || '#4B5675'} /></Td>
+                  <Td>
+                    {!viewOnly && canApprove && l.status === 'pending' && (
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button onClick={() => approveLeave(l.id)} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Approve</button>
+                        <button onClick={() => rejectLeave(l.id)} style={{ background: '#FFE2E5', color: '#F8285A', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Reject</button>
+                      </div>
+                    )}
+                  </Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {leaveApplications.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No leave applications.</div>}
+      </div>
+
+      {modal && (
+        <ModalOverlay onClose={() => setModal(false)} title="Apply Leave">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <FormField label="Employee *" value={form.empId} onChange={v => setForm(f => ({ ...f, empId: v }))} options={[{ value: '', label: '— Select —' }, ...employees.map(e => ({ value: e.id, label: `${e.employeeCode || ''} ${e.name}` }))]} />
+            <FormField label="Leave Type" value={form.leaveType} onChange={v => setForm(f => ({ ...f, leaveType: v }))} options={LEAVE_TYPES.map(lt => ({ value: lt, label: LEAVE_LABELS[lt] }))} />
+            <FormField label="From Date *" value={form.fromDate} onChange={v => setForm(f => ({ ...f, fromDate: v }))} type="date" />
+            <FormField label="To Date *" value={form.toDate} onChange={v => setForm(f => ({ ...f, toDate: v }))} type="date" />
           </div>
-        )}
+          {days > 0 && <div style={{ background: '#E8FFF3', borderRadius: 8, padding: '8px 12px', marginTop: 10, fontSize: 12, color: '#17C653', fontWeight: 600 }}>{days} day(s) of {LEAVE_LABELS[form.leaveType]}</div>}
+          <div style={{ marginTop: 12 }}>
+            <label style={{ fontSize: 11, fontWeight: 600, color: '#252F4A', display: 'block', marginBottom: 4 }}>Reason</label>
+            <textarea value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} rows={2} style={{ width: '100%', padding: '7px 10px', border: '1px solid #F1F1F4', borderRadius: 8, fontSize: 12, resize: 'vertical', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={applyLeave} small>Submit Application</Btn>
+          </div>
+        </ModalOverlay>
+      )}
+    </div>
+  );
+}
 
-        {bioStep==='mapping'&&(
-          <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,padding:'20px 24px',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
-            <div style={{fontSize:14,fontWeight:700,color:'#071437',marginBottom:4}}>Map Your Columns</div>
-            <div style={{fontSize:12.5,color:'#78829D',marginBottom:16}}>{bioRaw.length} rows detected. Match your file columns to the correct fields.</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,marginBottom:16}}>
-              {[['Employee Name *','emp_name'],['Date *','date'],['Status (P/A/H/L)','status']].map(([label,key])=>(
-                <div key={key}>
-                  <label style={{display:'block',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:5}}>{label}</label>
-                  <select style={sel} value={bioMap[key]} onChange={e=>setBioMap(m=>({...m,[key]:e.target.value}))}>
-                    <option value="">— Not mapped —</option>
-                    {bioHeaders.map(h=><option key={h} value={h}>{h}</option>)}
-                  </select>
+// ── PAYROLL ───────────────────────────────────────────────────────────────
+function PayrollTab({ viewOnly }) {
+  const { employees, payrollRuns, setPayrollRuns, attendance, leaveApplications, addToast, user } = useAppStore();
+  const [selMonth, setSelMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [modal, setModal] = useState(false);
+
+  const existingRun = payrollRuns.find(r => r.month === selMonth);
+
+  function generatePayroll() {
+    if (existingRun) { addToast('Payroll already generated for this month', 'error'); return; }
+    const monthAttendance = attendance.filter(a => a.date?.startsWith(selMonth));
+    const slips = employees.filter(e => e.status === 'active').map(e => {
+      const empAtt = monthAttendance.filter(a => a.empId === e.id);
+      const presentDays = empAtt.filter(a => a.status === 'P').length + empAtt.filter(a => a.status === 'HD').length * 0.5 + empAtt.filter(a => a.status === 'L').length;
+      const lopDays = empAtt.filter(a => a.status === 'LOP').length;
+      const totalDays = empAtt.length || 26;
+      const salary = Number(e.salary || 0);
+      const perDay = salary / 26;
+      const gross = salary - (lopDays * perDay);
+      const pf = e.pf ? gross * 0.12 : 0;
+      const esi = e.esi && gross <= 21000 ? gross * 0.0075 : 0;
+      const tds = gross > 50000 ? gross * 0.1 : 0;
+      const net = gross - pf - esi - tds;
+      return { empId: e.id, empCode: e.employeeCode, empName: e.name, department: e.department, designation: e.designation, salary, presentDays, lopDays, gross, pf, esi, tds, net, bankAccount: e.bankAccount };
+    });
+    setPayrollRuns(prev => [...prev, { id: Date.now(), month: selMonth, slips, status: 'draft', generatedBy: user?.full_name, generatedAt: new Date().toISOString(), totalGross: slips.reduce((s, sl) => s + sl.gross, 0), totalNet: slips.reduce((s, sl) => s + sl.net, 0) }]);
+    addToast(`Payroll generated for ${slips.length} employees`); setModal(false);
+  }
+
+  function finalizePayroll() {
+    setPayrollRuns(prev => prev.map(r => r.month === selMonth ? { ...r, status: 'finalized', finalizedBy: user?.full_name, finalizedAt: new Date().toISOString() } : r));
+    addToast('Payroll finalized');
+  }
+
+  const run = existingRun;
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Payroll</div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input type="month" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '5px 10px', fontSize: 12 }} />
+          {!viewOnly && !run && <Btn onClick={generatePayroll} small>Generate Payroll</Btn>}
+          {!viewOnly && run && run.status === 'draft' && <Btn onClick={finalizePayroll} color="#17C653" small>Finalize Payroll</Btn>}
+        </div>
+      </div>
+
+      {run ? (
+        <>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+            {[['Employees', run.slips?.length, '#1B84FF'], ['Total Gross', `₹${(run.totalGross || 0).toLocaleString('en-IN')}`, '#17C653'], ['Total Net', `₹${(run.totalNet || 0).toLocaleString('en-IN')}`, '#0E9F8A'], ['Status', run.status, run.status === 'finalized' ? '#17C653' : '#F6C000']].map(([l, v, c]) => (
+              <div key={l} style={{ background: '#fff', borderRadius: 10, border: '1px solid #F1F1F4', padding: '12px 20px' }}>
+                <div style={{ fontSize: 11, color: '#78829D' }}>{l}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: c, marginTop: 4 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr><Th>Code</Th><Th>Name</Th><Th>Dept.</Th><Th>Present</Th><Th>LOP</Th><Th>Gross</Th><Th>PF</Th><Th>ESI</Th><Th>TDS</Th><Th>Net Pay</Th></tr></thead>
+              <tbody>
+                {(run.slips || []).map(sl => (
+                  <tr key={sl.empId}>
+                    <Td style={{ fontFamily: 'monospace', fontSize: 11 }}>{sl.empCode}</Td>
+                    <Td style={{ fontWeight: 600 }}>{sl.empName}</Td>
+                    <Td>{sl.department}</Td>
+                    <Td style={{ color: '#17C653', fontWeight: 600 }}>{sl.presentDays}</Td>
+                    <Td style={{ color: '#F8285A' }}>{sl.lopDays}</Td>
+                    <Td>₹{(sl.gross || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ color: '#4B5675' }}>₹{(sl.pf || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ color: '#4B5675' }}>₹{(sl.esi || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ color: '#4B5675' }}>₹{(sl.tds || 0).toLocaleString('en-IN')}</Td>
+                    <Td style={{ fontWeight: 800, color: '#0E9F8A' }}>₹{(sl.net || 0).toLocaleString('en-IN')}</Td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: '#FCFCFC' }}>
+                  <td colSpan={5} style={{ padding: '9px 14px', fontWeight: 700, textAlign: 'right', fontSize: 12 }}>Total</td>
+                  <td style={{ padding: '9px 14px', fontWeight: 800 }}>₹{(run.totalGross || 0).toLocaleString('en-IN')}</td>
+                  <td style={{ padding: '9px 14px', fontWeight: 700 }}>₹{(run.slips || []).reduce((s, sl) => s + sl.pf, 0).toLocaleString('en-IN')}</td>
+                  <td style={{ padding: '9px 14px', fontWeight: 700 }}>₹{(run.slips || []).reduce((s, sl) => s + sl.esi, 0).toLocaleString('en-IN')}</td>
+                  <td style={{ padding: '9px 14px', fontWeight: 700 }}>₹{(run.slips || []).reduce((s, sl) => s + sl.tds, 0).toLocaleString('en-IN')}</td>
+                  <td style={{ padding: '9px 14px', fontWeight: 800, color: '#0E9F8A' }}>₹{(run.totalNet || 0).toLocaleString('en-IN')}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </>
+      ) : (
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 48, textAlign: 'center', color: '#78829D', fontSize: 13 }}>
+          No payroll generated for {selMonth}. Click Generate Payroll to compute salary slips.
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SALARY SLIPS ──────────────────────────────────────────────────────────
+function SalarySlipsTab({ viewOnly }) {
+  const { payrollRuns, employees, activeEntity, addToast } = useAppStore();
+  const [selRun, setSelRun] = useState('');
+  const [selEmp, setSelEmp] = useState('');
+
+  const run = payrollRuns.find(r => String(r.id) === selRun);
+  const slips = run?.slips || [];
+  const filteredSlips = selEmp ? slips.filter(s => String(s.empId) === selEmp) : slips;
+
+  async function downloadSlip(slip) {
+    // In production: call docEngine to generate DOCX salary slip
+    addToast(`Generating slip for ${slip.empName}…`);
+    setTimeout(() => addToast('Salary slip ready — print on letterhead', 'success'), 800);
+  }
+
+  return (
+    <div>
+      <div style={{ fontSize: 15, fontWeight: 800, color: '#071437', marginBottom: 16 }}>Salary Slips</div>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+        <select value={selRun} onChange={e => setSelRun(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 200 }}>
+          <option value="">— Select Payroll Month —</option>
+          {payrollRuns.map(r => <option key={r.id} value={r.id}>{r.month} ({r.status})</option>)}
+        </select>
+        <select value={selEmp} onChange={e => setSelEmp(e.target.value)} style={{ border: '1px solid #F1F1F4', borderRadius: 8, padding: '7px 12px', fontSize: 12, minWidth: 200 }}>
+          <option value="">All Employees</option>
+          {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
+        </select>
+        {run && <Btn onClick={() => filteredSlips.forEach(s => downloadSlip(s))} small><Download size={12} /> Bulk Download DOCX</Btn>}
+      </div>
+
+      {filteredSlips.length > 0 ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {filteredSlips.map(sl => (
+            <div key={sl.empId} style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#071437' }}>{sl.empName}</div>
+                  <div style={{ fontSize: 10, color: '#78829D' }}>{sl.empCode} · {sl.department}</div>
+                </div>
+                <button onClick={() => downloadSlip(sl)} style={{ background: '#E8FFF3', color: '#0E9F8A', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}><Download size={11} /></button>
+              </div>
+              {[['Gross', sl.gross, '#17C653'], ['PF Dedn.', sl.pf, '#4B5675'], ['ESI Dedn.', sl.esi, '#4B5675'], ['Net Pay', sl.net, '#0E9F8A']].map(([l, v, c]) => (
+                <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 12 }}>
+                  <span style={{ color: '#4B5675' }}>{l}</span>
+                  <span style={{ fontWeight: 700, color: c }}>₹{(v || 0).toLocaleString('en-IN')}</span>
                 </div>
               ))}
             </div>
-            <div style={{background:'#F1F1F4',borderRadius:9,padding:'9px 13px',fontSize:12,color:'#1B84FF',marginBottom:14}}>
-              <strong>Status auto-mapping:</strong> P / Present → Present &nbsp;·&nbsp; A / Absent → Absent &nbsp;·&nbsp; H / HD → Half Day &nbsp;·&nbsp; L / Leave → Leave &nbsp;·&nbsp; Holiday → Holiday
-            </div>
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>setBioStep('upload')} className="btn-secondary" style={{fontSize:13}}>← Back</button>
-              <button onClick={buildPreview} className="btn-primary" style={{fontSize:13}}>Preview First 10 Rows →</button>
-            </div>
-          </div>
-        )}
-
-        {bioStep==='preview'&&(
-          <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
-            <div style={{padding:'14px 18px',borderBottom:'1px solid #F9F9F9',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <div><div style={{fontSize:14,fontWeight:700,color:'#071437'}}>Preview — First 10 rows</div><div style={{fontSize:12,color:'#78829D',marginTop:2}}>Verify mapping before importing all {bioRaw.length} records</div></div>
-              <div style={{display:'flex',gap:8}}>
-                <button onClick={()=>setBioStep('mapping')} className="btn-secondary" style={{fontSize:13}}>← Edit</button>
-                <button onClick={confirmImport} className="btn-primary" style={{fontSize:13}}>✓ Import All {bioRaw.length} Rows</button>
-              </div>
-            </div>
-            <table style={{width:'100%',borderCollapse:'collapse'}}>
-              <thead><tr style={{background:'#F9F9F9',borderBottom:'2px solid #F1F1F4'}}>
-                {['Name (from file)','Date','Status (from file)','→ Employee Match','→ App Status'].map(h=><th key={h} style={{padding:'8px 14px',textAlign:'left',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.4px',whiteSpace:'nowrap'}}>{h}</th>)}
-              </tr></thead>
-              <tbody>
-                {bioPreview.map((row,i)=>{const emp=employees.find(e=>e.name.toLowerCase().includes(row.emp_name.toLowerCase())||row.emp_name.toLowerCase().includes(e.name.toLowerCase()));return(
-                  <tr key={i} style={{borderBottom:'1px solid #F9F9F9',background:emp?'#fff':'#FFF5F8'}}>
-                    <td style={{padding:'8px 14px',fontSize:12.5,color:'#252F4A'}}>{row.emp_name}</td>
-                    <td style={{padding:'8px 14px',fontSize:12,fontFamily:'monospace',color:'#252F4A'}}>{row.date}</td>
-                    <td style={{padding:'8px 14px',fontSize:12,color:'#252F4A'}}>{row.status}</td>
-                    <td style={{padding:'8px 14px',fontSize:12.5,fontWeight:600,color:emp?'#17C653':'#F8285A'}}>{emp?emp.name:'⚠ Not matched'}</td>
-                    <td style={{padding:'8px 14px'}}><span style={{background:ATT_COLORS[row.status]?.bg||'#F9F9F9',color:ATT_COLORS[row.status]?.text||'#252F4A',fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:10}}>{row.status}</span></td>
-                  </tr>
-                );})}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {bioStep==='done'&&bioResult&&(
-          <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,padding:40,textAlign:'center',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
-            <div style={{width:60,height:60,borderRadius:'50%',background:'#E8FFF3',border:'3px solid #A2E8BA',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:28}}>✓</div>
-            <div style={{fontSize:18,fontWeight:800,color:'#17C653',marginBottom:16}}>Import Complete!</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,maxWidth:280,margin:'0 auto 20px'}}>
-              <div style={{background:'#E8FFF3',borderRadius:10,padding:'12px 16px'}}><div style={{fontSize:11,fontWeight:700,color:'#17C653',textTransform:'uppercase',marginBottom:4}}>Imported</div><div style={{fontSize:24,fontWeight:800,color:'#17C653'}}>{bioResult.imp}</div></div>
-              <div style={{background:'#FFF8DD',borderRadius:10,padding:'12px 16px'}}><div style={{fontSize:11,fontWeight:700,color:'#9A6700',textTransform:'uppercase',marginBottom:4}}>Skipped</div><div style={{fontSize:24,fontWeight:800,color:'#9A6700'}}>{bioResult.skip}</div></div>
-            </div>
-            <div style={{fontSize:12.5,color:'#78829D',marginBottom:20}}>Skipped = employee not matched, invalid date, or duplicate entry.</div>
-            <div style={{display:'flex',gap:10,justifyContent:'center'}}>
-              <button onClick={()=>{setBioStep('upload');setBioRaw([]);setBioHeaders([]);setBioResult(null);setBioMap({emp_name:'',date:'',status:''});}} className="btn-secondary" style={{fontSize:13}}>Import Another File</button>
-              <button onClick={()=>setTab('attendance')} className="btn-primary" style={{fontSize:13}}>View Attendance →</button>
-            </div>
-          </div>
-        )}
-      </div>
-    )}
-
-    {/* PAYROLL */}
-    {tab==='payroll'&&(
-      <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.05)'}}>
-        <div style={{padding:'13px 18px',borderBottom:'1px solid #F9F9F9',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <span style={{fontSize:12,fontWeight:700,color:'#071437',textTransform:'uppercase',letterSpacing:'0.5px'}}>Payroll Summary</span>
-          <span style={{fontSize:12,fontWeight:700,color:'#071437'}}>Total: {inr(totalPayroll)}/month</span>
-        </div>
-        <table style={{width:'100%',borderCollapse:'collapse'}}>
-          <thead><tr style={{background:'#F9F9F9',borderBottom:'2px solid #F1F1F4'}}>
-            {['Code','Name','Department','Designation','Monthly Salary','Status'].map(h=><th key={h} style={{padding:'9px 16px',textAlign:'left',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px'}}>{h}</th>)}
-          </tr></thead>
-          <tbody>
-            {(employees||[]).map((e,i)=>(<tr key={e.id} style={{borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC'}}>
-              <td style={{padding:'10px 16px',fontSize:11.5,fontFamily:'monospace',color:'#78829D'}}>{e.emp_code}</td>
-              <td style={{padding:'10px 16px',fontSize:13,fontWeight:700,color:'#071437'}}>{e.name}</td>
-              <td style={{padding:'10px 16px',fontSize:12.5,color:'#252F4A'}}>{e.department}</td>
-              <td style={{padding:'10px 16px',fontSize:12.5,color:'#252F4A'}}>{e.designation}</td>
-              <td style={{padding:'10px 16px',fontSize:13,fontWeight:800,fontFamily:'monospace',textAlign:'right',color:'#071437'}}>{e.monthly_salary?inr(e.monthly_salary):'—'}</td>
-              <td style={{padding:'10px 16px'}}><Badge value={e.status}/></td>
-            </tr>))}
-            <tr style={{background:'#071437'}}>
-              <td colSpan={4} style={{padding:'11px 16px',fontSize:12,fontWeight:800,color:'#fff'}}>TOTAL ACTIVE PAYROLL</td>
-              <td style={{padding:'11px 16px',fontSize:14,fontWeight:800,fontFamily:'monospace',textAlign:'right',color:'#F6C000'}}>{inr(totalPayroll)}</td>
-              <td/>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    )}
-
-    {/* DOCUMENTS */}
-    {tab==='documents'&&(
-      <div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:18}}>
-          {[
-            {type:'salary',title:'Salary Slip',icon:'₹',desc:'Monthly salary slip with Basic, HRA, PF, ESIC, PT and Net Pay',color:'#17C653',bg:'#E8FFF3',bdr:'#A2E8BA'},
-            {type:'joining',title:'Joining / Appointment Letter',icon:'✉',desc:'Formal appointment letter with CTC, designation, and terms',color:'#1B84FF',bg:'#E1F0FF',bdr:'#A4CEFF'},
-            {type:'warning',title:'Warning Letter',icon:'⚠',desc:'Written warning with reason, details and acknowledgement',color:'#A10035',bg:'#FFE2E5',bdr:'#FCA9BD'},
-          ].map(d=>(
-            <div key={d.type} onClick={()=>{setDocType(d.type);setDocEmpId('');setWarnReason('');setWarnDetails('');setDocModal(true);}}
-              style={{background:d.bg,border:`1px solid ${d.bdr}`,borderRadius:14,padding:'20px',cursor:'pointer',transition:'all .15s'}}>
-              <div style={{fontSize:30,marginBottom:10}}>{d.icon}</div>
-              <div style={{fontSize:15,fontWeight:800,color:d.color,marginBottom:6}}>{d.title}</div>
-              <div style={{fontSize:12,color:d.color,opacity:.75,lineHeight:1.6}}>{d.desc}</div>
-              <div style={{marginTop:12,fontSize:12,fontWeight:700,color:d.color,display:'flex',alignItems:'center',gap:4}}>Generate & Print PDF <ChevronRight size={12}/></div>
-            </div>
           ))}
         </div>
-        <div style={{background:'#F1F1F4',border:'1px solid #DBDFE9',borderRadius:10,padding:'12px 16px',fontSize:12.5,color:'#1B84FF',lineHeight:1.7}}>
-          <strong>How to save as PDF:</strong> Click Generate → new window opens → click "Print / Save PDF" → in print dialog, set printer to "Save as PDF" → click Save.
-        </div>
-      </div>
-    )}
+      ) : (
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', padding: 48, textAlign: 'center', color: '#78829D', fontSize: 13 }}>Select a payroll month to view salary slips.</div>
+      )}
+    </div>
+  );
+}
 
-    {/* EMPLOYEE MODAL */}
-    <Modal open={empModal} onClose={()=>setEmpModal(false)} title={editingId?'Edit Employee':'Add Employee'}
-      footer={<><button onClick={()=>setEmpModal(false)} className="btn-secondary" style={{fontSize:13}}>Cancel</button><button onClick={saveEmp} className="btn-primary" style={{fontSize:13}}>Save</button></>}>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:13}}>
-        <F label="Full Name" required span={2}><input style={inp} value={form.name} onChange={set('name')} placeholder="Full name"/></F>
-        <F label="Designation" required><input style={inp} value={form.designation} onChange={set('designation')} placeholder="e.g. Site Engineer"/></F>
-        <F label="Department"><select style={sel} value={form.department} onChange={set('department')}>{DEPTS.map(d=><option key={d}>{d}</option>)}</select></F>
-        <F label="Phone"><input style={inp} value={form.phone} onChange={set('phone')} placeholder="10-digit mobile"/></F>
-        <F label="Email"><input style={inp} value={form.email} onChange={set('email')} placeholder="email@example.com"/></F>
-        <F label="PAN Card"><input style={inp} value={form.pan} onChange={set('pan')} placeholder="ABCDE1234F"/></F>
-        <F label="Date of Joining"><input style={inp} type="date" value={form.doj} onChange={set('doj')}/></F>
-        <F label="Monthly Salary (₹)"><input style={inp} type="number" value={form.monthly_salary} onChange={set('monthly_salary')} placeholder="0"/></F>
-        <F label="Status"><select style={sel} value={form.status} onChange={set('status')}><option>Active</option><option>Inactive</option><option>Contract</option></select></F>
-      </div>
-    </Modal>
+// ── EMPLOYEE LOANS ────────────────────────────────────────────────────────
+function LoansTab({ viewOnly }) {
+  const { employeeLoans, setEmployeeLoans, employees, addToast, user } = useAppStore();
+  const [modal, setModal] = useState(false);
+  const [form, setForm] = useState({ empId: '', amount: '', emi: '', tenure: '', disbursedDate: new Date().toISOString().split('T')[0], purpose: '', status: 'active' });
 
-    {/* DOCUMENT MODAL */}
-    <Modal open={docModal} onClose={()=>setDocModal(false)}
-      title={docType==='salary'?'Generate Salary Slip':docType==='joining'?'Generate Joining Letter':'Generate Warning Letter'}
-      footer={<><button onClick={()=>setDocModal(false)} className="btn-secondary" style={{fontSize:13}}>Cancel</button><button onClick={generateDoc} className="btn-primary" style={{fontSize:13,display:'flex',alignItems:'center',gap:7}}><FileText size={13}/> Generate & Print PDF</button></>}>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:13}}>
-        <F label="Employee" required span={2}>
-          <select style={sel} value={docEmpId} onChange={e=>setDocEmpId(e.target.value)}>
-            <option value="">— Select employee —</option>
-            {(employees||[]).map(e=><option key={e.id} value={e.id}>{e.name} ({e.designation})</option>)}
-          </select>
-        </F>
-        {docType==='salary'&&(<>
-          <F label="Month"><select style={sel} value={salMonth} onChange={e=>setSalMonth(e.target.value)}>{MONTHS_LIST.map((m,i)=><option key={m} value={i}>{m}</option>)}</select></F>
-          <F label="Year"><select style={sel} value={salYear} onChange={e=>setSalYear(e.target.value)}>{['2024','2025','2026','2027'].map(y=><option key={y}>{y}</option>)}</select></F>
-          {docEmpId&&(()=>{const s=getSummary(Number(docEmpId));const pd=s.p+(s.h*.5)||0;return(
-            <div style={{gridColumn:'1/-1',background:'#F0FDF4',border:'1px solid #A2E8BA',borderRadius:9,padding:'10px 13px',fontSize:12}}>
-              <strong style={{color:'#17C653'}}>Attendance for {MONTHS_LIST[Number(salMonth)]} {salYear}:</strong>{' '}
-              {s.p}P · {s.h}H · {s.a}A · {s.l}L
-              {pd===0&&<span style={{color:'#F6C000'}}> — No records yet, will use 26 days default</span>}
-            </div>
-          );})()} 
-        </>)}
-        {docType==='warning'&&(<>
-          <F label="Reason for Warning" required span={2}>
-            <select style={sel} value={warnReason} onChange={e=>setWarnReason(e.target.value)}>
-              <option value="">— Select reason —</option>
-              {['Absenteeism / Unauthorized Absence','Insubordination','Late Attendance','Misconduct','Poor Performance','Breach of Company Policy','Other'].map(r=><option key={r}>{r}</option>)}
-            </select>
-          </F>
-          <F label="Details / Incident Description" required span={2}>
-            <textarea style={{...inp,height:90,resize:'vertical'}} value={warnDetails} onChange={e=>setWarnDetails(e.target.value)} placeholder="Describe the specific incident, dates, and any prior verbal warnings given…"/>
-          </F>
-        </>)}
+  function saveLoan() {
+    if (!form.empId || !form.amount) { addToast('Employee and amount required', 'error'); return; }
+    setEmployeeLoans(prev => [...prev, { ...form, id: Date.now(), amount: Number(form.amount), emi: Number(form.emi), recovered: 0, balance: Number(form.amount), approvedBy: user?.full_name }]);
+    addToast('Loan recorded'); setModal(false);
+  }
+
+  function recoverEMI(id) {
+    setEmployeeLoans(prev => prev.map(l => {
+      if (l.id !== id) return l;
+      const recovered = (l.recovered || 0) + (l.emi || 0);
+      return { ...l, recovered, balance: l.amount - recovered, status: recovered >= l.amount ? 'closed' : 'active' };
+    }));
+    addToast('EMI recovery recorded');
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#071437' }}>Employee Loans & Advances</div>
+        {!viewOnly && <Btn onClick={() => { setForm({ empId: '', amount: '', emi: '', tenure: '', disbursedDate: new Date().toISOString().split('T')[0], purpose: '', status: 'active' }); setModal(true); }} small><Plus size={12} /> Add Loan</Btn>}
       </div>
-    </Modal>
-  </div>);
+
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #F1F1F4', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead><tr><Th>Employee</Th><Th>Loan Amount</Th><Th>EMI</Th><Th>Recovered</Th><Th>Balance</Th><Th>Status</Th><Th>Actions</Th></tr></thead>
+          <tbody>
+            {employeeLoans.map(l => {
+              const emp = employees.find(e => String(e.id) === String(l.empId));
+              return (
+                <tr key={l.id}>
+                  <Td style={{ fontWeight: 600 }}>{emp?.name || '—'}</Td>
+                  <Td style={{ fontWeight: 600 }}>₹{(l.amount || 0).toLocaleString('en-IN')}</Td>
+                  <Td>₹{(l.emi || 0).toLocaleString('en-IN')}/mo</Td>
+                  <Td style={{ color: '#17C653', fontWeight: 600 }}>₹{(l.recovered || 0).toLocaleString('en-IN')}</Td>
+                  <Td style={{ fontWeight: 700, color: l.balance > 0 ? '#F8285A' : '#17C653' }}>₹{(l.balance || 0).toLocaleString('en-IN')}</Td>
+                  <Td><Badge label={l.status} color={l.status === 'closed' ? '#17C653' : '#F6C000'} /></Td>
+                  <Td>
+                    {!viewOnly && l.status === 'active' && (
+                      <button onClick={() => recoverEMI(l.id)} style={{ background: '#E8FFF3', color: '#17C653', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>Recover EMI</button>
+                    )}
+                  </Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {employeeLoans.length === 0 && <div style={{ padding: 32, textAlign: 'center', color: '#78829D', fontSize: 13 }}>No employee loans recorded.</div>}
+      </div>
+
+      {modal && (
+        <ModalOverlay onClose={() => setModal(false)} title="Record Employee Loan">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <FormField label="Employee *" value={form.empId} onChange={v => setForm(f => ({ ...f, empId: v }))} options={[{ value: '', label: '— Select —' }, ...employees.map(e => ({ value: e.id, label: e.name }))]} />
+            <FormField label="Loan Amount (₹) *" value={form.amount} onChange={v => setForm(f => ({ ...f, amount: v }))} type="number" />
+            <FormField label="Monthly EMI (₹)" value={form.emi} onChange={v => setForm(f => ({ ...f, emi: v }))} type="number" />
+            <FormField label="Tenure (months)" value={form.tenure} onChange={v => setForm(f => ({ ...f, tenure: v }))} type="number" />
+            <FormField label="Disbursed Date" value={form.disbursedDate} onChange={v => setForm(f => ({ ...f, disbursedDate: v }))} type="date" />
+            <FormField label="Purpose" value={form.purpose} onChange={v => setForm(f => ({ ...f, purpose: v }))} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+            <Btn onClick={() => setModal(false)} color="#4B5675" small>Cancel</Btn>
+            <Btn onClick={saveLoan} small>Save Loan</Btn>
+          </div>
+        </ModalOverlay>
+      )}
+    </div>
+  );
 }

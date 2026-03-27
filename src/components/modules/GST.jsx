@@ -3,7 +3,7 @@ import { useAppStore } from '../../stores/appStore';
 import { inr, fmtDate } from '../../utils';
 import { Download, Plus, Eye, Edit2, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif', boxSizing:'border-box' };
+const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif', boxSizing:'border-box' };
 const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
@@ -50,7 +50,7 @@ function Modal({ open, onClose, title, width=640, children, footer }) {
       <div style={{ position:'relative',background:'#fff',borderRadius:16,width:'100%',maxWidth:width,maxHeight:'92vh',display:'flex',flexDirection:'column',boxShadow:'0 24px 64px rgba(0,0,0,0.2)' }}>
         <div style={{ padding:'13px 20px',borderBottom:'1px solid #F1F1F4',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0 }}>
           <div style={{ fontSize:14,fontWeight:800,color:'#071437' }}>{title}</div>
-          <button onClick={onClose} style={{ background:'#F9F9F9',border:'none',borderRadius:7,width:26,height:26,cursor:'pointer',color:'#78829D',display:'flex',alignItems:'center',justifyContent:'center' }}><X size={13}/></button>
+          <button onClick={onClose} style={{ background:'#FCFCFC',border:'none',borderRadius:7,width:26,height:26,cursor:'pointer',color:'#4B5675',display:'flex',alignItems:'center',justifyContent:'center' }}><X size={13}/></button>
         </div>
         <div style={{ flex:1,overflowY:'auto',padding:'16px 20px' }}>{children}</div>
         {footer&&<div style={{ padding:'12px 20px',borderTop:'1px solid #F1F1F4',display:'flex',gap:8,justifyContent:'flex-end',flexShrink:0 }}>{footer}</div>}
@@ -59,11 +59,11 @@ function Modal({ open, onClose, title, width=640, children, footer }) {
   );
 }
 function EmptyState({ msg }) {
-  return <div style={{ padding:'40px 20px',textAlign:'center',color:'#99A1B7',fontSize:13 }}>{msg}</div>;
+  return <div style={{ padding:'40px 20px',textAlign:'center',color:'#78829D',fontSize:13 }}>{msg}</div>;
 }
 function Badge({ v, green, amber, red }) {
-  const bg = green?'#E8FFF3':amber?'#FFF8DD':red?'#FFE2E5':'#F9F9F9';
-  const c  = green?'#17C653':amber?'#9A6700':red?'#A10035':'#252F4A';
+  const bg = green?'#E8FFF3':amber?'#FFF8DD':red?'#FFE2E5':'#FCFCFC';
+  const c  = green?'#17C653':amber?'#7A4E00':red?'#7F1D1D':'#252F4A';
   return <span style={{ background:bg,color:c,fontSize:10.5,fontWeight:700,padding:'2px 8px',borderRadius:10 }}>{v}</span>;
 }
 
@@ -73,20 +73,20 @@ function SimpleTable({ rows, cols, getRow, onEdit, onDelete, onView }) {
   return (
     <div style={{ background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'auto',boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
       <table style={{ width:'100%',borderCollapse:'collapse',minWidth:500 }}>
-        <thead><tr style={{ background:'#F9F9F9',borderBottom:'2px solid #F1F1F4' }}>
+        <thead><tr style={{ background:'#FCFCFC',borderBottom:'2px solid #F1F1F4' }}>
           {[...cols,''].map(h=><th key={h} style={{ padding:'8px 12px',textAlign:'left',fontSize:9.5,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.4px',whiteSpace:'nowrap' }}>{h}</th>)}
         </tr></thead>
         <tbody>
           {rows.map((r,i)=>{
             const cells=getRow(r);
             return (
-              <tr key={r.id||i} style={{ borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC' }}>
+              <tr key={r.id||i} style={{ borderBottom:'1px solid #FCFCFC',background:i%2===0?'#fff':'#FAFAFA' }}>
                 {cells.map((c,ci)=><td key={ci} style={{ padding:'8px 12px',fontSize:12,color:'#252F4A',whiteSpace:'nowrap',maxWidth:180,overflow:'hidden',textOverflow:'ellipsis' }}>{c}</td>)}
                 <td style={{ padding:'8px 10px',whiteSpace:'nowrap' }}>
                   <div style={{ display:'flex',gap:4 }}>
-                    <button onClick={()=>onView(r)} style={btnStyle('#F1F1F4','#071437')}><Eye size={11}/></button>
-                    <button onClick={()=>onEdit(r.id)} style={btnStyle('#FFF8DD','#9A6700')}><Edit2 size={11}/></button>
-                    <button onClick={()=>onDelete(r.id)} style={btnStyle('#FFE2E5','#A10035')}><X size={11}/></button>
+                    <button onClick={()=>onView(r)} style={btnStyle('#EAF0F8','#071437')}><Eye size={11}/></button>
+                    <button onClick={()=>onEdit(r.id)} style={btnStyle('#FFF8DD','#7A4E00')}><Edit2 size={11}/></button>
+                    <button onClick={()=>onDelete(r.id)} style={btnStyle('#FFE2E5','#7F1D1D')}><X size={11}/></button>
                   </div>
                 </td>
               </tr>
@@ -107,35 +107,35 @@ function GSTTable({ autoRows, manualRows, onEdit, onDelete, onView }) {
   return (
     <div style={{ background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'auto',boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
       <table style={{ width:'100%',borderCollapse:'collapse',minWidth:1000 }}>
-        <thead><tr style={{ background:'#F9F9F9',borderBottom:'2px solid #F1F1F4' }}>
+        <thead><tr style={{ background:'#FCFCFC',borderBottom:'2px solid #F1F1F4' }}>
           {[...cols,''].map(h=><th key={h} style={{ padding:'8px 10px',textAlign:['Taxable ₹','CGST ₹','SGST ₹','IGST ₹','Total ₹'].includes(h)?'right':'left',fontSize:9,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.4px',whiteSpace:'nowrap' }}>{h}</th>)}
         </tr></thead>
         <tbody>
           {allRows.map((r,i)=>(
-            <tr key={r.id||i} style={{ borderBottom:'1px solid #F9F9F9',background:r._s==='auto'?(i%2===0?'#FCFCFC':'#FCFCFC'):(i%2===0?'#fff':'#FFF8DD') }}>
+            <tr key={r.id||i} style={{ borderBottom:'1px solid #FCFCFC',background:r._s==='auto'?(i%2===0?'#FAFAFA':'#F5F8FC'):(i%2===0?'#fff':'#FFF8DD') }}>
               <td style={{ padding:'7px 10px',fontSize:11.5,color:'#252F4A',whiteSpace:'nowrap' }}>{r.date||r.invoice_date||'—'}</td>
               <td style={{ padding:'7px 10px',fontSize:11,fontFamily:'monospace',color:'#071437',whiteSpace:'nowrap' }}>{r.invoice_no||r['Receipt No.']||'—'}</td>
               <td style={{ padding:'7px 10px',fontSize:12,fontWeight:600,color:'#071437',maxWidth:160,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{r.party_name||r.customer_name||r['Customer Name']||'—'}</td>
               <td style={{ padding:'7px 10px',fontSize:11,fontFamily:'monospace',color:'#252F4A',whiteSpace:'nowrap' }}>{r.party_gstin||r.customer_gstin||r['Customer GSTIN']||'—'}</td>
               <td style={{ padding:'7px 10px',fontSize:11.5,color:'#252F4A',maxWidth:180,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{r.description||r.Description||'—'}</td>
               <td style={{ padding:'7px 10px',fontSize:12,fontFamily:'monospace',textAlign:'right',color:'#252F4A' }}>{money(r.taxable_value||r['Taxable Value'])}</td>
-              <td style={{ padding:'7px 10px',fontSize:11.5,textAlign:'right',color:'#9A6700',fontWeight:600 }}>{r.gst_rate||r['GST Rate']||'—'}{typeof(r.gst_rate||r['GST Rate'])==='number'?'%':''}</td>
+              <td style={{ padding:'7px 10px',fontSize:11.5,textAlign:'right',color:'#7A4E00',fontWeight:600 }}>{r.gst_rate||r['GST Rate']||'—'}{typeof(r.gst_rate||r['GST Rate'])==='number'?'%':''}</td>
               <td style={{ padding:'7px 10px',fontSize:12,fontFamily:'monospace',textAlign:'right',color:'#252F4A' }}>{money(r.cgst||r['CGST'])}</td>
               <td style={{ padding:'7px 10px',fontSize:12,fontFamily:'monospace',textAlign:'right',color:'#252F4A' }}>{money(r.sgst||r['SGST'])}</td>
               <td style={{ padding:'7px 10px',fontSize:12,fontFamily:'monospace',textAlign:'right',color:'#252F4A' }}>{money(r.igst||r['IGST'])}</td>
               <td style={{ padding:'7px 10px',fontSize:12.5,fontFamily:'monospace',textAlign:'right',fontWeight:800,color:'#071437' }}>{money(r.total_value||r['Total Value']||r['Total Received'])}</td>
               <td style={{ padding:'7px 10px' }}>
                 {r._s==='auto'
-                  ? <span style={{ fontSize:9,background:'#F9F9F9',color:'#99A1B7',padding:'2px 6px',borderRadius:4,fontWeight:600 }}>AUTO</span>
+                  ? <span style={{ fontSize:9,background:'#FCFCFC',color:'#78829D',padding:'2px 6px',borderRadius:4,fontWeight:600 }}>AUTO</span>
                   : <Badge v="Manual" amber/>
                 }
               </td>
               <td style={{ padding:'7px 8px',whiteSpace:'nowrap' }}>
                 <div style={{ display:'flex',gap:3 }}>
-                  <button onClick={()=>onView(r)} style={btnStyle('#F1F1F4','#071437')}><Eye size={10}/></button>
+                  <button onClick={()=>onView(r)} style={btnStyle('#EAF0F8','#071437')}><Eye size={10}/></button>
                   {r._s==='manual'&&<>
-                    <button onClick={()=>onEdit(r.id)} style={btnStyle('#FFF8DD','#9A6700')}><Edit2 size={10}/></button>
-                    <button onClick={()=>onDelete(r.id)} style={btnStyle('#FFE2E5','#A10035')}><X size={10}/></button>
+                    <button onClick={()=>onEdit(r.id)} style={btnStyle('#FFF8DD','#7A4E00')}><Edit2 size={10}/></button>
+                    <button onClick={()=>onDelete(r.id)} style={btnStyle('#FFE2E5','#7F1D1D')}><X size={10}/></button>
                   </>}
                 </div>
               </td>
@@ -243,7 +243,7 @@ export default function GST() {
   function del(section,id) { if(!confirm('Delete?'))return; upd(section,arr=>arr.filter(x=>x.id!==id)); }
 
   const P = { background:'#071437',color:'#fff',border:'none',borderRadius:8,padding:'7px 16px',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6 };
-  const S = { background:'#F9F9F9',color:'#252F4A',border:'1px solid #F1F1F4',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12.5,fontWeight:600,display:'flex',alignItems:'center',gap:6 };
+  const S = { background:'#FCFCFC',color:'#252F4A',border:'1px solid #F1F1F4',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12.5,fontWeight:600,display:'flex',alignItems:'center',gap:6 };
 
   const TABS = [
     {id:'gstr1',label:'GSTR-1',sub:'Outward Sales'},
@@ -262,12 +262,12 @@ export default function GST() {
       {/* KPIs */}
       <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(155px,1fr))',gap:10 }}>
         {[
-          ['Output GST',inr(totalOutput,true),'#FFF8DD','#F6C000','#9A6700'],
-          ['ITC Available',inr(totalITC,true),'#E8FFF3','#A2E8BA','#17C653'],
-          ['Net Payable',inr(netPayable,true),'#FFE2E5','#FCA9BD','#A10035'],
-          ['Sales Invoices',String(gstr1Auto.length+salesInvoices.length),'#F1F1F4','#DBDFE9','#071437'],
-          ['Purchase Invoices',String(itcAuto.length+purchaseInvoices.length),'#F1E8FF','#C4B5FD','#5014D0'],
-          ['Challans Paid',String(gstChallans.length),'#F0FDF4','#A2E8BA','#17C653'],
+          ['Output GST',inr(totalOutput,true),'#FFF8DD','#F6C000','#7A4E00'],
+          ['ITC Available',inr(totalITC,true),'#E8FFF3','#50CD89','#17C653'],
+          ['Net Payable',inr(netPayable,true),'#FFE2E5','#FFB8C6','#7F1D1D'],
+          ['Sales Invoices',String(gstr1Auto.length+salesInvoices.length),'#EAF0F8','#C5D5E8','#071437'],
+          ['Purchase Invoices',String(itcAuto.length+purchaseInvoices.length),'#F1E8FF','#D4B9FF','#7239EA'],
+          ['Challans Paid',String(gstChallans.length),'#E8FFF3','#50CD89','#17C653'],
         ].map(([l,v,bg,bdr,c])=>(
           <div key={l} style={{ background:bg,border:`1px solid ${bdr}`,borderRadius:12,padding:'12px 14px' }}>
             <div style={{ fontSize:9.5,fontWeight:700,color:c,textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:4 }}>{l}</div>
@@ -277,16 +277,16 @@ export default function GST() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display:'flex',gap:2,background:'#F9F9F9',borderRadius:12,padding:4,overflowX:'auto',flexShrink:0 }}>
+      <div style={{ display:'flex',gap:2,background:'#FCFCFC',borderRadius:12,padding:4,overflowX:'auto',flexShrink:0 }}>
         {TABS.map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)} style={{
             flexShrink:0,padding:'7px 14px',borderRadius:9,fontSize:11.5,fontWeight:tab===t.id?700:500,
-            color:tab===t.id?'#071437':'#78829D',background:tab===t.id?'#fff':'transparent',
+            color:tab===t.id?'#071437':'#4B5675',background:tab===t.id?'#fff':'transparent',
             cursor:'pointer',border:tab===t.id?'1px solid #F1F1F4':'1px solid transparent',
             boxShadow:tab===t.id?'0 1px 3px rgba(0,0,0,0.07)':'',
           }}>
             <div>{t.label}</div>
-            <div style={{ fontSize:9,color:'#99A1B7',marginTop:1 }}>{t.sub}</div>
+            <div style={{ fontSize:9,color:'#78829D',marginTop:1 }}>{t.sub}</div>
           </button>
         ))}
       </div>
@@ -319,7 +319,7 @@ export default function GST() {
             </div>
             {Object.keys(monthlyMap).length===0?<EmptyState msg="No output GST. Record payments in Payments module."/>:(
               <table style={{ width:'100%',borderCollapse:'collapse' }}>
-                <thead><tr style={{ background:'#F9F9F9',borderBottom:'2px solid #F1F1F4' }}>
+                <thead><tr style={{ background:'#FCFCFC',borderBottom:'2px solid #F1F1F4' }}>
                   {['Month','IGST','CGST','SGST','Total Output Tax','Challan Paid','Net Payable'].map(h=>(
                     <th key={h} style={{ padding:'9px 14px',textAlign:h==='Month'?'left':'right',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase' }}>{h}</th>
                   ))}
@@ -329,12 +329,12 @@ export default function GST() {
                     const paid=gstChallans.filter(c=>c.month===ym).reduce((s,c)=>s+Number(c.total_paid||0),0);
                     const net=Math.max(0,v.igst+v.cgst+v.sgst-paid);
                     return (
-                      <tr key={ym} style={{ borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC' }}>
+                      <tr key={ym} style={{ borderBottom:'1px solid #FCFCFC',background:i%2===0?'#fff':'#FAFAFA' }}>
                         <td style={{ padding:'9px 14px',fontSize:13,fontWeight:700,color:'#071437' }}>{ym}</td>
                         <td style={{ padding:'9px 14px',fontSize:12,fontFamily:'monospace',textAlign:'right' }}>{inr(v.igst)}</td>
                         <td style={{ padding:'9px 14px',fontSize:12,fontFamily:'monospace',textAlign:'right' }}>{inr(v.cgst)}</td>
                         <td style={{ padding:'9px 14px',fontSize:12,fontFamily:'monospace',textAlign:'right' }}>{inr(v.sgst)}</td>
-                        <td style={{ padding:'9px 14px',fontSize:13,fontWeight:800,fontFamily:'monospace',textAlign:'right',color:'#9A6700' }}>{inr(v.igst+v.cgst+v.sgst)}</td>
+                        <td style={{ padding:'9px 14px',fontSize:13,fontWeight:800,fontFamily:'monospace',textAlign:'right',color:'#7A4E00' }}>{inr(v.igst+v.cgst+v.sgst)}</td>
                         <td style={{ padding:'9px 14px',fontSize:12,fontFamily:'monospace',textAlign:'right',color:'#17C653' }}>{inr(paid)}</td>
                         <td style={{ padding:'9px 14px',fontSize:13,fontWeight:800,fontFamily:'monospace',textAlign:'right',color:net>0?'#F8285A':'#17C653' }}>{net>0?inr(net):'NIL'}</td>
                       </tr>
@@ -350,7 +350,7 @@ export default function GST() {
               <span style={{ fontSize:12,fontWeight:700,color:'#fff' }}>4 — ITC Summary (Input Tax Credit)</span>
             </div>
             <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:14,padding:'16px' }}>
-              {[['Total Output GST',inr(totalOutput),'#FFF8DD','#9A6700'],['ITC Available',inr(totalITC),'#E8FFF3','#17C653'],['Net Cash Payable',inr(netPayable),'#FFE2E5','#F8285A']].map(([l,v,bg,c])=>(
+              {[['Total Output GST',inr(totalOutput),'#FFF8DD','#7A4E00'],['ITC Available',inr(totalITC),'#E8FFF3','#17C653'],['Net Cash Payable',inr(netPayable),'#FFE2E5','#F8285A']].map(([l,v,bg,c])=>(
                 <div key={l} style={{ background:bg,borderRadius:10,padding:'12px 14px' }}>
                   <div style={{ fontSize:9.5,fontWeight:700,color:c,textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:4 }}>{l}</div>
                   <div style={{ fontSize:18,fontWeight:800,color:c,fontFamily:'monospace' }}>{v}</div>
@@ -412,7 +412,7 @@ export default function GST() {
       {/* ── RCM ── */}
       {tab==='rcm'&&(
         <div>
-          <div style={{ background:'#FFF8DD',border:'1px solid #F6C000',borderRadius:10,padding:'10px 14px',marginBottom:12,fontSize:12,color:'#9A6700' }}>
+          <div style={{ background:'#FFF8DD',border:'1px solid #F6C000',borderRadius:10,padding:'10px 14px',marginBottom:12,fontSize:12,color:'#7A4E00' }}>
             <strong>Reverse Charge Mechanism:</strong> GST self-assessed and paid by you (recipient). Applicable on GTA freight, legal, security, director fees, import of services. Both payable AND ITC claimable if eligible.
           </div>
           <div style={{ display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12 }}>
@@ -430,7 +430,7 @@ export default function GST() {
       {/* ── ADVANCES ── */}
       {tab==='advance'&&(
         <div>
-          <div style={{ background:'#F1F1F4',border:'1px solid #DBDFE9',borderRadius:10,padding:'10px 14px',marginBottom:12,fontSize:12,color:'#1B84FF' }}>
+          <div style={{ background:'#EAF0F8',border:'1px solid #C5D5E8',borderRadius:10,padding:'10px 14px',marginBottom:12,fontSize:12,color:'#1B84FF' }}>
             GST is payable on advances received. Track receipt vouchers here and adjust against final invoice.
           </div>
           <div style={{ display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12 }}>
@@ -503,7 +503,7 @@ export default function GST() {
           <F label="GST Rate (%)"><select style={sel} value={form.gst_rate||5} onChange={set('gst_rate')}>{GST_RATES.map(r=><option key={r} value={r}>{r}%</option>)}</select></F>
           <div/>
           {Number(form.taxable_value)>0&&(
-            <div style={{ gridColumn:'1/-1',background:'#F0FDF4',border:'1px solid #A2E8BA',borderRadius:10,padding:'10px 14px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10 }}>
+            <div style={{ gridColumn:'1/-1',background:'#E8FFF3',border:'1px solid #50CD89',borderRadius:10,padding:'10px 14px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10 }}>
               {[['IGST',formGST.igst],['CGST',formGST.cgst],['SGST',formGST.sgst],['Total GST',formGST.total]].map(([l,v])=>(
                 <div key={l}><div style={{ fontSize:9.5,fontWeight:700,color:'#17C653',textTransform:'uppercase',marginBottom:2 }}>{l}</div><div style={{ fontSize:14,fontWeight:800,color:'#17C653',fontFamily:'monospace' }}>{inr(v)}</div></div>
               ))}
@@ -537,9 +537,9 @@ export default function GST() {
           <F label="Supply Type"><select style={sel} value={form.supply_type||'CGST+SGST (Intra-state)'} onChange={set('supply_type')}>{SUPPLY_TYPES.map(s=><option key={s}>{s}</option>)}</select></F>
           <F label="GST Rate (%)"><select style={sel} value={form.gst_rate||18} onChange={set('gst_rate')}>{GST_RATES.map(r=><option key={r} value={r}>{r}%</option>)}</select></F>
           {Number(form.taxable_value)>0&&(
-            <div style={{ gridColumn:'1/-1',background:'#F1E8FF',border:'1px solid #C4B5FD',borderRadius:10,padding:'10px 14px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10 }}>
+            <div style={{ gridColumn:'1/-1',background:'#F1E8FF',border:'1px solid #D4B9FF',borderRadius:10,padding:'10px 14px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10 }}>
               {[['IGST',formGST.igst],['CGST',formGST.cgst],['SGST',formGST.sgst],['Total ITC',formGST.total]].map(([l,v])=>(
-                <div key={l}><div style={{ fontSize:9.5,fontWeight:700,color:'#5014D0',textTransform:'uppercase',marginBottom:2 }}>{l}</div><div style={{ fontSize:14,fontWeight:800,color:'#5014D0',fontFamily:'monospace' }}>{inr(v)}</div></div>
+                <div key={l}><div style={{ fontSize:9.5,fontWeight:700,color:'#7239EA',textTransform:'uppercase',marginBottom:2 }}>{l}</div><div style={{ fontSize:14,fontWeight:800,color:'#7239EA',fontFamily:'monospace' }}>{inr(v)}</div></div>
               ))}
             </div>
           )}
@@ -563,7 +563,7 @@ export default function GST() {
           <F label="Taxable Value (₹)" required error={errors.taxable_value}><input style={errors.taxable_value?inpE:inp} type="number" value={form.taxable_value||''} onChange={set('taxable_value')}/></F>
           <F label="Supply Type"><select style={sel} value={form.supply_type||'CGST+SGST (Intra-state)'} onChange={set('supply_type')}>{SUPPLY_TYPES.map(s=><option key={s}>{s}</option>)}</select></F>
           <F label="GST Rate (%)"><select style={sel} value={form.gst_rate||5} onChange={set('gst_rate')}>{GST_RATES.map(r=><option key={r} value={r}>{r}%</option>)}</select></F>
-          {Number(form.taxable_value)>0&&<div style={{ background:'#FFE2E5',border:'1px solid #FCA9BD',borderRadius:10,padding:'10px 14px',fontSize:12.5,color:'#A10035',fontWeight:600 }}>GST Reversed: CGST {inr(formGST.cgst)} + SGST {inr(formGST.sgst)} + IGST {inr(formGST.igst)} = {inr(formGST.total)}</div>}
+          {Number(form.taxable_value)>0&&<div style={{ background:'#FFE2E5',border:'1px solid #FFB8C6',borderRadius:10,padding:'10px 14px',fontSize:12.5,color:'#7F1D1D',fontWeight:600 }}>GST Reversed: CGST {inr(formGST.cgst)} + SGST {inr(formGST.sgst)} + IGST {inr(formGST.igst)} = {inr(formGST.total)}</div>}
         </div>
       </Modal>
 
@@ -596,7 +596,7 @@ export default function GST() {
           {Number(form.taxable_value)>0&&(
             <div style={{ gridColumn:'1/-1',background:'#FFF8DD',border:'1px solid #F6C000',borderRadius:10,padding:'10px 14px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10 }}>
               {[['IGST',formGST.igst],['CGST',formGST.cgst],['SGST',formGST.sgst],['Total RCM',formGST.total]].map(([l,v])=>(
-                <div key={l}><div style={{ fontSize:9.5,fontWeight:700,color:'#9A6700',textTransform:'uppercase',marginBottom:2 }}>{l}</div><div style={{ fontSize:14,fontWeight:800,color:'#9A6700',fontFamily:'monospace' }}>{inr(v)}</div></div>
+                <div key={l}><div style={{ fontSize:9.5,fontWeight:700,color:'#7A4E00',textTransform:'uppercase',marginBottom:2 }}>{l}</div><div style={{ fontSize:14,fontWeight:800,color:'#7A4E00',fontFamily:'monospace' }}>{inr(v)}</div></div>
               ))}
             </div>
           )}
@@ -615,7 +615,7 @@ export default function GST() {
           <F label="Customer GSTIN"><input style={inp} value={form.party_gstin||''} onChange={set('party_gstin')} placeholder="Blank for B2C"/></F>
           <F label="Advance Amount (₹)" required error={errors.advance_amount}><input style={errors.advance_amount?inpE:inp} type="number" value={form.advance_amount||''} onChange={set('advance_amount')}/></F>
           <F label="GST Rate (%)"><select style={sel} value={form.gst_rate||5} onChange={set('gst_rate')}>{GST_RATES.map(r=><option key={r} value={r}>{r}%</option>)}</select></F>
-          {Number(form.advance_amount)>0&&<div style={{ gridColumn:'1/-1',background:'#F1F1F4',border:'1px solid #DBDFE9',borderRadius:10,padding:'10px 14px',fontSize:12.5,color:'#071437',fontWeight:600 }}>GST on Advance: {inr(Math.round(Number(form.advance_amount)*Number(form.gst_rate||5)/(100+Number(form.gst_rate||5))))}</div>}
+          {Number(form.advance_amount)>0&&<div style={{ gridColumn:'1/-1',background:'#EAF0F8',border:'1px solid #C5D5E8',borderRadius:10,padding:'10px 14px',fontSize:12.5,color:'#071437',fontWeight:600 }}>GST on Advance: {inr(Math.round(Number(form.advance_amount)*Number(form.gst_rate||5)/(100+Number(form.gst_rate||5))))}</div>}
           <F label="Status"><select style={sel} value={form.status||'Pending Adjustment'} onChange={set('status')}><option>Pending Adjustment</option><option>Adjusted Against Invoice</option><option>Refunded</option></select></F>
         </div>
       </Modal>
@@ -635,7 +635,7 @@ export default function GST() {
           <F label="IGST Paid (₹)"><input style={inp} type="number" value={form.igst||''} onChange={set('igst')}/></F>
           <F label="CGST Paid (₹)"><input style={inp} type="number" value={form.cgst||''} onChange={set('cgst')}/></F>
           <F label="SGST Paid (₹)"><input style={inp} type="number" value={form.sgst||''} onChange={set('sgst')}/></F>
-          <div style={{ background:'#E8FFF3',border:'1px solid #A2E8BA',borderRadius:8,padding:'10px 14px' }}>
+          <div style={{ background:'#E8FFF3',border:'1px solid #50CD89',borderRadius:8,padding:'10px 14px' }}>
             <div style={{ fontSize:9.5,fontWeight:700,color:'#17C653',textTransform:'uppercase',marginBottom:2 }}>Total Paid</div>
             <div style={{ fontSize:18,fontWeight:800,color:'#17C653',fontFamily:'monospace' }}>{inr(Number(form.igst||0)+Number(form.cgst||0)+Number(form.sgst||0))}</div>
           </div>
@@ -667,8 +667,8 @@ export default function GST() {
           footer={<button onClick={()=>setViewItem(null)} style={S}>Close</button>}>
           <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:8 }}>
             {Object.entries(viewItem).filter(([k])=>!['id','_s','_source'].includes(k)).map(([k,v])=>(
-              <div key={k} style={{ padding:'7px 0',borderBottom:'1px solid #F9F9F9' }}>
-                <div style={{ fontSize:9.5,fontWeight:700,color:'#78829D',textTransform:'uppercase',letterSpacing:'0.4px',marginBottom:2 }}>{k.replace(/_/g,' ')}</div>
+              <div key={k} style={{ padding:'7px 0',borderBottom:'1px solid #FCFCFC' }}>
+                <div style={{ fontSize:9.5,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.4px',marginBottom:2 }}>{k.replace(/_/g,' ')}</div>
                 <div style={{ fontSize:12.5,fontWeight:600,color:'#071437' }}>{String(v||'—')}</div>
               </div>
             ))}

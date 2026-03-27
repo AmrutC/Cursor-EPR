@@ -7,17 +7,17 @@ const DEMO_LOG = [];
 const EVENT_COLORS = {
   LOGIN:    { bg:'#E1F0FF', text:'#1B84FF' },
   CREATE:   { bg:'#E8FFF3', text:'#17C653' },
-  UPDATE:   { bg:'#FFF8DD', text:'#9A6700' },
-  DELETE:   { bg:'#FFE2E5', text:'#A10035' },
-  DOCUMENT: { bg:'#F1E8FF', text:'#5014D0' },
+  UPDATE:   { bg:'#FFF8DD', text:'#7A4E00' },
+  DELETE:   { bg:'#FFE2E5', text:'#7F1D1D' },
+  DOCUMENT: { bg:'#F1E8FF', text:'#7239EA' },
   EXPORT:   { bg:'#E4FFF8', text:'#0E9F8A' },
-  SETTINGS: { bg:'#F9F9F9', text:'#252F4A' },
-  LOGOUT:   { bg:'#F9F9F9', text:'#252F4A' },
+  SETTINGS: { bg:'#FCFCFC', text:'#252F4A' },
+  LOGOUT:   { bg:'#FCFCFC', text:'#252F4A' },
 };
 
 const MODULES = ['All','auth','bookings','payments','projects','documents','vendors','accounts','hr','settings','crm','gst'];
 const EVENTS  = ['All','LOGIN','LOGOUT','CREATE','UPDATE','DELETE','DOCUMENT','EXPORT','SETTINGS'];
-const inp = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const sel = { ...inp, cursor:'pointer' };
 
 export default function AuditLog() {
@@ -39,9 +39,9 @@ export default function AuditLog() {
   return (
     <div>
       {/* Immutable notice */}
-      <div style={{background:'#F1E8FF',border:'1px solid #C4B5FD',borderRadius:10,padding:'10px 14px',marginBottom:16,display:'flex',gap:8,alignItems:'center'}}>
-        <Shield size={14} style={{color:'#5014D0',flexShrink:0}}/>
-        <span style={{fontSize:12,color:'#5014D0',fontWeight:500}}>
+      <div style={{background:'#F1E8FF',border:'1px solid #D4B9FF',borderRadius:10,padding:'10px 14px',marginBottom:16,display:'flex',gap:8,alignItems:'center'}}>
+        <Shield size={14} style={{color:'#7239EA',flexShrink:0}}/>
+        <span style={{fontSize:12,color:'#7239EA',fontWeight:500}}>
           <strong>Immutable Log</strong> — No entry can be edited or deleted. Every action by every user is recorded permanently.
         </span>
       </div>
@@ -52,7 +52,7 @@ export default function AuditLog() {
           {l:'Total Events',v:log.length,c:'#071437'},
           {l:'Logins',v:log.filter(l=>l.event==='LOGIN').length,c:'#1B84FF'},
           {l:'Creates',v:log.filter(l=>l.event==='CREATE').length,c:'#17C653'},
-          {l:'Documents',v:log.filter(l=>l.event==='DOCUMENT').length,c:'#5014D0'},
+          {l:'Documents',v:log.filter(l=>l.event==='DOCUMENT').length,c:'#7239EA'},
         ].map(s=>(
           <div key={s.l} style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:12,padding:'11px 14px'}}>
             <div style={{fontSize:9.5,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:3}}>{s.l}</div>
@@ -64,7 +64,7 @@ export default function AuditLog() {
       {/* Filters */}
       <div style={{display:'flex',gap:8,marginBottom:14,flexWrap:'wrap'}}>
         <div style={{flex:1,minWidth:200,position:'relative'}}>
-          <Search size={13} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#99A1B7'}}/>
+          <Search size={13} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#78829D'}}/>
           <input style={{...inp,paddingLeft:32}} placeholder="Search records, users, references…" value={search} onChange={e=>setSearch(e.target.value)}/>
         </div>
         <select style={{...sel,width:140}} value={filterModule} onChange={e=>setFilterModule(e.target.value)}>
@@ -76,29 +76,29 @@ export default function AuditLog() {
         <select style={{...sel,width:120}} value={filterUser} onChange={e=>setFilterUser(e.target.value)}>
           {users.map(u=><option key={u} value={u}>{u==='All'?'All Users':u}</option>)}
         </select>
-        <button style={{background:'#F9F9F9',border:'1px solid #F1F1F4',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:600,color:'#252F4A',display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+        <button style={{background:'#FCFCFC',border:'1px solid #F1F1F4',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:600,color:'#252F4A',display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
           <Download size={12}/> Export CSV
         </button>
       </div>
 
       {/* Table */}
       <div style={{background:'#fff',border:'1px solid #F1F1F4',borderRadius:14,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
-        <div style={{padding:'10px 16px',borderBottom:'1px solid #F9F9F9',fontSize:12,color:'#4B5675',fontWeight:600}}>
+        <div style={{padding:'10px 16px',borderBottom:'1px solid #FCFCFC',fontSize:12,color:'#4B5675',fontWeight:600}}>
           Showing {filtered.length} of {log.length} events
         </div>
         <table style={{width:'100%',borderCollapse:'collapse'}}>
-          <thead><tr style={{background:'#F9F9F9',borderBottom:'2px solid #F1F1F4'}}>
+          <thead><tr style={{background:'#FCFCFC',borderBottom:'2px solid #F1F1F4'}}>
             {['Timestamp','User','Module','Event','Record / Reference','Change Detail'].map(h=>(
               <th key={h} style={{padding:'9px 14px',textAlign:'left',fontSize:10,fontWeight:700,color:'#4B5675',textTransform:'uppercase',letterSpacing:'0.5px',whiteSpace:'nowrap'}}>{h}</th>
             ))}
           </tr></thead>
           <tbody>
             {filtered.length===0?(
-              <tr><td colSpan={6} style={{textAlign:'center',padding:40,color:'#99A1B7',fontSize:13}}>No audit entries match your filters.</td></tr>
+              <tr><td colSpan={6} style={{textAlign:'center',padding:40,color:'#78829D',fontSize:13}}>No audit entries match your filters.</td></tr>
             ):filtered.map((l,i)=>{
-              const ec = EVENT_COLORS[l.event]||{bg:'#F9F9F9',text:'#252F4A'};
+              const ec = EVENT_COLORS[l.event]||{bg:'#FCFCFC',text:'#252F4A'};
               return(
-                <tr key={l.id} style={{borderBottom:'1px solid #F9F9F9',background:i%2===0?'#fff':'#FCFCFC'}}>
+                <tr key={l.id} style={{borderBottom:'1px solid #FCFCFC',background:i%2===0?'#fff':'#FAFAFA'}}>
                   <td style={{padding:'9px 14px',fontSize:11.5,color:'#252F4A',whiteSpace:'nowrap',fontFamily:'monospace'}}>
                     {new Date(l.timestamp).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'})}
                   </td>

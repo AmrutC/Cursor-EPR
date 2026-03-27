@@ -1,27 +1,40 @@
 import React from 'react';
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
-import { clx } from '../../utils';
+import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-const ICONS = { success: CheckCircle2, error: AlertCircle, info: Info };
-const STYLES = {
-  success: 'bg-green-50 border-green-200 text-green-800',
-  error:   'bg-red-50 border-red-200 text-red-800',
-  info:    'bg-blue-50 border-blue-200 text-blue-800',
+const ICONS = {
+  success: CheckCircle,
+  error: AlertCircle,
+  warning: AlertTriangle,
+  info: Info,
+};
+
+const COLORS = {
+  success: { bg: '#E8FFF3', border: '#50CD89', color: '#17C653', icon: '#17C653' },
+  error:   { bg: '#FFE2E5', border: '#FFB8C6', color: '#B42318', icon: '#F8285A' },
+  warning: { bg: '#FFF8DD', border: '#F6C000', color: '#7A4E00', icon: '#7A4E00' },
+  info:    { bg: '#EEF6FF', border: '#B5D8FF', color: '#1B84FF', icon: '#1B84FF' },
 };
 
 export default function Toast({ toasts = [] }) {
-  if (!toasts.length) return null;
   return (
-    <div className="fixed bottom-5 end-5 d-flex flex-column gap-2 z-3">
+    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
       {toasts.map(t => {
-        const Icon = ICONS[t.type] || CheckCircle2;
+        const type = t.type || 'success';
+        const c = COLORS[type] || COLORS.info;
+        const Icon = ICONS[type] || Info;
         return (
-          <div key={t.id} className={clx('d-flex align-items-center gap-2 border rounded-3 px-4 py-3 shadow-sm fw-semibold', STYLES[t.type] || STYLES.success)} style={{ minWidth: 280, maxWidth: 420 }}>
-            <Icon size={15} className="flex-shrink-0" />
-            <span className="flex-grow-1 fs-7">{t.msg}</span>
+          <div key={t.id} style={{
+            display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 16px',
+            background: c.bg, border: `1px solid ${c.border}`, borderRadius: 12,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.12)', maxWidth: 340, minWidth: 240,
+            animation: 'slideIn 0.2s ease',
+          }}>
+            <Icon size={16} style={{ color: c.icon, flexShrink: 0, marginTop: 1 }} />
+            <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: c.color, lineHeight: 1.4 }}>{t.msg}</span>
           </div>
         );
       })}
+      <style>{`@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
     </div>
   );
 }

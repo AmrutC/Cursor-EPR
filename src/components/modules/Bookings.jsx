@@ -6,7 +6,7 @@ import Modal from '../ui/Modal';
 import { inr, fmtDate } from '../../utils';
 import { Plus, CheckCircle2, XCircle, Clock, ChevronRight, ChevronLeft, Search, AlertTriangle } from 'lucide-react';
 
-const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#111827', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
+const inp  = { width:'100%', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 10px', fontSize:13, color:'#252F4A', background:'#fff', outline:'none', fontFamily:'Inter,system-ui,sans-serif' };
 const inpE = { ...inp, border:'1px solid #F8285A', background:'#FFF5F8' };
 const sel  = { ...inp, cursor:'pointer' };
 const F = ({ label, required, error, children, span }) => (
@@ -48,8 +48,8 @@ function ViewDetailsModal({ booking, entityProjects, allBrokers, canApprove, can
   const allottees = Array.isArray(vb.allottees) ? vb.allottees : [];
   const a0 = allottees[0] || {};
 
-  const rowStyle = { display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid #F9F9F9', fontSize:12.5 };
-  const lblStyle = { color:'#78829D', fontWeight:600 };
+  const rowStyle = { display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid #FCFCFC', fontSize:12.5 };
+  const lblStyle = { color:'#4B5675', fontWeight:600 };
   const valStyle = { color:'#071437', fontWeight:700 };
   const monoStyle = { ...valStyle, fontFamily:'monospace' };
   const cardStyle = { background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:12, padding:'14px 16px' };
@@ -68,7 +68,7 @@ function ViewDetailsModal({ booking, entityProjects, allBrokers, canApprove, can
           <div style={{ fontSize:15, fontWeight:800, color:'#071437' }}>
             Booking Details — <span style={{ fontFamily:'monospace' }}>{vb.booking_no || 'Draft'}</span>
           </div>
-          <button onClick={onClose} style={{ background:'#F9F9F9', border:'none', borderRadius:8, width:28, height:28, cursor:'pointer', fontSize:16, color:'#78829D', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+          <button onClick={onClose} style={{ background:'#FCFCFC', border:'none', borderRadius:8, width:28, height:28, cursor:'pointer', fontSize:16, color:'#4B5675', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
         </div>
 
         {/* Body */}
@@ -127,13 +127,13 @@ function ViewDetailsModal({ booking, entityProjects, allBrokers, canApprove, can
               <div style={rowStyle}><span style={lblStyle}>Booking Status</span><span style={valStyle}>{fmt(vb.status)}</span></div>
               <div style={rowStyle}>
                 <span style={lblStyle}>Approval</span>
-                <span style={{ fontWeight:700, fontSize:12.5, color: vb.approval_status==='Approved'?'#17C653': vb.approval_status==='Rejected'?'#A10035':'#9A6700' }}>
+                <span style={{ fontWeight:700, fontSize:12.5, color: vb.approval_status==='Approved'?'#17C653': vb.approval_status==='Rejected'?'#7F1D1D':'#7A4E00' }}>
                   {fmt(vb.approval_status)}
                 </span>
               </div>
               {vb.approved_by && <div style={rowStyle}><span style={lblStyle}>Approved By</span><span style={valStyle}>{vb.approved_by}</span></div>}
               {vb.reject_reason && (
-                <div style={{ marginTop:6, background:'#FFE2E5', borderRadius:8, padding:'7px 10px', fontSize:12, color:'#A10035', fontWeight:600 }}>
+                <div style={{ marginTop:6, background:'#FFE2E5', borderRadius:8, padding:'7px 10px', fontSize:12, color:'#7F1D1D', fontWeight:600 }}>
                   Rejection: {vb.reject_reason}
                 </div>
               )}
@@ -143,7 +143,7 @@ function ViewDetailsModal({ booking, entityProjects, allBrokers, canApprove, can
                 <div style={rowStyle}><span style={lblStyle}>Brokerage</span><span style={valStyle}>{money(vb.brokerage_amount)}</span></div>
               </>}
               {vb.notes && (
-                <div style={{ marginTop:8, background:'#FFF8DD', borderRadius:8, padding:'7px 10px', fontSize:12, color:'#9A6700' }}>
+                <div style={{ marginTop:8, background:'#FFF8DD', borderRadius:8, padding:'7px 10px', fontSize:12, color:'#7A4E00' }}>
                   Note: {vb.notes}
                 </div>
               )}
@@ -154,17 +154,17 @@ function ViewDetailsModal({ booking, entityProjects, allBrokers, canApprove, can
 
         {/* Footer */}
         <div style={{ padding:'14px 22px', borderTop:'1px solid #F1F1F4', display:'flex', justifyContent:'space-between', alignItems:'center', flexShrink:0 }}>
-          <button onClick={onClose} style={{ background:'#F9F9F9', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:600, color:'#252F4A' }}>Close</button>
+          <button onClick={onClose} style={{ background:'#FCFCFC', border:'1px solid #F1F1F4', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:600, color:'#252F4A' }}>Close</button>
           <div style={{ display:'flex', gap:8 }}>
             {canEdit && (
-              <button onClick={onEdit} style={{ background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:700, color:'#071437', display:'flex', alignItems:'center', gap:6 }}>
+              <button onClick={onEdit} style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:700, color:'#071437', display:'flex', alignItems:'center', gap:6 }}>
                 ✏ Edit Booking
               </button>
             )}
             {canApprove && vb.approval_status === 'Pending' && (
               <div style={{ display:'flex', gap:8 }}>
-                <button onClick={onApprove} style={{ background:'#E8FFF3', border:'1px solid #A2E8BA', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:700, color:'#17C653' }}>✓ Approve</button>
-                <button onClick={onReject}  style={{ background:'#FFE2E5', border:'1px solid #FCA9BD', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:700, color:'#A10035' }}>✗ Reject</button>
+                <button onClick={onApprove} style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:700, color:'#17C653' }}>✓ Approve</button>
+                <button onClick={onReject}  style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:8, padding:'7px 18px', cursor:'pointer', fontSize:13, fontWeight:700, color:'#7F1D1D' }}>✗ Reject</button>
               </div>
             )}
           </div>
@@ -515,8 +515,8 @@ export default function Bookings() {
       {/* Pending approvals banner */}
       {canApprove && pendingCount > 0 && (
         <div style={{ background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:12, padding:'11px 16px', marginBottom:14, display:'flex', alignItems:'center', gap:10 }}>
-          <AlertTriangle size={16} style={{ color:'#F6C000' }}/>
-          <span style={{ fontSize:13, fontWeight:600, color:'#9A6700' }}>{pendingCount} booking{pendingCount>1?'s':''} pending your approval</span>
+          <AlertTriangle size={16} style={{ color:'#7A4E00' }}/>
+          <span style={{ fontSize:13, fontWeight:600, color:'#7A4E00' }}>{pendingCount} booking{pendingCount>1?'s':''} pending your approval</span>
           <button onClick={()=>setFilterStatus('Pending Approval')} style={{ marginLeft:'auto', background:'#071437', color:'#fff', border:'none', borderRadius:8, padding:'5px 14px', cursor:'pointer', fontSize:12, fontWeight:700 }}>Review →</button>
         </div>
       )}
@@ -524,13 +524,13 @@ export default function Bookings() {
       {/* Toolbar */}
       <div style={{ display:'flex', gap:8, marginBottom:14, flexWrap:'wrap' }}>
         <div style={{ position:'relative', flex:1, minWidth:200 }}>
-          <Search size={13} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#99A1B7' }}/>
+          <Search size={13} style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'#78829D' }}/>
           <input style={{ ...inp, paddingLeft:32 }} placeholder="Search name, flat, booking no…" value={search} onChange={e=>setSearch(e.target.value)}/>
         </div>
         <select style={{ ...sel, width:180 }} value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
           {['All','Pending Approval','Booked','Agreement Done','Registered','Rejected'].map(s=><option key={s}>{s}</option>)}
         </select>
-        <div style={{ display:'flex', alignItems:'center', gap:6, background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:8, padding:'6px 12px', fontSize:12, color:'#1B84FF' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6, background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:8, padding:'6px 12px', fontSize:12, color:'#1B84FF' }}>
           🏢 To create a booking, go to <strong style={{ marginLeft:4, cursor:'pointer', textDecoration:'underline' }} onClick={()=>useAppStore.getState().setActiveModule('inventory')}>Projects &amp; Inventory</strong> → select an available unit → "Book This Unit"
         </div>
       </div>
@@ -538,10 +538,10 @@ export default function Bookings() {
       {/* Bookings table */}
       <div style={{ background:'#fff', border:'1px solid #F1F1F4', borderRadius:14, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
         {filtered.length===0 ? (
-          <div style={{ padding:60, textAlign:'center', color:'#99A1B7', fontSize:13 }}>No bookings found.</div>
+          <div style={{ padding:60, textAlign:'center', color:'#78829D', fontSize:13 }}>No bookings found.</div>
         ) : (
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
-            <thead><tr style={{ background:'#F9F9F9', borderBottom:'2px solid #F1F1F4' }}>
+            <thead><tr style={{ background:'#FCFCFC', borderBottom:'2px solid #F1F1F4' }}>
               {['Booking No.','Allottee','Project / Unit','Agreement Value','Booking Date','Status','Approval','Actions'].map(h=>(
                 <th key={h} style={{ padding:'9px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:'#4B5675', textTransform:'uppercase', letterSpacing:'0.4px', whiteSpace:'nowrap' }}>{h}</th>
               ))}
@@ -550,11 +550,11 @@ export default function Bookings() {
               {filtered.map((b,i)=>{
                 const proj = entityProjects.find(p=>p.id===b.project_id);
                 return (
-                  <tr key={b.id} style={{ borderBottom:'1px solid #F9F9F9', background:i%2===0?'#fff':'#FCFCFC' }}>
+                  <tr key={b.id} style={{ borderBottom:'1px solid #FCFCFC', background:i%2===0?'#fff':'#FAFAFA' }}>
                     <td style={{ padding:'9px 14px', fontSize:11.5, fontFamily:'monospace', fontWeight:700, color:'#071437' }}>{b.booking_no}</td>
                     <td style={{ padding:'9px 14px' }}>
                       <div style={{ fontSize:13, fontWeight:700, color:'#071437' }}>{b.allottees?.[0]?.name}</div>
-                      {b.allottees?.length > 1 && <div style={{ fontSize:11, color:'#78829D' }}>+ {b.allottees.length-1} joint</div>}
+                      {b.allottees?.length > 1 && <div style={{ fontSize:11, color:'#4B5675' }}>+ {b.allottees.length-1} joint</div>}
                     </td>
                     <td style={{ padding:'9px 14px' }}>
                       <div style={{ fontSize:12.5, fontWeight:600, color:'#071437' }}>{proj?.name||'—'}</div>
@@ -566,19 +566,19 @@ export default function Bookings() {
                     <td style={{ padding:'9px 14px' }}>
                       <span style={{
                         background:b.approval_status==='Approved'?'#E8FFF3':b.approval_status==='Rejected'?'#FFE2E5':'#FFF8DD',
-                        color:b.approval_status==='Approved'?'#17C653':b.approval_status==='Rejected'?'#A10035':'#9A6700',
+                        color:b.approval_status==='Approved'?'#17C653':b.approval_status==='Rejected'?'#7F1D1D':'#7A4E00',
                         fontSize:10.5, fontWeight:700, padding:'2px 8px', borderRadius:10
                       }}>{b.approval_status||'Pending'}</span>
                     </td>
                     <td style={{ padding:'9px 14px' }}>
                       <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
                         <button onClick={()=>setViewModal(b)}
-                          style={{ background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#071437' }}>
+                          style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#071437' }}>
                           View Details
                         </button>
                         {canApprove && b.approval_status==='Pending' && (<>
-                          <button onClick={()=>approveBooking(b)} style={{ background:'#E8FFF3', border:'1px solid #A2E8BA', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#17C653' }}>Approve</button>
-                          <button onClick={()=>{ setRejectModal(b); setRejectReason(''); }} style={{ background:'#FFE2E5', border:'1px solid #FCA9BD', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#A10035' }}>Reject</button>
+                          <button onClick={()=>approveBooking(b)} style={{ background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#17C653' }}>Approve</button>
+                          <button onClick={()=>{ setRejectModal(b); setRejectReason(''); }} style={{ background:'#FFE2E5', border:'1px solid #FFB8C6', borderRadius:6, padding:'3px 9px', cursor:'pointer', fontSize:10.5, fontWeight:700, color:'#7F1D1D' }}>Reject</button>
                         </>)}
                         {b.reject_reason && <div style={{ fontSize:10.5, color:'#F8285A' }} title={b.reject_reason}>Reason ⓘ</div>}
                       </div>
@@ -605,10 +605,10 @@ export default function Bookings() {
         <div style={{ display:'flex', gap:4, marginBottom:22 }}>
           {STEPS.map((s,i)=>(
             <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:5 }}>
-              <div style={{ width:28, height:28, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, background:i<step?'#17C653':i===step?'#071437':'#F1F1F4', color:i<=step?'#fff':'#78829D' }}>
+              <div style={{ width:28, height:28, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, background:i<step?'#17C653':i===step?'#071437':'#F1F1F4', color:i<=step?'#fff':'#4B5675' }}>
                 {i<step?'✓':i+1}
               </div>
-              <div style={{ fontSize:10.5, fontWeight:i===step?700:500, color:i===step?'#071437':'#78829D', textAlign:'center', lineHeight:1.3 }}>{s}</div>
+              <div style={{ fontSize:10.5, fontWeight:i===step?700:500, color:i===step?'#071437':'#4B5675', textAlign:'center', lineHeight:1.3 }}>{s}</div>
               {i<STEPS.length-1 && <div style={{ position:'absolute', display:'none' }}/>}
             </div>
           ))}
@@ -649,7 +649,7 @@ export default function Bookings() {
                 <option value="">— Select project —</option>
                 {entityProjects.map(p=><option key={p.id} value={p.id}>{p.code} — {p.name}</option>)}
               </select>
-              {unitLocked && <div style={{ fontSize:11, color:'#78829D', marginTop:3 }}>Project locked — selected from Inventory</div>}
+              {unitLocked && <div style={{ fontSize:11, color:'#4B5675', marginTop:3 }}>Project locked — selected from Inventory</div>}
             </F>
             <F label="Unit / Flat No." required error={errors.unit_no}>
               <select style={errors.unit_no?{...sel,border:'1px solid #F8285A'}:sel}
@@ -662,15 +662,15 @@ export default function Bookings() {
                   <option value={form.unit_no}>Unit {form.unit_no} — {form.unit_type}</option>
                 )}
               </select>
-              {unitLocked && <div style={{ fontSize:11, color:'#78829D', marginTop:3 }}>Unit locked — selected from Inventory</div>}
+              {unitLocked && <div style={{ fontSize:11, color:'#4B5675', marginTop:3 }}>Unit locked — selected from Inventory</div>}
             </F>
-            <F label="Unit Type"><input style={{ ...inp, background:'#F9F9F9' }} value={form.unit_type} readOnly placeholder="Auto-filled from unit selection"/></F>
-            <F label="Carpet Area (sqft)"><input style={{ ...inp, background:'#F9F9F9' }} value={form.carpet_area} readOnly placeholder="Auto-filled"/></F>
+            <F label="Unit Type"><input style={{ ...inp, background:'#FCFCFC' }} value={form.unit_type} readOnly placeholder="Auto-filled from unit selection"/></F>
+            <F label="Carpet Area (sqft)"><input style={{ ...inp, background:'#FCFCFC' }} value={form.carpet_area} readOnly placeholder="Auto-filled"/></F>
             <F label="Agreement Value (₹)" required error={errors.agreement_value}>
               <input style={errors.agreement_value?inpE:inp} type="number" value={form.agreement_value} onChange={onAgreementValueChange} placeholder="Total agreement amount"/>
             </F>
             <F label="Base Rate (₹/sqft) — auto">
-              <input style={{ ...inp, background:'#F9F9F9' }} value={form.base_rate} readOnly placeholder="Calculated"/>
+              <input style={{ ...inp, background:'#FCFCFC' }} value={form.base_rate} readOnly placeholder="Calculated"/>
             </F>
             <F label="GST Rate (%)">
               <div style={{ display:'flex', gap:10 }}>
@@ -689,10 +689,10 @@ export default function Bookings() {
             <F label="Agreement Date"><input style={inp} type="date" value={form.agreement_date} onChange={set('agreement_date')}/></F>
             <F label="Expected Possession Date"><input style={inp} type="date" value={form.possession_date} onChange={set('possession_date')}/></F>
             {form.agreement_value && (
-              <div style={{ gridColumn:'1/-1', background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:10, padding:'11px 14px' }}>
+              <div style={{ gridColumn:'1/-1', background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'11px 14px' }}>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, fontSize:12 }}>
                   <div><span style={{ color:'#4B5675', fontWeight:600 }}>Agreement Value: </span><strong style={{ color:'#071437', fontFamily:'monospace' }}>{inr(Number(form.agreement_value))}</strong></div>
-                  <div><span style={{ color:'#4B5675', fontWeight:600 }}>GST ({form.gst_rate}%): </span><strong style={{ color:'#9A6700', fontFamily:'monospace' }}>{inr(Math.round(Number(form.agreement_value)*Number(form.gst_rate)/100))}</strong></div>
+                  <div><span style={{ color:'#4B5675', fontWeight:600 }}>GST ({form.gst_rate}%): </span><strong style={{ color:'#7A4E00', fontFamily:'monospace' }}>{inr(Math.round(Number(form.agreement_value)*Number(form.gst_rate)/100))}</strong></div>
                   <div><span style={{ color:'#4B5675', fontWeight:600 }}>Total Payable: </span><strong style={{ color:'#17C653', fontFamily:'monospace' }}>{inr(Math.round(Number(form.agreement_value)*(1+Number(form.gst_rate)/100)))}</strong></div>
                 </div>
               </div>
@@ -707,9 +707,9 @@ export default function Bookings() {
             <F label="Funding Type" span={2}>
               <div style={{ display:'flex', gap:10 }}>
                 {['Own Fund','Home Loan','Mixed'].map(v=>(
-                  <label key={v} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.funding_type===v?'#071437':'#F1F1F4'}`, background:form.funding_type===v?'#F1F1F4':'#fff', justifyContent:'center' }}>
+                  <label key={v} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.funding_type===v?'#071437':'#F1F1F4'}`, background:form.funding_type===v?'#EAF0F8':'#fff', justifyContent:'center' }}>
                     <input type="radio" name="funding" value={v} checked={form.funding_type===v} onChange={set('funding_type')} style={{ width:14, height:14 }}/>
-                    <span style={{ fontSize:13, fontWeight:700, color:form.funding_type===v?'#071437':'#78829D' }}>{v}</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:form.funding_type===v?'#071437':'#4B5675' }}>{v}</span>
                   </label>
                 ))}
               </div>
@@ -727,7 +727,7 @@ export default function Bookings() {
               <F label="Loan Stage"><select style={sel} value={form.loan_stage} onChange={set('loan_stage')}><option value="">Select stage…</option><option>Applied</option><option>Sanctioned</option><option>Disbursed</option><option>Closed</option></select></F>
             </>)}
             {form.funding_type==='Own Fund' && (
-              <div style={{ gridColumn:'1/-1', background:'#F0FDF4', border:'1px solid #A2E8BA', borderRadius:10, padding:'12px 16px', fontSize:13, color:'#17C653' }}>No home loan details needed for Own Fund bookings.</div>
+              <div style={{ gridColumn:'1/-1', background:'#E8FFF3', border:'1px solid #50CD89', borderRadius:10, padding:'12px 16px', fontSize:13, color:'#17C653' }}>No home loan details needed for Own Fund bookings.</div>
             )}
           </div>
         )}
@@ -738,9 +738,9 @@ export default function Bookings() {
             <F label="Is a Broker Involved?" span={2}>
               <div style={{ display:'flex', gap:10 }}>
                 {[false,true].map(v=>(
-                  <label key={String(v)} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.broker_involved===v?'#071437':'#F1F1F4'}`, background:form.broker_involved===v?'#F1F1F4':'#fff', justifyContent:'center' }}>
+                  <label key={String(v)} style={{ flex:1, display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'8px 14px', borderRadius:8, border:`2px solid ${form.broker_involved===v?'#071437':'#F1F1F4'}`, background:form.broker_involved===v?'#EAF0F8':'#fff', justifyContent:'center' }}>
                     <input type="radio" name="broker_inv" checked={form.broker_involved===v} onChange={()=>setForm(f=>({...f,broker_involved:v}))} style={{ width:14, height:14 }}/>
-                    <span style={{ fontSize:13, fontWeight:700, color:form.broker_involved===v?'#071437':'#78829D' }}>{v?'Yes':'No — Direct Sale'}</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:form.broker_involved===v?'#071437':'#4B5675' }}>{v?'Yes':'No — Direct Sale'}</span>
                   </label>
                 ))}
               </div>
@@ -756,14 +756,14 @@ export default function Bookings() {
               <F label="Brokerage Amount (₹)"><input style={inp} type="number" value={form.brokerage_amount} onChange={set('brokerage_amount')} placeholder="0"/></F>
             </>)}
             {/* Booking summary */}
-            <div style={{ gridColumn:'1/-1', background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:12, padding:'14px 16px' }}>
+            <div style={{ gridColumn:'1/-1', background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:12, padding:'14px 16px' }}>
               <div style={{ fontSize:11.5, fontWeight:700, color:'#071437', marginBottom:10, textTransform:'uppercase', letterSpacing:'0.5px' }}>Booking Summary</div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, fontSize:12.5 }}>
                 {[['Allottee',form.allottee_name],['Project',entityProjects.find(p=>p.id===Number(form.project_id))?.name||'—'],['Unit',`Unit ${form.unit_no}`],['Agreement Value',inr(Number(form.agreement_value))],['GST',`${form.gst_rate}%`],['Funding',form.funding_type]].map(([l,v])=>(
                   <div key={l}><span style={{ color:'#4B5675', fontWeight:600 }}>{l}: </span><strong style={{ color:'#071437' }}>{v}</strong></div>
                 ))}
               </div>
-              <div style={{ marginTop:10, padding:'8px 12px', background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:8, fontSize:12, color:'#9A6700' }}>
+              <div style={{ marginTop:10, padding:'8px 12px', background:'#FFF8DD', border:'1px solid #F6C000', borderRadius:8, fontSize:12, color:'#7A4E00' }}>
                 After submission, this booking will be sent to the Director for approval before it becomes active.
               </div>
             </div>
@@ -777,7 +777,7 @@ export default function Bookings() {
           <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)' }} onClick={()=>setThankYou(null)}/>
           <div style={{ position:'relative', background:'#fff', borderRadius:20, padding:'40px 36px', maxWidth:480, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.2)', textAlign:'center' }}>
             {/* Success icon */}
-            <div style={{ width:72, height:72, borderRadius:'50%', background:'#E8FFF3', border:'4px solid #A2E8BA', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 22px', fontSize:34 }}>
+            <div style={{ width:72, height:72, borderRadius:'50%', background:'#E8FFF3', border:'4px solid #50CD89', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 22px', fontSize:34 }}>
               ✓
             </div>
             <div style={{ fontSize:22, fontWeight:800, color:'#071437', marginBottom:8 }}>
@@ -797,14 +797,14 @@ export default function Bookings() {
                 ['Project',           thankYou.project_name],
                 ['Status',            'Pending Director Approval'],
               ].map(([l,v]) => (
-                <div key={l} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid #F9F9F9', fontSize:13 }}>
-                  <span style={{ color:'#78829D', fontWeight:600 }}>{l}</span>
+                <div key={l} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid #FCFCFC', fontSize:13 }}>
+                  <span style={{ color:'#4B5675', fontWeight:600 }}>{l}</span>
                   <span style={{ color:'#071437', fontWeight:700, fontFamily:l==='Booking Reference'?'monospace':'inherit' }}>{v}</span>
                 </div>
               ))}
             </div>
 
-            <div style={{ background:'#F1F1F4', border:'1px solid #DBDFE9', borderRadius:10, padding:'10px 14px', marginBottom:24, fontSize:12.5, color:'#1B84FF', lineHeight:1.6 }}>
+            <div style={{ background:'#EAF0F8', border:'1px solid #C5D5E8', borderRadius:10, padding:'10px 14px', marginBottom:24, fontSize:12.5, color:'#1B84FF', lineHeight:1.6 }}>
               The Director will review this booking and approve or reject it. Once approved, your payment schedule will be activated automatically.
             </div>
 

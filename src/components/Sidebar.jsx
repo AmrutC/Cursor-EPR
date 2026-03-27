@@ -1,208 +1,280 @@
-import React, { useMemo, useState } from 'react';
-import { useAppStore, getNavItems } from '../stores/appStore';
+import React, { useState } from 'react';
+import { useAppStore, getNavModules } from '../stores/appStore';
 import {
-  ChevronDown, ChevronRight, LogOut, Settings, LayoutDashboard, Users, Building2,
-  BookOpen, CreditCard, FileText, BarChart3, Receipt, UserCheck, Handshake,
-  Truck, PieChart, ClipboardList, MessageSquare, Search, X, PanelLeftOpen, PanelLeftClose,
+  LayoutDashboard, ShoppingBag, DollarSign, HardHat, Users, Settings,
+  ChevronDown, ChevronRight, LogOut, Search, X,
+  UserCheck, TrendingUp, BookOpen, Layers, FileText, BarChart3, Receipt,
+  Truck, ClipboardList, Package, Wrench, Camera, Building2,
+  Landmark, Scale, PieChart, Activity, CreditCard, BadgeCheck,
+  CalendarCheck, Award, AlertCircle, Bell, Shield,
 } from 'lucide-react';
 
-const ICONS = {
-  dashboard: LayoutDashboard, crm: Users, inventory: Building2, bookings: BookOpen,
-  payments: CreditCard, documents: FileText, accounts: BarChart3, gst: Receipt,
-  hr: UserCheck, brokerage: Handshake, vendors: Truck, mis: PieChart,
-  audit: ClipboardList, communication: MessageSquare, admin: Settings,
-};
-
-const LABELS = {
-  dashboard: 'Dashboard', crm: 'CRM & Leads', inventory: 'Projects & Inventory',
-  bookings: 'Bookings', payments: 'Collections', documents: 'Documents',
-  accounts: 'Accounts & Ledger', gst: 'GST & Tax', hr: 'HR & Payroll',
-  brokerage: 'Brokerage', vendors: 'Vendors & PO', mis: 'MIS Reports',
-  audit: 'Audit Log', communication: 'Communication', admin: 'Admin Setup',
-};
-
-const DEPT_GROUPS = [
-  { label: 'Overview', color: '#f6c000', items: ['dashboard'] },
-  { label: 'Sales', color: '#1B84FF', items: ['crm', 'inventory', 'bookings'] },
-  { label: 'Finance', color: '#17C653', items: ['payments', 'accounts', 'gst'] },
-  { label: 'Construction', color: '#7239ea', items: ['vendors', 'documents'] },
-  { label: 'HR', color: '#0f9e8a', items: ['hr', 'brokerage'] },
-  { label: 'Management', color: '#f8285a', items: ['mis', 'audit', 'communication', 'admin'] },
+const MODULES = [
+  {
+    id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: '#F6C000',
+    subTabs: [],
+  },
+  {
+    id: 'sales', label: 'Sales', icon: ShoppingBag, color: '#1B84FF',
+    subTabs: [
+      { id: 'crm', label: 'CRM & Leads', icon: UserCheck },
+      { id: 'inventory', label: 'Inventory', icon: Building2 },
+      { id: 'bookings', label: 'Bookings', icon: BookOpen },
+      { id: 'collections', label: 'Collections', icon: TrendingUp },
+      { id: 'brokers', label: 'Brokers', icon: BadgeCheck },
+      { id: 'documents', label: 'Documents', icon: FileText },
+    ],
+  },
+  {
+    id: 'finance', label: 'Finance & Accounts', icon: DollarSign, color: '#17C653',
+    subTabs: [
+      { id: 'coa', label: 'Chart of Accounts', icon: Layers },
+      { id: 'ledger', label: 'Ledger & Journal', icon: BookOpen },
+      { id: 'bank', label: 'Bank & Recon', icon: Landmark },
+      { id: 'trialbalance', label: 'Trial Balance', icon: Scale },
+      { id: 'pandl', label: 'P&L Statement', icon: BarChart3 },
+      { id: 'balancesheet', label: 'Balance Sheet', icon: PieChart },
+      { id: 'cashflow', label: 'Cash Flow', icon: Activity },
+      { id: 'gst', label: 'GST Suite', icon: Receipt },
+      { id: 'tds', label: 'TDS Register', icon: CreditCard },
+      { id: 'expenses', label: 'Expense Claims', icon: ClipboardList },
+      { id: 'vendoradvance', label: 'Vendor Advances', icon: Package },
+    ],
+  },
+  {
+    id: 'construction', label: 'Construction', icon: HardHat, color: '#7239EA',
+    subTabs: [
+      { id: 'projects', label: 'Projects', icon: Building2 },
+      { id: 'boq', label: 'BOQ', icon: ClipboardList },
+      { id: 'indent', label: 'Material Indent', icon: Package },
+      { id: 'procurement', label: 'Procurement & PO', icon: Truck },
+      { id: 'grn', label: 'GRN', icon: ClipboardList },
+      { id: 'stock', label: 'Stock Ledger', icon: Layers },
+      { id: 'workorders', label: 'Work Orders', icon: Wrench },
+      { id: 'labour', label: 'Labour Report', icon: Users },
+      { id: 'sitephotos', label: 'Site Photos', icon: Camera },
+    ],
+  },
+  {
+    id: 'hr', label: 'Human Resources', icon: Users, color: '#0E9F8A',
+    subTabs: [
+      { id: 'employees', label: 'Employees', icon: UserCheck },
+      { id: 'attendance', label: 'Attendance', icon: CalendarCheck },
+      { id: 'leave', label: 'Leave', icon: Award },
+      { id: 'payroll', label: 'Payroll', icon: DollarSign },
+      { id: 'salaryslips', label: 'Salary Slips', icon: FileText },
+      { id: 'hrloans', label: 'Loans & Advances', icon: CreditCard },
+    ],
+  },
+  {
+    id: 'admin', label: 'Admin', icon: Settings, color: '#F8285A',
+    subTabs: [
+      { id: 'entities', label: 'Entities & Users', icon: Building2 },
+      { id: 'modulelocks', label: 'Module Locks', icon: Shield },
+      { id: 'mis', label: 'MIS & Reports', icon: BarChart3 },
+      { id: 'auditlog', label: 'Audit Log', icon: ClipboardList },
+      { id: 'backup', label: 'Backup Manager', icon: AlertCircle },
+      { id: 'tallyimport', label: 'Tally Import', icon: Layers },
+      { id: 'notifications', label: 'Notifications', icon: Bell },
+    ],
+  },
 ];
 
-const SUBS = {
-  gst: ['GST Register', 'Monthly Liability', 'Slab Summary', 'ITC Register', 'TDS Register'],
-  hr: ['Employees', 'Attendance', 'Payroll', 'HR Documents'],
-  vendors: ['Vendor Master', 'Bills Register', 'Pending Payments', 'Purchase Orders'],
-  admin: ['Entities', 'Users & Roles', 'Banks', 'Settings'],
-  accounts: ['Ledger Entries', 'GST Payment Entry'],
-};
-
 export default function Sidebar() {
-  const { user, activeEntity, activeModule, setActiveModule, logout } = useAppStore();
-  const [open, setOpen] = useState({});
-  const [search, setSearch] = useState('');
+  const { user, activeEntity, activeModule, activeSubTab, setActiveModule, setActiveSubTab, logout, moduleLocks } = useAppStore();
   const [collapsed, setCollapsed] = useState(false);
-  const navItems = getNavItems(user?.role);
+  const [openModules, setOpenModules] = useState({ [activeModule]: true });
+  const [search, setSearch] = useState('');
 
-  const filteredItems = useMemo(() => {
-    const query = search.toLowerCase().trim();
-    if (!query) return null;
-    return navItems.filter((id) => LABELS[id]?.toLowerCase().includes(query));
-  }, [search, navItems]);
+  const navModules = getNavModules(user?.role) || ['dashboard'];
+  const entityLocks = (moduleLocks || {})[activeEntity?.code] || {};
 
-  function handleClick(id) {
-    if (SUBS[id]) {
-      setActiveModule(id);
-      setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  function handleModuleClick(mod) {
+    if (mod.subTabs.length === 0) {
+      setActiveModule(mod.id, null);
+      setOpenModules({ [mod.id]: true });
     } else {
-      setActiveModule(id);
-      setOpen({});
+      const isOpen = openModules[mod.id];
+      setOpenModules(prev => ({ ...prev, [mod.id]: !isOpen }));
+      if (!isOpen || activeModule !== mod.id) {
+        setActiveModule(mod.id, mod.subTabs[0]?.id);
+      }
     }
     setSearch('');
   }
 
+  function handleSubTabClick(modId, subId) {
+    setActiveModule(modId, subId);
+  }
+
+  const sideW = collapsed ? 52 : 228;
+  const searchLower = search.toLowerCase().trim();
+
   return (
-    <aside className={`vg-sidebar ${collapsed ? 'is-collapsed' : ''}`}>
-      <div className="vg-sidebar-head">
+    <aside style={{
+      width: sideW, minWidth: sideW, maxWidth: sideW,
+      background: '#071437', display: 'flex', flexDirection: 'column',
+      flexShrink: 0, overflow: 'hidden', zIndex: 20,
+      transition: 'width 0.2s, min-width 0.2s',
+    }}>
+      {/* Logo */}
+      <div style={{ padding: collapsed ? '12px 8px' : '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between' }}>
         {!collapsed && (
-          <div className="vg-logo-wrap">
-            <img src="/metronic/assets/media/logos/demo50.svg" alt="Logo" className="vg-logo" />
-            <div>
-              <div className="vg-logo-title">Vision Grroup</div>
-              <div className="vg-logo-sub">ERP v4.0</div>
-            </div>
+          <div>
+            <div style={{ color: '#F6C000', fontWeight: 800, fontSize: 13, lineHeight: 1 }}>Vision Grroup</div>
+            <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '1px', marginTop: 2 }}>ERP v5.0</div>
           </div>
         )}
-        <button
-          type="button"
-          className="btn btn-icon btn-sm btn-light-primary"
-          onClick={() => setCollapsed((v) => !v)}
-        >
-          {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+        <button onClick={() => setCollapsed(c => !c)} style={{
+          background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 6,
+          width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', color: 'rgba(255,255,255,0.5)', flexShrink: 0,
+        }}>
+          {collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
 
+      {/* Entity badge */}
       {!collapsed && (
-        <>
-          <div className="vg-entity-box">
-            <div className="vg-section-label">Active Entity</div>
-            <div className="vg-entity-row">
-              {activeEntity?.code && <span className="badge badge-light-success">{activeEntity.code}</span>}
-              <span className="vg-entity-name">{activeEntity?.name || 'No entity selected'}</span>
-            </div>
-            <button type="button" className="btn btn-sm btn-light-danger w-100 mt-2" onClick={logout}>
-              Logout to switch entity
-            </button>
+        <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 3 }}>Active Entity</div>
+          <div style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 7, padding: '5px 9px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {activeEntity?.code && (
+              <span style={{ background: '#F6C000', color: '#071437', fontSize: 8.5, fontWeight: 800, padding: '2px 5px', borderRadius: 4, flexShrink: 0 }}>
+                {activeEntity.code}
+              </span>
+            )}
+            <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.75)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {activeEntity?.name || 'No entity'}
+            </span>
           </div>
+        </div>
+      )}
 
-          <div className="vg-search-wrap">
-            <Search size={13} className="vg-search-icon" />
+      {/* Search */}
+      {!collapsed && (
+        <div style={{ padding: '6px 10px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={10} style={{ position: 'absolute', left: 7, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
             <input
-              className="form-control form-control-sm form-control-solid"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search modules..."
+              value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search… (Ctrl+K for full search)"
+              style={{ width: '100%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, padding: '5px 24px 5px 24px', fontSize: 10.5, color: 'rgba(255,255,255,0.8)', outline: 'none', boxSizing: 'border-box' }}
             />
             {search && (
-              <button type="button" className="vg-clear-search" onClick={() => setSearch('')}>
-                <X size={11} />
+              <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                <X size={9} />
               </button>
             )}
           </div>
-        </>
+        </div>
       )}
 
-      <nav className="vg-nav">
-        {filteredItems ? (
-          <div className="mb-2">
-            {!collapsed && <div className="vg-section-label">Search Results</div>}
-            {filteredItems.map((id) => (
-              <NavItem
-                key={id}
-                id={id}
-                active={activeModule === id}
-                onClick={handleClick}
-                hasSubs={!!SUBS[id]}
-                isOpen={open[id]}
-                collapsed={collapsed}
-              />
-            ))}
-          </div>
-        ) : (
-          DEPT_GROUPS.map((group) => {
-            const groupItems = group.items.filter((id) => navItems.includes(id));
-            if (!groupItems.length) return null;
-            return (
-              <div key={group.label}>
+      {/* Nav */}
+      <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '6px 4px' : '4px 0', scrollbarWidth: 'none' }}>
+        {MODULES.filter(m => {
+          if (!navModules.includes(m.id)) return false;
+          if (m.id !== 'dashboard' && m.id !== 'admin') {
+            const lockStatus = entityLocks[m.id] || 'active';
+            if (lockStatus === 'locked' && user?.role !== 'super_admin') return false;
+          }
+          if (searchLower) {
+            const matchMod = m.label.toLowerCase().includes(searchLower);
+            const matchSub = m.subTabs.some(s => s.label.toLowerCase().includes(searchLower));
+            return matchMod || matchSub;
+          }
+          return true;
+        }).map(mod => {
+          const Icon = mod.icon;
+          const isActive = activeModule === mod.id;
+          const isOpen = openModules[mod.id] && !collapsed;
+          const lockStatus = entityLocks[mod.id] || 'active';
+
+          return (
+            <div key={mod.id}>
+              <button
+                onClick={() => handleModuleClick(mod)}
+                title={collapsed ? mod.label : undefined}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center',
+                  gap: collapsed ? 0 : 8, padding: collapsed ? '10px' : '8px 13px',
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  fontSize: 12, fontWeight: isActive ? 700 : 500,
+                  color: isActive ? '#fff' : 'rgba(255,255,255,0.68)',
+                  background: isActive ? `rgba(${mod.color === '#F6C000' ? '201,149,30' : mod.color === '#1B84FF' ? '29,78,216' : mod.color === '#17C653' ? '20,83,45' : mod.color === '#7239EA' ? '124,58,237' : mod.color === '#0E9F8A' ? '15,118,110' : '220,38,38'},0.15)` : 'transparent',
+                  borderLeft: collapsed ? 'none' : `3px solid ${isActive ? mod.color : 'transparent'}`,
+                  border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s',
+                  borderRadius: collapsed ? 8 : 0, position: 'relative',
+                }}
+              >
+                <Icon size={14} style={{ opacity: isActive ? 1 : 0.7, flexShrink: 0 }} />
                 {!collapsed && (
-                  <div className="vg-section-label d-flex align-items-center gap-2">
-                    <span className="vg-color-dot" style={{ background: group.color }} />
-                    {group.label}
-                  </div>
+                  <>
+                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>{mod.label}</span>
+                    {lockStatus === 'view_only' && <span style={{ fontSize: 8, color: '#F6C000', marginRight: 2 }}>VIEW</span>}
+                    {mod.subTabs.length > 0 && (isOpen ? <ChevronDown size={10} style={{ opacity: 0.5 }} /> : <ChevronRight size={10} style={{ opacity: 0.3 }} />)}
+                  </>
                 )}
-                {groupItems.map((id) => (
-                  <div key={id}>
-                    <NavItem
-                      id={id}
-                      active={activeModule === id}
-                      onClick={handleClick}
-                      hasSubs={!!SUBS[id]}
-                      isOpen={open[id]}
-                      collapsed={collapsed}
-                    />
-                    {!collapsed && SUBS[id] && open[id] && (
-                      <div className="vg-sub-nav">
-                        {SUBS[id].map((sub) => (
-                          <button key={sub} type="button" className="vg-sub-item" onClick={() => setActiveModule(id)}>
-                            {sub}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            );
-          })
-        )}
+              </button>
+
+              {/* Sub-tabs */}
+              {!collapsed && isOpen && mod.subTabs.length > 0 && (
+                <div style={{ borderLeft: `2px solid ${mod.color}22`, marginLeft: 20, marginBottom: 2 }}>
+                  {mod.subTabs.filter(st => {
+                    if (!searchLower) return true;
+                    return st.label.toLowerCase().includes(searchLower) || mod.label.toLowerCase().includes(searchLower);
+                  }).map(st => {
+                    const SubIcon = st.icon;
+                    const isSubActive = isActive && activeSubTab === st.id;
+                    return (
+                      <button key={st.id} onClick={() => handleSubTabClick(mod.id, st.id)}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', gap: 7,
+                          padding: '6px 12px 6px 10px', fontSize: 11.5,
+                          fontWeight: isSubActive ? 700 : 400,
+                          color: isSubActive ? mod.color : 'rgba(255,255,255,0.55)',
+                          background: isSubActive ? `rgba(255,255,255,0.06)` : 'transparent',
+                          borderLeft: `2px solid ${isSubActive ? mod.color : 'transparent'}`,
+                          border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s',
+                        }}
+                        onMouseEnter={e => { if (!isSubActive) { e.currentTarget.style.color = 'rgba(255,255,255,0.88)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; } }}
+                        onMouseLeave={e => { if (!isSubActive) { e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; e.currentTarget.style.background = 'transparent'; } }}
+                      >
+                        <SubIcon size={11} style={{ opacity: 0.8, flexShrink: 0 }} />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{st.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
-      <div className="vg-sidebar-foot">
+      {/* Footer */}
+      <div style={{ padding: collapsed ? '8px 4px' : '8px 12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         {!collapsed && (
-          <div className="vg-user-mini">
-            <div className="vg-user-avatar">{user?.full_name?.charAt(0) || 'U'}</div>
-            <div>
-              <div className="fw-bold text-gray-100 fs-8">{user?.full_name}</div>
-              <div className="text-gray-500 fs-9 text-capitalize">{user?.role?.replace(/_/g, ' ')}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7, padding: '0 2px' }}>
+            <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(201,149,30,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#F6C000', flexShrink: 0 }}>
+              {user?.full_name?.charAt(0) || 'U'}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.82)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'capitalize' }}>{user?.role?.replace(/_/g, ' ')}</div>
             </div>
           </div>
         )}
-        <button type="button" className="btn btn-sm btn-light-danger w-100" onClick={logout}>
-          <LogOut size={12} />
-          {!collapsed && <span className="ms-1">Sign out</span>}
+        <button onClick={logout} style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
+          gap: 6, padding: '6px 8px', fontSize: 11, color: 'rgba(255,255,255,0.35)',
+          background: 'transparent', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, cursor: 'pointer',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'transparent'; }}>
+          <LogOut size={11} /> {!collapsed && 'Sign out'}
         </button>
       </div>
     </aside>
-  );
-}
-
-function NavItem({ id, active, onClick, hasSubs, isOpen, collapsed }) {
-  const Icon = ICONS[id] || LayoutDashboard;
-  return (
-    <button
-      type="button"
-      onClick={() => onClick(id)}
-      title={collapsed ? LABELS[id] : undefined}
-      className={`vg-nav-item ${active ? 'is-active' : ''}`}
-    >
-      <Icon size={14} />
-      {!collapsed && (
-        <>
-          <span className="vg-nav-label">{LABELS[id] || id}</span>
-          {hasSubs && (isOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />)}
-        </>
-      )}
-    </button>
   );
 }

@@ -1,72 +1,40 @@
+// ── SETUP.JSX ──────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { FolderOpen, CheckCircle2 } from 'lucide-react';
+import { FolderOpen } from 'lucide-react';
 
 export default function Setup() {
   const { setOneDrivePath, loadGlobal } = useAppStore();
-  const [status, setStatus] = useState('idle');
+  const [loading, setLoading] = useState(false);
 
-  async function selectFolder() {
-    setStatus('selecting');
-    const result = await window.vgERP.setSyncFolder();
-    if (result.ok) {
-      setOneDrivePath(result.path);
-      // Load any existing entities/users from vg_global.json in this folder
+  async function chooseFolder() {
+    if (!window.vgERP) return;
+    setLoading(true);
+    const path = await window.vgERP.setSyncFolder();
+    if (path) {
+      setOneDrivePath(path);
       await loadGlobal();
-      setStatus('done');
-    } else {
-      setStatus('idle');
     }
+    setLoading(false);
   }
 
   return (
-    <div className="vg-auth-shell">
-      <div className="vg-auth-left">
-        <div className="vg-logo-wrap mb-4">
-          <img src="/metronic/assets/media/logos/demo50.svg" alt="Logo" className="vg-logo" />
-          <div>
-            <div className="vg-logo-title">Vision Grroup</div>
-            <div className="vg-logo-sub">ERP setup wizard</div>
-          </div>
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#071437' }}>
+      <div style={{ background: '#fff', borderRadius: 20, padding: '48px 48px', width: 480, textAlign: 'center', boxShadow: '0 30px 80px rgba(0,0,0,0.3)' }}>
+        <div style={{ width: 64, height: 64, borderRadius: 16, background: '#071437', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+          <FolderOpen size={28} style={{ color: '#F6C000' }} />
         </div>
-        <h2 className="vg-auth-heading">Configure your shared workspace once.</h2>
-        <p className="vg-auth-sub">
-          The selected folder will hold database files, documents, backups, and exports.
-        </p>
-      </div>
-
-      <div className="vg-auth-right">
-        <div className="card shadow-sm border-0 w-100" style={{ maxWidth: 520 }}>
-          <div className="card-body p-8">
-            <div className="text-center mb-6">
-              <span className="badge badge-light-primary mb-3">First-time setup</span>
-              <h1 className="fs-2 fw-bolder text-gray-900 mb-2">Select OneDrive ERP folder</h1>
-              <div className="text-gray-500 fs-7">
-                Suggested path: <span className="fw-semibold">OneDrive/Vision Grroup ERP</span>
-              </div>
-            </div>
-
-            <div className="alert alert-info py-3 px-4 mb-5">
-              All team members should point the app to the same shared OneDrive folder.
-            </div>
-
-            {status === 'done' ? (
-              <div className="alert alert-success d-flex align-items-center gap-2 py-3 px-4 mb-0">
-                <CheckCircle2 size={18} />
-                <span>Folder configured. Redirecting to login...</span>
-              </div>
-            ) : (
-              <button
-                onClick={selectFolder}
-                disabled={status === 'selecting'}
-                className="btn btn-primary w-100 d-flex justify-content-center align-items-center gap-2"
-              >
-                <FolderOpen size={16} />
-                {status === 'selecting' ? 'Selecting...' : 'Choose OneDrive Folder'}
-              </button>
-            )}
-          </div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: '#071437', marginBottom: 8 }}>Set Sync Folder</div>
+        <div style={{ fontSize: 13, color: '#78829D', lineHeight: 1.6, marginBottom: 32 }}>
+          Choose a folder where ERP data will be stored. Use a <strong>OneDrive</strong> or shared folder for automatic sync across devices.
         </div>
+        <button onClick={chooseFolder} disabled={loading} style={{
+          background: '#071437', color: '#F6C000', border: 'none', borderRadius: 12, padding: '14px 32px',
+          fontSize: 14, fontWeight: 800, cursor: loading ? 'default' : 'pointer', width: '100%',
+        }}>
+          {loading ? 'Selecting…' : 'Choose Sync Folder'}
+        </button>
+        <div style={{ marginTop: 16, fontSize: 11, color: '#DBDFE9' }}>You can change this later from Admin → Backup Manager</div>
       </div>
     </div>
   );
