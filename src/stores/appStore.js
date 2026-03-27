@@ -198,7 +198,7 @@ export const useAppStore = create((set, get) => ({
   // ── TOASTS ───────────────────────────────────────────────────────────
   toasts: [],
   addToast: (msg, type = 'success', durationMs) => {
-    const id = Date.now();
+    const id = Date.now() + Math.random();
     const durationByType = {
       success: 2500,
       error: 5000,
@@ -206,9 +206,10 @@ export const useAppStore = create((set, get) => ({
       info: 3200,
     };
     const ttl = durationMs ?? durationByType[type] ?? 3200;
-    set(s => ({ toasts: [...s.toasts, { id, msg, type, duration: ttl }] }));
+    set(s => ({ toasts: [...s.toasts, { id, msg, type, duration: ttl, createdAt: Date.now() }] }));
     setTimeout(() => set(s => ({ toasts: s.toasts.filter(t => t.id !== id) })), ttl);
   },
+  removeToast: (id) => set(s => ({ toasts: s.toasts.filter(t => t.id !== id) })),
 
   // ── AUDIT LOG ─────────────────────────────────────────────────────────
   auditLog: [],

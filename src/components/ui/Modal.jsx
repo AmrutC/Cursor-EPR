@@ -13,20 +13,50 @@ export default function Modal({ open, onClose, title, children, width = 'max-w-x
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose}/>
-      <div className={clx('relative bg-white rounded-2xl shadow-2xl w-full flex flex-col max-h-[90vh]', width)}>
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(4px)' }}
+        onClick={onClose}
+      />
+      <div
+        className={clx('relative bg-white rounded-2xl w-full flex flex-col max-h-[90vh]', width)}
+        style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.18)', animation: 'modalIn 180ms ease' }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-          <h2 className="text-[15px] font-bold text-navy">{title}</h2>
-          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600">
+        <div
+          className="flex items-center justify-between border-b flex-shrink-0 sticky top-0 bg-white z-[1]"
+          style={{ padding: '18px 22px', borderColor: '#F1F1F4' }}
+        >
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: '#071437' }}>{title}</h2>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-md"
+            style={{ color: '#99A1B7' }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#FFE2E5';
+              e.currentTarget.style.color = '#F8285A';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = '#99A1B7';
+            }}
+          >
             <X size={15}/>
           </button>
         </div>
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+        <div className="flex-1 overflow-y-auto" style={{ padding: '20px 22px' }}>{children}</div>
         {/* Footer */}
-        {footer && <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-2 flex-shrink-0">{footer}</div>}
+        {footer && (
+          <div
+            className="border-t flex items-center justify-end gap-2 flex-shrink-0 sticky bottom-0 bg-white"
+            style={{ padding: '14px 22px', borderColor: '#F1F1F4' }}
+          >
+            {footer}
+          </div>
+        )}
       </div>
+      <style>{`@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }`}</style>
     </div>
   );
 }

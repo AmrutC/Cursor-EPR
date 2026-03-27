@@ -139,12 +139,14 @@ export default function GlobalSearch({ onClose }) {
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999,
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 999,
       display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 80,
+      backdropFilter: 'blur(4px)',
     }} onClick={onClose}>
       <div style={{
-        background: '#fff', borderRadius: 14, width: 560, maxWidth: '90vw',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.25)', overflow: 'hidden',
+        background: '#fff', borderRadius: 16, width: 560, maxWidth: '90vw',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.18)', overflow: 'hidden',
+        animation: 'modalIn 180ms ease',
       }} onClick={e => e.stopPropagation()}>
         {/* Input */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderBottom: '1px solid #FCFCFC' }}>
@@ -202,6 +204,7 @@ export default function GlobalSearch({ onClose }) {
           <span>↑↓ Navigate</span><span>Enter Select</span><span>Esc Close</span>
         </div>
       </div>
+      <style>{`@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }`}</style>
     </div>
   );
 }

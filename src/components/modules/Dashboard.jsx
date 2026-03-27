@@ -1,22 +1,8 @@
 import React, { useMemo } from 'react';
 import { useAppStore } from '../../stores/appStore';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, BookOpen, DollarSign, AlertCircle, Clock, CheckCircle, Users, Package, Bell, ArrowRight } from 'lucide-react';
-
-function StatCard({ label, value, sub, color, icon: Icon }) {
-  return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: '16px 18px', border: '1px solid #F1F1F4', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-      <div style={{ width: 42, height: 42, borderRadius: 10, background: color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon size={20} style={{ color }} />
-      </div>
-      <div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: '#071437', lineHeight: 1 }}>{value}</div>
-        <div style={{ fontSize: 11, color: '#4B5675', marginTop: 3 }}>{label}</div>
-        {sub && <div style={{ fontSize: 10, color: color, marginTop: 2, fontWeight: 600 }}>{sub}</div>}
-      </div>
-    </div>
-  );
-}
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, BookOpen, DollarSign, AlertCircle, Clock, Users, Package, Bell } from 'lucide-react';
+import StatCard from '../ui/StatCard';
 
 function PendingCard({ title, items, color, onAction, actionLabel = 'View' }) {
   return (
@@ -105,22 +91,22 @@ export default function DashboardModule() {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-        <StatCard label="Approved Bookings" value={stats.approvedBookings} sub={`₹${(stats.totalBookingValue / 10000000).toFixed(2)} Cr total`} color="#1B84FF" icon={BookOpen} />
-        <StatCard label="Total Collected" value={`₹${(stats.totalCollected / 100000).toFixed(1)}L`} color="#17C653" icon={DollarSign} />
-        <StatCard label="Active Projects" value={projects.filter(p => p.status === 'active' || !p.status).length} color="#7239EA" icon={TrendingUp} />
-        <StatCard label="Employees" value={stats.totalEmployees} color="#0E9F8A" icon={Users} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 16, marginBottom: 24 }}>
+        <StatCard label="Approved Bookings" value={stats.approvedBookings} sub={`↑ ₹${(stats.totalBookingValue / 10000000).toFixed(2)} Cr total`} color="blue" icon={BookOpen} />
+        <StatCard label="Total Collected" value={`₹${(stats.totalCollected / 100000).toFixed(1)}L`} sub="↑ this month" color="green" icon={DollarSign} />
+        <StatCard label="Active Projects" value={projects.filter(p => p.status === 'active' || !p.status).length} sub="neutral" color="purple" icon={TrendingUp} />
+        <StatCard label="Employees" value={stats.totalEmployees} sub="active headcount" color="teal" icon={Users} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
-        <StatCard label="Pending Approvals" value={stats.pendingApprovals} sub="Bookings awaiting director" color="#F6C000" icon={Clock} />
-        <StatCard label="Pending POs" value={stats.pendingPOs} sub="POs awaiting approval" color="#F8285A" icon={Package} />
-        <StatCard label="Overdue Follow-ups" value={stats.overdueLeads} sub="CRM leads past follow-up date" color="#7239EA" icon={AlertCircle} />
-        <StatCard label="Unread Notifications" value={(notifications || []).filter(n => !n.read).length} color="#0E9F8A" icon={Bell} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 16, marginBottom: 24 }}>
+        <StatCard label="Pending Approvals" value={stats.pendingApprovals} sub="↓ needs action" color="amber" icon={Clock} />
+        <StatCard label="Pending POs" value={stats.pendingPOs} sub="↓ awaiting approval" color="red" icon={Package} />
+        <StatCard label="Overdue Follow-ups" value={stats.overdueLeads} sub="↓ overdue CRM tasks" color="purple" icon={AlertCircle} />
+        <StatCard label="Unread Notifications" value={(notifications || []).filter(n => !n.read).length} sub="info updates" color="teal" icon={Bell} />
       </div>
 
       {/* Charts Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+      <div className="kpi-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
         <div style={{ background: '#fff', borderRadius: 12, padding: 18, border: '1px solid #F1F1F4' }}>
           <div style={{ fontWeight: 700, fontSize: 13, color: '#071437', marginBottom: 14 }}>Monthly Collections</div>
           <ResponsiveContainer width="100%" height={180}>
@@ -156,7 +142,7 @@ export default function DashboardModule() {
       </div>
 
       {/* Pending Approvals */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, marginBottom: 20 }}>
+      <div className="kpi-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 14, marginBottom: 20 }}>
         <PendingCard title="Pending Booking Approvals" items={pendingBookings} color="#F6C000" />
         <PendingCard title="PO Approvals Needed" items={pendingPOItems} color="#1B84FF" />
         <PendingCard title="CRM Follow-ups Overdue" items={overdueFollowUps} color="#F8285A" />

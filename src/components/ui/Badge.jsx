@@ -61,12 +61,30 @@ const STYLES = {
   // Approvals
   'Applied':            { bg: '#FFF8DD', text: '#7A4E00', border: '#F6C000' },
   'Expired':            { bg: '#FFE2E5', text: '#7F1D1D', border: '#FFB8C6' },
+  // Generic / standard statuses
+  approved: { bg: '#E8FFF3', text: '#17C653', border: '#50CD89' },
+  active: { bg: '#E8FFF3', text: '#17C653', border: '#50CD89' },
+  paid: { bg: '#E8FFF3', text: '#17C653', border: '#50CD89' },
+  pending: { bg: '#FFF8DD', text: '#B45309', border: '#F6C000' },
+  draft: { bg: '#FFF8DD', text: '#B45309', border: '#F6C000' },
+  cancelled: { bg: '#FFE2E5', text: '#F8285A', border: '#FFB8C6' },
+  rejected: { bg: '#FFE2E5', text: '#F8285A', border: '#FFB8C6' },
+  overdue: { bg: '#FFE2E5', text: '#F8285A', border: '#FFB8C6' },
+  'view only': { bg: '#EEF6FF', text: '#1B84FF', border: '#B5D8FF' },
+  partial: { bg: '#EEF6FF', text: '#1B84FF', border: '#B5D8FF' },
+  locked: { bg: '#F9FAFB', text: '#99A1B7', border: '#F1F1F4' },
+  inactive: { bg: '#F9FAFB', text: '#99A1B7', border: '#F1F1F4' },
+  processing: { bg: '#F5F0FF', text: '#7239EA', border: '#D4B9FF' },
+  info: { bg: '#F5F0FF', text: '#7239EA', border: '#D4B9FF' },
 };
 
-const FALLBACK = { bg: '#FCFCFC', text: '#252F4A', border: '#DBDFE9' };
+const FALLBACK = { bg: '#F5F0FF', text: '#7239EA', border: '#F1F1F4' };
 
 export default function Badge({ value, size = 'sm' }) {
-  const s = STYLES[value] || FALLBACK;
+  const key = String(value || '').trim();
+  const s = STYLES[key] || STYLES[key.toLowerCase()] || FALLBACK;
+  const mutedValues = new Set(['inactive', 'blocked', 'on hold', 'no', 'locked', 'view only']);
+  const muted = mutedValues.has(key.toLowerCase());
   return (
     <span
       style={{
@@ -74,13 +92,14 @@ export default function Badge({ value, size = 'sm' }) {
         alignItems: 'center',
         background: s.bg,
         color: s.text,
-        border: `1px solid ${s.border}`,
+        border: muted ? `1px solid ${s.border}` : '1px solid transparent',
         borderRadius: 20,
-        fontWeight: 700,
+        fontWeight: 600,
         whiteSpace: 'nowrap',
         fontSize: size === 'sm' ? 11 : 12,
-        padding: size === 'sm' ? '2px 8px' : '3px 10px',
+        padding: size === 'sm' ? '4px 10px' : '5px 12px',
         lineHeight: 1.4,
+        letterSpacing: '0.2px',
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >

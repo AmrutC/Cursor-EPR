@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
@@ -37,6 +37,8 @@ const MODULE_COLORS = {
 
 export default function Shell() {
   const { activeModule, activeSubTab, user, toasts, searchOpen, setSearchOpen, getNavModules, moduleLocks, activeEntity } = useAppStore();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Ctrl+K global search
   useEffect(() => {
@@ -61,13 +63,44 @@ export default function Shell() {
   const isLocked = lockStatus === 'locked' && user?.role !== 'super_admin';
   const isViewOnly = lockStatus === 'view_only' && user?.role !== 'super_admin';
 
+  useEffect(() => {
+    function onResize() {
+      if (window.innerWidth < 768) {
+        setMobileSidebarOpen(false);
+      }
+      if (window.innerWidth < 1280) {
+        setSidebarCollapsed(true);
+      }
+    }
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
     <div style={{ height:'100vh', display:'flex', overflow:'hidden', background:'#F5F8FA' }}>
-      <Sidebar />
+      {/* Desktop sidebar */}
+      <div className="shell-desktop-sidebar">
+        <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      </div>
+      {/* Mobile overlay sidebar */}
+      {mobileSidebarOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 40, display: 'flex' }}>
+          <div style={{ width: 280, maxWidth: '80vw' }}>
+            <Sidebar
+              collapsed={false}
+              setCollapsed={setSidebarCollapsed}
+              isMobile
+              onCloseMobile={() => setMobileSidebarOpen(false)}
+            />
+          </div>
+          <div style={{ flex: 1, background: 'rgba(0,0,0,0.25)' }} onClick={() => setMobileSidebarOpen(false)} />
+        </div>
+      )}
       <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 }}>
-        <Topbar moduleLabel={MODULE_LABELS[activeModule]} moduleColor={color} />
+        <Topbar moduleLabel={MODULE_LABELS[activeModule]} onToggleMobileSidebar={() => setMobileSidebarOpen(true)} />
         <main style={{
-          flex:1, overflowY:'auto', padding:'16px 20px',
+          flex:1, overflowY:'auto', padding:'24px 28px',
           scrollbarWidth:'thin', scrollbarColor:'#DBDFE9 transparent',
         }}>
           {isLocked ? (
@@ -80,10 +113,17 @@ export default function Shell() {
               </div>
             </div>
           ) : (
-            <Screen viewOnly={isViewOnly} />
+            <div key={`${activeModule}:${activeSubTab || ''}`} className="app-page-enter">
+              <Screen viewOnly={isViewOnly} />
+            </div>
           )}
         </main>
       </div>
+      <style>{`
+        @media (max-width: 768px){.shell-desktop-sidebar{display:none !important;}}
+        @media (max-width: 1100px){.kpi-grid-4{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
+        @media (max-width: 900px){.form-grid-two{grid-template-columns:1fr !important;}.kpi-grid-2{grid-template-columns:1fr !important;}}
+      `}</style>
       {searchOpen && <GlobalSearch onClose={() => setSearchOpen(false)} />}
       <Toast toasts={toasts} />
     </div>

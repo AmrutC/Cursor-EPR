@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAppStore, getNavModules } from '../stores/appStore';
 import {
   LayoutDashboard, ShoppingBag, DollarSign, HardHat, Users, Settings,
-  ChevronDown, ChevronRight, LogOut, Search, X,
+  ChevronDown, ChevronRight, LogOut,
   UserCheck, TrendingUp, BookOpen, Layers, FileText, BarChart3, Receipt,
   Truck, ClipboardList, Package, Wrench, Camera, Building2,
   Landmark, Scale, PieChart, Activity, CreditCard, BadgeCheck,
@@ -80,14 +80,50 @@ const MODULES = [
   },
 ];
 
-export default function Sidebar() {
-  const { user, activeEntity, activeModule, activeSubTab, setActiveModule, setActiveSubTab, logout, moduleLocks } = useAppStore();
-  const [collapsed, setCollapsed] = useState(false);
+const SECTION_LABELS = {
+  modules: 'Modules',
+  management: 'Management',
+};
+
+export default function Sidebar({
+  collapsed,
+  setCollapsed,
+  isMobile = false,
+  onCloseMobile,
+}) {
+  const {
+    user,
+    entities,
+    activeEntity,
+    activeModule,
+    activeSubTab,
+    setActiveEntity,
+    setActiveModule,
+    logout,
+    moduleLocks,
+  } = useAppStore();
   const [openModules, setOpenModules] = useState({ [activeModule]: true });
-  const [search, setSearch] = useState('');
+  const [hoveredModule, setHoveredModule] = useState(null);
+  const [entityOpen, setEntityOpen] = useState(false);
 
   const navModules = getNavModules(user?.role) || ['dashboard'];
   const entityLocks = (moduleLocks || {})[activeEntity?.code] || {};
+  const sideW = collapsed ? 72 : 265;
+
+  const visibleModules = useMemo(
+    () =>
+      MODULES
+        .filter(m => navModules.includes(m.id))
+        .filter(m => {
+          if (m.id !== 'dashboard' && m.id !== 'admin') {
+            const lockStatus = entityLocks[m.id] || 'active';
+            if (lockStatus === 'locked' && user?.role !== 'super_admin') return false;
+          }
+          return true;
+        })
+        .map(m => ({ ...m, section: m.id === 'admin' ? 'management' : 'modules' })),
+    [navModules, entityLocks, user?.role],
+  );
 
   function handleModuleClick(mod) {
     if (mod.subTabs.length === 0) {
@@ -100,181 +136,303 @@ export default function Sidebar() {
         setActiveModule(mod.id, mod.subTabs[0]?.id);
       }
     }
-    setSearch('');
+    if (isMobile) onCloseMobile?.();
   }
 
   function handleSubTabClick(modId, subId) {
     setActiveModule(modId, subId);
+    if (isMobile) onCloseMobile?.();
   }
-
-  const sideW = collapsed ? 52 : 228;
-  const searchLower = search.toLowerCase().trim();
 
   return (
     <aside style={{
       width: sideW, minWidth: sideW, maxWidth: sideW,
-      background: '#071437', display: 'flex', flexDirection: 'column',
+      background: '#FFFFFF', display: 'flex', flexDirection: 'column',
       flexShrink: 0, overflow: 'hidden', zIndex: 20,
-      transition: 'width 0.2s, min-width 0.2s',
+      borderRight: '1px solid #F1F1F4',
+      boxShadow: '2px 0 8px rgba(0,0,0,0.04)',
+      transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1), min-width 0.25s cubic-bezier(0.4,0,0.2,1)',
     }}>
       {/* Logo */}
-      <div style={{ padding: collapsed ? '12px 8px' : '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between' }}>
-        {!collapsed && (
-          <div>
-            <div style={{ color: '#F6C000', fontWeight: 800, fontSize: 13, lineHeight: 1 }}>Vision Grroup</div>
-            <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '1px', marginTop: 2 }}>ERP v5.0</div>
+      <div style={{ height: 64, padding: collapsed ? '10px 12px' : '10px 14px', borderBottom: '1px solid #F1F1F4', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg, #071437, #1B84FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ color: '#F6C000', fontWeight: 800, fontSize: 13 }}>VG</span>
           </div>
+          {!collapsed && (
+            <div style={{ minWidth: 0 }}>
+              <div style={{ color: '#071437', fontWeight: 800, fontSize: 14, lineHeight: 1.1, whiteSpace: 'nowrap' }}>Vision Group</div>
+              <div style={{ color: '#99A1B7', fontSize: 9, textTransform: 'uppercase', letterSpacing: '1px', marginTop: 2 }}>ERP v5.0</div>
+            </div>
+          )}
+        </div>
+        {!isMobile && (
+          <button onClick={() => setCollapsed(c => !c)} style={{
+            background: '#fff', border: '1px solid #F1F1F4', borderRadius: '50%',
+            width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: '#99A1B7', flexShrink: 0,
+          }}>
+            <ChevronRight size={12} style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s' }} />
+          </button>
         )}
-        <button onClick={() => setCollapsed(c => !c)} style={{
-          background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 6,
-          width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', color: 'rgba(255,255,255,0.5)', flexShrink: 0,
-        }}>
-          {collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-        </button>
       </div>
 
-      {/* Entity badge */}
+      {/* Entity switcher */}
       {!collapsed && (
-        <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 3 }}>Active Entity</div>
-          <div style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 7, padding: '5px 9px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            {activeEntity?.code && (
-              <span style={{ background: '#F6C000', color: '#071437', fontSize: 8.5, fontWeight: 800, padding: '2px 5px', borderRadius: 4, flexShrink: 0 }}>
-                {activeEntity.code}
+        <div style={{ padding: '10px 12px' }}>
+          <button
+            onClick={() => setEntityOpen(o => !o)}
+            style={{
+              width: '100%',
+              background: '#F9FAFB',
+              border: `1px solid ${entityOpen ? '#1B84FF' : '#F1F1F4'}`,
+              borderRadius: 10,
+              padding: '10px 12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              {activeEntity?.code ? (
+                <span style={{ background: '#071437', color: '#F6C000', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, flexShrink: 0 }}>
+                  {activeEntity.code}
+                </span>
+              ) : null}
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#071437', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {activeEntity?.name || 'Select entity'}
               </span>
-            )}
-            <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.75)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {activeEntity?.name || 'No entity'}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Search */}
-      {!collapsed && (
-        <div style={{ padding: '6px 10px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ position: 'relative' }}>
-            <Search size={10} style={{ position: 'absolute', left: 7, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
-            <input
-              value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search… (Ctrl+K for full search)"
-              style={{ width: '100%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, padding: '5px 24px 5px 24px', fontSize: 10.5, color: 'rgba(255,255,255,0.8)', outline: 'none', boxSizing: 'border-box' }}
-            />
-            {search && (
-              <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
-                <X size={9} />
-              </button>
-            )}
-          </div>
+            </div>
+            <ChevronDown size={14} style={{ color: '#99A1B7', transform: entityOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+          </button>
+          {entityOpen && (
+            <div style={{ marginTop: 6, background: '#fff', border: '1px solid #F1F1F4', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.10)', overflow: 'hidden' }}>
+              {entities.map(e => (
+                <button
+                  key={e.id}
+                  onClick={() => {
+                    setActiveEntity(e);
+                    setEntityOpen(false);
+                  }}
+                  style={{
+                    width: '100%',
+                    border: 'none',
+                    background: String(e.id) === String(activeEntity?.id) ? '#EEF6FF' : '#fff',
+                    padding: '8px 10px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ background: '#071437', color: '#F6C000', fontSize: 8.5, fontWeight: 800, padding: '1px 5px', borderRadius: 4, flexShrink: 0 }}>{e.code}</span>
+                  <span style={{ fontSize: 11.5, color: '#252F4A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* Nav */}
-      <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '6px 4px' : '4px 0', scrollbarWidth: 'none' }}>
-        {MODULES.filter(m => {
-          if (!navModules.includes(m.id)) return false;
-          if (m.id !== 'dashboard' && m.id !== 'admin') {
-            const lockStatus = entityLocks[m.id] || 'active';
-            if (lockStatus === 'locked' && user?.role !== 'super_admin') return false;
-          }
-          if (searchLower) {
-            const matchMod = m.label.toLowerCase().includes(searchLower);
-            const matchSub = m.subTabs.some(s => s.label.toLowerCase().includes(searchLower));
-            return matchMod || matchSub;
-          }
-          return true;
-        }).map(mod => {
-          const Icon = mod.icon;
-          const isActive = activeModule === mod.id;
-          const isOpen = openModules[mod.id] && !collapsed;
-          const lockStatus = entityLocks[mod.id] || 'active';
-
+      <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '10px 6px' : '6px 0' }}>
+        {Object.keys(SECTION_LABELS).map(section => {
+          const items = visibleModules.filter(m => m.section === section);
+          if (!items.length) return null;
           return (
-            <div key={mod.id}>
-              <button
-                onClick={() => handleModuleClick(mod)}
-                title={collapsed ? mod.label : undefined}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center',
-                  gap: collapsed ? 0 : 8, padding: collapsed ? '10px' : '8px 13px',
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                  fontSize: 12, fontWeight: isActive ? 700 : 500,
-                  color: isActive ? '#fff' : 'rgba(255,255,255,0.68)',
-                  background: isActive ? `rgba(${mod.color === '#F6C000' ? '201,149,30' : mod.color === '#1B84FF' ? '29,78,216' : mod.color === '#17C653' ? '20,83,45' : mod.color === '#7239EA' ? '124,58,237' : mod.color === '#0E9F8A' ? '15,118,110' : '220,38,38'},0.15)` : 'transparent',
-                  borderLeft: collapsed ? 'none' : `3px solid ${isActive ? mod.color : 'transparent'}`,
-                  border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s',
-                  borderRadius: collapsed ? 8 : 0, position: 'relative',
-                }}
-              >
-                <Icon size={14} style={{ opacity: isActive ? 1 : 0.7, flexShrink: 0 }} />
-                {!collapsed && (
-                  <>
-                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>{mod.label}</span>
-                    {lockStatus === 'view_only' && <span style={{ fontSize: 8, color: '#F6C000', marginRight: 2 }}>VIEW</span>}
-                    {mod.subTabs.length > 0 && (isOpen ? <ChevronDown size={10} style={{ opacity: 0.5 }} /> : <ChevronRight size={10} style={{ opacity: 0.3 }} />)}
-                  </>
-                )}
-              </button>
-
-              {/* Sub-tabs */}
-              {!collapsed && isOpen && mod.subTabs.length > 0 && (
-                <div style={{ borderLeft: `2px solid ${mod.color}22`, marginLeft: 20, marginBottom: 2 }}>
-                  {mod.subTabs.filter(st => {
-                    if (!searchLower) return true;
-                    return st.label.toLowerCase().includes(searchLower) || mod.label.toLowerCase().includes(searchLower);
-                  }).map(st => {
-                    const SubIcon = st.icon;
-                    const isSubActive = isActive && activeSubTab === st.id;
-                    return (
-                      <button key={st.id} onClick={() => handleSubTabClick(mod.id, st.id)}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', gap: 7,
-                          padding: '6px 12px 6px 10px', fontSize: 11.5,
-                          fontWeight: isSubActive ? 700 : 400,
-                          color: isSubActive ? mod.color : 'rgba(255,255,255,0.55)',
-                          background: isSubActive ? `rgba(255,255,255,0.06)` : 'transparent',
-                          borderLeft: `2px solid ${isSubActive ? mod.color : 'transparent'}`,
-                          border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s',
-                        }}
-                        onMouseEnter={e => { if (!isSubActive) { e.currentTarget.style.color = 'rgba(255,255,255,0.88)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; } }}
-                        onMouseLeave={e => { if (!isSubActive) { e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; e.currentTarget.style.background = 'transparent'; } }}
-                      >
-                        <SubIcon size={11} style={{ opacity: 0.8, flexShrink: 0 }} />
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{st.label}</span>
-                      </button>
-                    );
-                  })}
+            <div key={section} style={{ marginBottom: 4 }}>
+              {!collapsed && (
+                <div style={{ fontSize: 9.5, fontWeight: 700, color: '#99A1B7', textTransform: 'uppercase', letterSpacing: '1px', padding: '12px 16px 4px' }}>
+                  {SECTION_LABELS[section]}
                 </div>
               )}
+              {items.map(mod => {
+                const Icon = mod.icon;
+                const isActive = activeModule === mod.id;
+                const isOpen = !!openModules[mod.id] && !collapsed;
+                const lockStatus = entityLocks[mod.id] || 'active';
+                const isHovered = hoveredModule === mod.id;
+                return (
+                  <div key={mod.id} style={{ position: 'relative' }}>
+                    <button
+                      onClick={() => handleModuleClick(mod)}
+                      onMouseEnter={() => setHoveredModule(mod.id)}
+                      onMouseLeave={() => setHoveredModule(null)}
+                      style={{
+                        width: collapsed ? 56 : 'calc(100% - 16px)',
+                        margin: collapsed ? '1px auto' : '1px 8px',
+                        height: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: collapsed ? 'center' : 'flex-start',
+                        gap: collapsed ? 0 : 8,
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: collapsed ? 0 : '0 12px',
+                        cursor: 'pointer',
+                        background: isActive ? '#EEF6FF' : isHovered ? '#F9FAFB' : 'transparent',
+                        color: isActive ? '#1B84FF' : '#4B5675',
+                        fontSize: 13,
+                        fontWeight: isActive ? 700 : 500,
+                        transition: 'all 0.12s',
+                      }}
+                    >
+                      <Icon size={16} style={{ color: isActive ? mod.color : '#4B5675', flexShrink: 0 }} />
+                      {!collapsed && (
+                        <>
+                          <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{mod.label}</span>
+                          {lockStatus === 'view_only' ? (
+                            <span style={{ fontSize: 10, color: '#1B84FF', background: '#EEF6FF', borderRadius: 10, padding: '2px 8px' }}>View</span>
+                          ) : null}
+                          {mod.subTabs.length > 0 ? (
+                            <ChevronRight size={14} style={{ color: '#99A1B7', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                          ) : null}
+                        </>
+                      )}
+                    </button>
+
+                    {/* Tooltip in collapsed mode */}
+                    {collapsed && isHovered && (
+                      <div style={{
+                        position: 'absolute',
+                        left: 64,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: '#071437',
+                        color: '#fff',
+                        fontSize: 11,
+                        borderRadius: 6,
+                        padding: '4px 10px',
+                        whiteSpace: 'nowrap',
+                        zIndex: 30,
+                        pointerEvents: 'none',
+                      }}>
+                        {mod.label}
+                      </div>
+                    )}
+
+                    {!collapsed && mod.subTabs.length > 0 && (
+                      <div
+                        style={{
+                          maxHeight: isOpen ? 500 : 0,
+                          overflow: 'hidden',
+                          transition: 'max-height 0.2s ease',
+                        }}
+                      >
+                        <div style={{ marginLeft: 28, borderLeft: '2px solid #F1F1F4', paddingLeft: 8, marginBottom: 2 }}>
+                          {mod.subTabs.map(st => {
+                            const SubIcon = st.icon;
+                            const isSubActive = isActive && activeSubTab === st.id;
+                            return (
+                              <button
+                                key={st.id}
+                                onClick={() => handleSubTabClick(mod.id, st.id)}
+                                style={{
+                                  width: '100%',
+                                  border: 'none',
+                                  height: 34,
+                                  background: isSubActive ? '#EEF6FF' : 'transparent',
+                                  color: isSubActive ? '#1B84FF' : '#99A1B7',
+                                  fontSize: 12,
+                                  fontWeight: isSubActive ? 600 : 400,
+                                  borderRadius: 8,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6,
+                                  padding: '0 10px',
+                                  textAlign: 'left',
+                                  marginBottom: 1,
+                                }}
+                              >
+                                <span style={{ width: 2, alignSelf: 'stretch', background: isSubActive ? mod.color : 'transparent', borderRadius: 2 }} />
+                                <SubIcon size={13} />
+                                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{st.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
         })}
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: collapsed ? '8px 4px' : '8px 12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        {!collapsed && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7, padding: '0 2px' }}>
-            <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(201,149,30,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#F6C000', flexShrink: 0 }}>
+      <div style={{ padding: collapsed ? '8px 8px 10px' : '10px 12px', borderTop: '1px solid #F1F1F4' }}>
+        {!collapsed ? (
+          <div style={{ background: '#F9FAFB', border: '1px solid #F1F1F4', borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #1B84FF, #7239EA)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
               {user?.full_name?.charAt(0) || 'U'}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.82)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name}</div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'capitalize' }}>{user?.role?.replace(/_/g, ' ')}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: '#071437', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.full_name}</div>
+              <div style={{ fontSize: 10, color: '#99A1B7', textTransform: 'capitalize' }}>{user?.role?.replace(/_/g, ' ')}</div>
             </div>
+            <button
+              onClick={logout}
+              style={{ width: 24, height: 24, borderRadius: 6, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#99A1B7', cursor: 'pointer' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#FFE2E5';
+                e.currentTarget.style.color = '#F8285A';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#99A1B7';
+              }}
+            >
+              <LogOut size={16} />
+            </button>
           </div>
+        ) : (
+          <button
+            onClick={logout}
+            style={{ width: 56, height: 40, margin: '0 auto', border: '1px solid #F1F1F4', borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#99A1B7', cursor: 'pointer' }}
+            onMouseEnter={e => {
+              e.currentTarget.style.color = '#F8285A';
+              e.currentTarget.style.background = '#FFE2E5';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color = '#99A1B7';
+              e.currentTarget.style.background = '#fff';
+            }}
+          >
+            <LogOut size={16} />
+          </button>
         )}
-        <button onClick={logout} style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
-          gap: 6, padding: '6px 8px', fontSize: 11, color: 'rgba(255,255,255,0.35)',
-          background: 'transparent', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, cursor: 'pointer',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'transparent'; }}>
-          <LogOut size={11} /> {!collapsed && 'Sign out'}
-        </button>
       </div>
+
+      {/* Mobile close helper */}
+      {isMobile && (
+        <button
+          onClick={onCloseMobile}
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            width: 28,
+            height: 28,
+            border: '1px solid #F1F1F4',
+            borderRadius: 8,
+            background: '#fff',
+            color: '#99A1B7',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+          }}
+          aria-label="Close sidebar"
+        >
+          ×
+        </button>
+      )}
     </aside>
   );
 }
